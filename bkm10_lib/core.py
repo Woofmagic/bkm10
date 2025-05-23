@@ -20,34 +20,56 @@ class DifferentialCrossSection:
         # (X): Determine debugging mode (DO NOT TURN ON!):
         self.debugging = debugging
 
-        # (X): Hidden data that tells us if the functions executed correctly:
-        self._evaluated = False
-
         # (X): A dictionary of *every coefficient* that we computed:
         self.coefficients = {}
 
-        if verbose:
-            print(f"> Verbose mode on.")
+        # (X): Hidden data that says if configuration passed:
+        self._passed_configuration = False
 
+        # (X): Hidden data that tells us if the functions executed correctly:
+        self._evaluated = False
+
+        if verbose:
+            print(f"> [VERBOSE]: Verbose mode on.")
         if debugging:
-            print(f"> Debugging mode is on — DO NOT USE THIS!")
+            print(f"> [DEBUGGING]: Debugging mode is on — DO NOT USE THIS!")
 
         if configuration:
             if verbose:
-                print(f"> Configuration dictionary received!")
-
+                print(f"> [VERBOSE]: Configuration dictionary received!")
             if debugging:
-                print(f"> Configuration dictionary received:\n{configuration}")
-            
-            # (X): Initialize the class from the dictionary:
-            self._initialize_from_config(configuration)
+                print(f"> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
 
-    def _initialize_from_config(self, configuration_dict: dict):
+            try:
+                if debugging:
+                    print(f"> [DEBUGGING]: Trying to initialize configuration...")
+            
+                # (X): Initialize the class from the dictionary:
+                self._initialize_from_config(configuration)
+
+                if debugging:
+                    print(f"> [DEBUGGING]: Configuration passed!")
+
+            except:
+                raise Exception("> Unable to initialize configuration!")
+            
+            self._passed_configuration = True
+
+            if verbose:
+                print(f"> [VERBOSE]: Configuration succeeded!")
+            if debugging:
+                print(f"> [DEBUGGING]: Configuration succeeded! Now set internal attribute: {self._passed_configuration}")
+
+    def _initialize_from_config(self, configuration_dictionary: dict):
         try:
 
             # (X): Pass the dictionary into the validation function:
-            validated = validate_configuration(configuration_dict, self.verbose)
+            validated_configuration_dictionary = validate_configuration(configuration_dictionary, self.verbose)
 
+            self.kinematic_inputs = validated_configuration_dictionary["kinematics"]
+            self.cff_inputs = validated_configuration_dictionary["cff_inputs"]
+            self.target_polarization = validated_configuration_dictionary["target_polarization"]
+            self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
         except Exception as error:
 
             # (X): Too general, yes, but not sure what we put here yet:
@@ -66,22 +88,22 @@ class DifferentialCrossSection:
         """
 
         # (X): If  the user has not filled in the class inputs...
-        if not hasattr(self, 'inputs'):
+        if not hasattr(self, 'kinematic_inputs'):
 
             # (X): ...enforce the class to 
-            raise RuntimeError("> Must initialize with configuration before evaluation.")
+            raise RuntimeError("> Missing 'kinematic_inputs' configuration before evaluation.")
 
         # (X): If the user wants some confirmation that stuff is good...
         if self.verbose:
 
             # (X): ... we simply evaluate the length of the phi array:
-            print(f"> Evaluating cross-section at {len(phi_values)} phi points.")
+            print(f"> [VERBOSE]: Evaluating cross-section at {len(phi_values)} phi points.")
 
         # (X): If the user wants to see everything...
         if self.debugging:
 
             # (X): ... we give it to them:
-            print(f"> Evaluating cross-section with phi values of:\n> {phi_values}")
+            print(f"> [DEBUGGING]: Evaluating cross-section with phi values of:\n> {phi_values}")
 
         # (X): Verify that the array of angles is at least 1D:
         verified_phi_values = np.atleast_1d(phi_values)

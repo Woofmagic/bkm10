@@ -30,10 +30,14 @@ example_1_lepton_polarization = 0.
 
 example_1_config_dictionary = {
     "kinematics": example_1_kinematic_inputs,
+    "cff_inputs": example_1_cff_inputs,
     "target_polarization": example_1_target_polarization,
     "lepton_beam_polarization": example_1_lepton_polarization,
 }
 
 example_1_cross_section = DifferentialCrossSection(
-    configuration = example_1_config_dictionary
-)
+    configuration = example_1_config_dictionary,
+    verbose = True,
+    debugging = True)
+
+example_1_cross_section.compute_cross_section(phi_array)
