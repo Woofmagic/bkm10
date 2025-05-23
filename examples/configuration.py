@@ -1,7 +1,7 @@
 """
 """
 
-from bkm10_lib.model import DifferentialCrossSection
+from bkm10_lib.core import DifferentialCrossSection
 from bkm10_lib.inputs import BKM10Inputs
 
 import numpy as np
