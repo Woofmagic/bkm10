@@ -1,12 +1,47 @@
 import numpy as np
 
 class DifferentialCrossSection:
+    """
+    
+    """
 
-    def __init__(self, inputs: KinematicInputs):
+    def __init__(self, configuration = None, verbose = False, debugging = False):
+        
+        # (X): Obtain a True/False to operate the calculation in:
+        self.configuration_mode = configuration is not None
 
-        self.inputs = inputs
+        # (X): Determine verbose mode:
+        self.verbose = verbose
 
-        self.derived_quantities = BKMFormalism(inputs)
+        # (X): Determine debugging mode (DO NOT TURN ON!):
+        self.debugging = debugging
+
+        if verbose:
+            print(f"> Verbose mode on.")
+
+        if debugging:
+            print(f"> Debugging mode is on — DO NOT USE THIS!")
+
+        if configuration:
+            if verbose:
+                print(f"> Configuration dictionary received!")
+
+            if debugging:
+                print(f"> Configuration dictionary received:\n{configuration}")
+            
+            # (X): Initialize the class from the dictionary:
+            self._initialize_from_config(configuration)
+
+    def _initialize_from_config(self, configuration_dict: dict):
+        try:
+
+            # (X): Pass the dictionary into the validation function:
+            validated = validate_configuration(configuration_dict, self.verbose)
+
+        except Exception as error:
+
+            # (X): Too general, yes, but not sure what we put here yet:
+            raise Exception("> Error occurred during validation...") from error
 
     def compute_cross_section(self, phi_values: np.ndarray) -> np.ndarray:
         """
