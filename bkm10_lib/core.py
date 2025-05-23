@@ -1,5 +1,4 @@
-"""
-"""
+# core.py
 
 from bkm10_lib.validation import validate_configuration
 
