@@ -26,7 +26,7 @@ example_1_cff_inputs = CFFInputs(
     compton_form_factor_e_tilde = complex(2.207, 5.383))
 
 example_1_target_polarization = 0.
-example_1_lepton_polarization = 1.0
+example_1_lepton_polarization = 0.0
 
 example_1_config_dictionary = {
     "kinematics": example_1_kinematic_inputs,
@@ -42,3 +42,5 @@ example_1_cross_section = DifferentialCrossSection(
 
 example_1_cross_section.compute_cross_section(phi_array)
 example_1_cross_section.plot_cross_section(phi_array)
+example_1_cross_section.compute_bsa(phi_array)
+example_1_cross_section.plot_bsa(phi_array)
