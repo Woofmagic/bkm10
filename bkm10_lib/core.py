@@ -4,6 +4,8 @@ from bkm10_lib.validation import validate_configuration
 
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 class DifferentialCrossSection:
     """
     
@@ -70,6 +72,7 @@ class DifferentialCrossSection:
             self.cff_inputs = validated_configuration_dictionary["cff_inputs"]
             self.target_polarization = validated_configuration_dictionary["target_polarization"]
             self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
+            
         except Exception as error:
 
             # (X): Too general, yes, but not sure what we put here yet:
@@ -115,6 +118,9 @@ class DifferentialCrossSection:
         # (X): Compute the dfferential cross-section:
         differential_cross_section = coefficient_c_0 + coefficient_c_1 * np.cos(verified_phi_values)
 
+        # (X): Store cross-section data as class attribute:
+        self.cross_section_values = differential_cross_section
+
         # (X): The class has now evaluated:
         self._evaluated = True
 
@@ -144,3 +150,56 @@ class DifferentialCrossSection:
 
             # (X): Raise an error:
             raise NotImplementedError(f"> Something bad happened...: {exception}")
+        
+    def plot_cross_section(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        ## Description:
+        Plot the four-fold differential cross-section as a function of azimuthal angle φ.
+
+        ## Arguments:
+        phi_values : np.ndarray
+            Array of φ values (in degrees) at which to compute and plot the cross-section.
+        """
+
+        # (X): We need to check if the cross-section has been evaluated yet:
+        if not self._evaluated:
+            if self.verbose:
+                print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
+            if self.debugging:
+                print("> [DEBUGGING]: No precomputed cross-section found. Computing now...")
+
+            self.cross_section_values = self.compute_cross_section(phi_values)
+
+        else:
+            if self.verbose:
+                print("> [VERBOSE]: Found cross-section data... Now constructing plots.")
+
+        cross_section_figur_instance, cross_section_axis_instance = plt.subplots(figsize = (8, 5))
+
+        cross_section_axis_instance.plot(phi_values, self.cross_section_values, label = r"$\frac{d^4\sigma}{dQ^2 dx_B dt d\phi}$", color = 'blue')
+        cross_section_axis_instance.set_xlabel(r"Azimuthal angle $\phi$ (degrees)", fontsize = 14)
+        cross_section_axis_instance.set_ylabel(r"Cross section (nb/GeV$^4$)", fontsize = 14)
+        cross_section_axis_instance.grid(True)
+        cross_section_axis_instance.legend(fontsize = 12)
+
+        try:
+            kinematics = self.kinematic_inputs
+
+            title_str = (
+                rf"$Q^2 = {kinematics.squared_Q_momentum_transfer:.2f}$ GeV$^2$, "
+                rf"$x_B = {kinematics.x_Bjorken:.2f}$, "
+                rf"$t = {kinematics.squared_hadronic_momentum_transfer_t:.2f}$ GeV$^2$, "
+                rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV"
+                )
+            
+            cross_section_axis_instance.set_title(title_str, fontsize = 14)
+
+        except AttributeError:
+
+            if self.verbose:
+                print("> Could not find full kinematics for title.")
+
+            cross_section_axis_instance.set_title("Differential Cross Section vs. $\phi$", fontsize=14)
+
+        plt.tight_layout()
+        plt.show()
