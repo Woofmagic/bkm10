@@ -3,14 +3,22 @@
 """
 
 from bkm10_lib.inputs import BKM10Inputs
+from bkm10_lib.cff_inputs import CFFInputs
 
-from bkm10_lib.constants import _MASS_OF_PROTON_IN_GEV, _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED
+from bkm10_lib.constants import _MASS_OF_PROTON_IN_GEV, _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED, _ELECTRIC_FORM_FACTOR_CONSTANT, _PROTON_MAGNETIC_MOMENT, _ELECTROMAGNETIC_FINE_STRUCTURE_CONSTANT
 
 import numpy as np
 
 class BKMFormalism:
 
-    def __init__(self, inputs: BKM10Inputs, lepton_polarization: float, target_polarization: float, formalism_version: str = "10", verbose: bool = False):
+    def __init__(
+            self, 
+            inputs: BKM10Inputs, 
+            cff_values: CFFInputs,
+            lepton_polarization: float,
+            target_polarization: float,
+            formalism_version: str = "10",
+            verbose: bool = False):
 
         # (X): Collect the inputs:
         self.kinematics = inputs
@@ -23,6 +31,9 @@ class BKMFormalism:
 
         # (X): Obtain the value of the hadron polarization:
         self.target_polarization = target_polarization
+
+        # (X): Obtain the CFF values:
+        self.cff_values = cff_values
 
         # (X): Define a verbose parameter:
         self.verbose = verbose
@@ -48,8 +59,17 @@ class BKMFormalism:
         # (X): Derived Quantity | K:
         self.kinematic_k = self._calculate_k()
 
-        # (X): Derived Quantity | k dot Delta:
-        self.k_dot_delta = self._calculate_k_dot_delta()
+        # (X): Derived Form Factor | Electric Form Factor F_{E}:
+        self.electric_form_factor = self._calculate_electric_form_factor()
+
+        # (X): Derived Form Factor | Magnetic Form Factor F_{G}:
+        self.magnetic_form_factor = self._calculate_magnetic_form_factor()
+
+        # (X): Derived Form Factor | Electric Form Factor F_{2}:
+        self.pauli_form_factor = self._calculate_pauli_form_factor()
+
+        # (X): Derived Form Factor | Electric Form Factor F_{1}:
+        self.dirac_form_factor = self._calculate_dirac_form_factor()
 
     def _calculate_epsilon(self) -> float:
         """
@@ -311,8 +331,198 @@ class BKMFormalism:
         except Exception as ERROR:
             print(f"> Error in calculating derived kinematic K:\n> {ERROR}")
             return 0.
+
+    def _calculate_electric_form_factor(self) -> float:
+        """
+        ## Description:
+        The Electric Form Factor is quite mysterious still...
+        Where the fuck do these numbers come from?
+
+        ## Parameters:
+        squared_hadronic_momentum_transfer_t: (float)
+
+        verbose: (bool)
+            Debugging console output.
+
+        ## Returns:
+        form_factor_electric : (float)
+            result of the operation
         
-    def _calculate_k_dot_delta(self) -> float:
+        ## Notes:
+        None!
+        """
+        
+        try:
+            
+            # (1): Calculate the mysterious denominator:
+            denominator = 1. - (self.kinematics.squared_hadronic_momentum_transfer_t / _ELECTRIC_FORM_FACTOR_CONSTANT)
+
+            # (2): Calculate the F_{E}:
+            form_factor_electric = 1. / (denominator**2)
+
+            if self.verbose:
+                print(f"> Calculated electric form factor as: {form_factor_electric}")
+
+            self.electric_form_factor = form_factor_electric
+
+        except Exception as ERROR:
+            print(f"> Error in calculating electric form factor:\n> {ERROR}")
+            self.electric_form_factor = 0.
+
+    def _calculate_magnetic_form_factor(self) -> float:
+        """
+        Description
+        --------------
+        The Magnetic Form Factor is calculated immediately with
+        the Electric Form Factor. They are only related by the 
+        gyromagnetic ratio.
+
+        Parameters
+        --------------
+        electric_form_factor: (float)
+
+        verbose: (bool)
+            Debugging console output.
+
+        Returns
+        --------------
+        form_factor_magnetic : (float)
+            result of the operation
+        
+        Notes
+        --------------
+        """
+        
+        try:
+
+            # (1): Calculate the F_{M}:
+            form_factor_magnetic = _PROTON_MAGNETIC_MOMENT * self.electric_form_factor
+
+            if self.verbose:
+                print(f"> Calculated magnetic form factor as: {form_factor_magnetic}")
+
+            self.form_factor_magnetic = form_factor_magnetic
+
+        except Exception as ERROR:
+            print(f"> Error in calculating magnetic form factor:\n> {ERROR}")
+            return 0.
+        
+    def _calculate_pauli_form_factor(self) -> float:
+        """
+        Description
+        --------------
+        We calculate the Pauli form factor, which is just a
+        particular linear combination of the electromagnetic
+        form factors.
+
+        Parameters
+        --------------
+        squared_hadronic_momentum_transfer_t: (float)
+
+        electric_form_factor: (float)
+
+        magnetic_form_factor: (float)
+
+        verbose: (bool)
+            Debugging console output.
+
+        Returns
+        --------------
+        pauli_form_factor : (float)
+            result of the operation
+        
+        Notes
+        --------------
+        """
+        
+        try:
+
+            # (1): Calculate tau:
+            tau = -1. * self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
+
+            # (2): Calculate the numerator:
+            numerator = self.magnetic_form_factor - self.electric_form_factor
+
+            # (3): Calculate the denominator:
+            denominator = 1. + tau
+        
+            # (4): Calculate the Pauli form factor:
+            pauli_form_factor = numerator / denominator
+
+            if self.verbose:
+                print(f"> Calculated Fermi form factor as: {pauli_form_factor}")
+
+            self.pauli_form_factor = pauli_form_factor
+
+        except Exception as ERROR:
+            print(f"> Error in calculating Fermi form factor:\n> {ERROR}")
+            return 0.
+
+    def _calculate_dirac_form_factor(self) -> float:
+        """
+        Description
+        --------------
+        We calculate the Dirac form factor, which is
+        even easier to get than the Fermi one.
+
+        Parameters
+        --------------
+        magnetic_form_factor: (float)
+
+        pauli_f2_form_factor: (float)
+
+        verbose: (bool)
+            Debugging console output.
+
+        Returns
+        --------------
+        form_factor_magnetic : (float)
+            result of the operation
+        
+        Notes
+        --------------
+        """
+        
+        try:
+        
+            # (1): Calculate the Dirac form factor:
+            dirac_form_factor = self.magnetic_form_factor - self.pauli_form_factor
+
+            if self.verbose:
+                print(f"> Calculated Dirac form factor as: {dirac_form_factor}")
+
+            self.dirac_form_factor = dirac_form_factor
+
+        except Exception as ERROR:
+            print(f"> Error in calculating Dirac form factor:\n> {ERROR}")
+            return 0.
+
+    def compute_cross_section_prefactor(self) -> float:
+        """
+        Later!
+        """
+        try:
+
+            # (1): Calculate the numerator of the prefactor
+            numerator = _ELECTROMAGNETIC_FINE_STRUCTURE_CONSTANT**3 * self.lepton_energy_fraction**2 * self.kinematics.x_Bjorken
+
+            # (2): Calculate the denominator of the prefactor:
+            denominator = 8. * np.pi * self.kinematics.squared_Q_momentum_transfer**2 * np.sqrt(1. + self.epsilon**2)
+
+            # (3): Construct the prefactor:
+            prefactor = numerator / denominator
+
+            if self.verbose:
+                print(f"> Calculated BKM10 cross-section prefactor to be:\n{prefactor}")
+
+            # (4): Return the prefactor:
+            return prefactor
+
+        except Exception as ERROR:
+            print(f"> Error calculating BKM10 cross section prefactor:\n> {ERROR}")
+            return 0.
+        
+    def calculate_k_dot_delta(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         Equation (29) in the BKM Formalism, available
@@ -351,7 +561,7 @@ class BKMFormalism:
             prefactor = self.kinematics.squared_Q_momentum_transfer / (2. * self.lepton_energy_fraction * (1. + self.epsilon**2))
 
             # (2): Second term in parentheses: Phi-Dependent Term: 2 K np.cos(\phi)
-            phi_dependence = 2. * self.kinematic_k * np.cos(np.pi - convert_degrees_to_radians(azimuthal_phi))
+            phi_dependence = 2. * self.kinematic_k * np.cos(np.pi - phi_values)
             
             # (3): Prefactor of third term in parentheses: \frac{t}{Q^{2}}
             ratio_delta_to_q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -381,8 +591,72 @@ class BKMFormalism:
         except Exception as E:
             print(f"> Error in calculating k.Delta:\n> {E}")
             return 0.
+    
+    def calculate_lepton_propagator_p1(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        Description
+        --------------
+        Equation (28) [first equation] divided through by
+        Q^{2} according to the following paper:
+        https://arxiv.org/pdf/hep-ph/0112108.pdf
+
+        Parameters
+        --------------
+        k_dot_delta: (float)
+
+        squared_Q_momentum_transfer: (float)
+
+        verbose: (bool)
+            Debugging console output.
+
+        Notes
+        --------------
+        """
+        try:
+            p1_propagator = 1. + (2. * (self.calculate_k_dot_delta(phi_values) / self.kinematics.squared_Q_momentum_transfer))
+            
+            if self.verbose:
+                print(f"> Computed the P1 propagator to be:\n{p1_propagator}")
+
+            return p1_propagator
         
-    def compute_c0_coefficient(self) -> float:
+        except Exception as E:
+            print(f"> Error in computing p1 propagator:\n> {E}")
+            return 0.
+        
+    def calculate_lepton_propagator_p2(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        Description
+        --------------
+        Equation (28) [second equation] divided through by
+        Q^{2} according to the following paper:
+        https://arxiv.org/pdf/hep-ph/0112108.pdf
+
+        Parameters
+        --------------
+        k_dot_delta: (float)
+
+        squared_Q_momentum_transfer: (float)
+
+        verbose: (bool)
+            Debugging console output.
+
+        Notes
+        --------------
+        """
+        try:
+            p2_propagator = (-2. * (self.calculate_k_dot_delta(phi_values) / self.kinematics.squared_Q_momentum_transfer)) + (self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)
+            
+            if self.verbose:
+                print(f"> Computed the P2 propagator to be:\n{p2_propagator}")
+
+            return p2_propagator
+        
+        except Exception as E:
+            print(f"> Error in computing p2 propagator:\n> {E}")
+            return 0.
+    
+    def compute_c0_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the first coefficient in the BKM mode expansion: c_{0}
@@ -403,7 +677,17 @@ class BKMFormalism:
         dvcs_c0_contribution = self.compute_dvcs_c0_coefficient()
         interference_c0_contribution = self.compute_interference_c0_coefficient()
 
-        c0_coefficient = bh_c0_contribution + dvcs_c0_contribution + interference_c0_contribution
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
+
+        c0_coefficient = bh_c0_contribution + dvcs_c0_contribution + interference_prefactor * interference_c0_contribution
 
         return c0_coefficient
     
@@ -1313,10 +1597,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the first two terms: weighted CFFs:
-            weighted_cffs = (Dirac_form_factor_F1 * compton_form_factor_h) - (self.kinematics.squared_hadronic_momentum_transfer_t * Pauli_form_factor_F2 * compton_form_factor_e / (4. * _MASS_OF_PROTON_IN_GEV**2))
+            weighted_cffs = (self.dirac_form_factor * self.cff_values.compton_form_factor_h) - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor * self.cff_values.compton_form_factor_e / (4. * _MASS_OF_PROTON_IN_GEV**2))
 
             # (2): Calculate the next term:
-            second_term = self.kinematics.x_Bjorken * (Dirac_form_factor_F1 + Pauli_form_factor_F2) * compton_form_factor_h_tilde / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
+            second_term = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) * self.cff_values.compton_form_factor_h_tilde / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
             # (3): Add them together:
             curly_C_unpolarized_interference = weighted_cffs + second_term
@@ -1339,10 +1623,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the first two terms: weighted CFFs:
-            cff_term = compton_form_factor_h + compton_form_factor_e
+            cff_term = self.cff_values.compton_form_factor_h + self.cff_values.compton_form_factor_e
 
             # (2): Calculate the next term:
-            second_term = self.kinematics.x_Bjorken * (Dirac_form_factor_F1 + Pauli_form_factor_F2) / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
+            second_term = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
             # (3): Add them together:
             curly_C_unpolarized_interference_V = cff_term * second_term
@@ -1365,10 +1649,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the next term:
-            xb_modulation = self.kinematics.x_Bjorken * (Dirac_form_factor_F1 + Pauli_form_factor_F2) / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
+            xb_modulation = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
             # (2): Add them together:
-            curly_C_unpolarized_interference_A = compton_form_factor_h_tilde * xb_modulation
+            curly_C_unpolarized_interference_A = self.cff_values.compton_form_factor_h_tilde * xb_modulation
 
             # (3.1): If verbose, print the calculation:
             if self.verbose:
@@ -1394,19 +1678,19 @@ class BKMFormalism:
             ratio_of_xb_to_more_xb = self.kinematics.x_Bjorken / (2. - self.kinematics.x_Bjorken + self.kinematics.x_Bjorken * t_over_Q_squared)
 
             # (3): Calculate another fancy quantity that appears twice:
-            self.kinematics.x_Bjorken_correction = self.kinematics.x_Bjorken * (1. - t_over_Q_squared) / 2.
+            x_Bjorken_correction = self.kinematics.x_Bjorken * (1. - t_over_Q_squared) / 2.
 
             # (4): Calculate the first appearance of CFFs:
-            first_cff_contribution = ratio_of_xb_to_more_xb * (Dirac_form_factor_F1 + Pauli_form_factor_F2) * (compton_form_factor_h_real_part + self.kinematics.x_Bjorken_correction * compton_form_factor_e_real_part)
+            first_cff_contribution = ratio_of_xb_to_more_xb * (self.dirac_form_factor + self.pauli_form_factor) * (self.cff_values.compton_form_factor_h + self.kinematics.x_Bjorken_correction * self.cff_values.compton_form_factor_e)
 
             # (5): Calculate the second appearance of CFFs:
-            second_cff_contribution = (1. + (_MASS_OF_PROTON_IN_GEV**2 * self.kinematics.x_Bjorken * ratio_of_xb_to_more_xb * (3. + t_over_Q_squared) / self.kinematics.squared_Q_momentum_transfer)) * Dirac_form_factor_F1 * compton_form_factor_h_tilde
+            second_cff_contribution = (1. + (_MASS_OF_PROTON_IN_GEV**2 * self.kinematics.x_Bjorken * ratio_of_xb_to_more_xb * (3. + t_over_Q_squared) / self.kinematics.squared_Q_momentum_transfer)) * self.dirac_form_factor * self.cff_values.compton_form_factor_h_tilde
             
             # (6): Calculate the third appearance of CFFs:
-            third_cff_contribution = t_over_Q_squared * 2. * (1. - 2. * self.kinematics.x_Bjorken) * ratio_of_xb_to_more_xb * Pauli_form_factor_F2 * compton_form_factor_h_tilde
+            third_cff_contribution = t_over_Q_squared * 2. * (1. - 2. * self.kinematics.x_Bjorken) * ratio_of_xb_to_more_xb * self.pauli_form_factor * self.cff_values.compton_form_factor_h_tilde
 
             # (7): Calculate the fourth appearance of the CFFs:
-            fourth_cff_contribution = ratio_of_xb_to_more_xb * (self.kinematics.x_Bjorken_correction * Dirac_form_factor_F1 + self.kinematics.squared_hadronic_momentum_transfer_t * Pauli_form_factor_F2 / (4. * _MASS_OF_PROTON_IN_GEV**2)) * compton_form_factor_e_tilde_real_part
+            fourth_cff_contribution = ratio_of_xb_to_more_xb * (x_Bjorken_correction * self.dirac_form_factor + self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor / (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.cff_values.compton_form_factor_e_tilde
 
             # (8): Add together with the correct signs the entire thing
             curly_C_longitudinally_polarized_interference = first_cff_contribution + second_cff_contribution - third_cff_contribution - fourth_cff_contribution
@@ -1435,10 +1719,10 @@ class BKMFormalism:
             ratio_of_xb_to_more_xb = self.kinematics.x_Bjorken / (2. - self.kinematics.x_Bjorken + self.kinematics.x_Bjorken * t_over_Q_squared)
 
             # (3): Calculate the sum of form factors:
-            sum_of_form_factors = Dirac_form_factor_F1 + Pauli_form_factor_F2
+            sum_of_form_factors = self.dirac_form_factor + self.pauli_form_factor
 
             # (4): Calculate the entire thing:
-            curly_C_V_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * (compton_form_factor_h_real_part + (self.kinematics.x_Bjorken * (1. - t_over_Q_squared) * compton_form_factor_e_real_part / 2.))
+            curly_C_V_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * (self.cff_values.compton_form_factor_h + (self.kinematics.x_Bjorken * (1. - t_over_Q_squared) * self.cff_values.compton_form_factor_e / 2.))
 
             # (4.1): If verbose, log the output:
             if self.verbose:
@@ -1464,10 +1748,10 @@ class BKMFormalism:
             ratio_of_xb_to_more_xb = self.kinematics.x_Bjorken / (2. - self.kinematics.x_Bjorken + self.kinematics.x_Bjorken * t_over_Q_squared)
 
             # (3): Calculate the sum of form factors:
-            sum_of_form_factors = Dirac_form_factor_F1 + Pauli_form_factor_F2
+            sum_of_form_factors = self.dirac_form_factor + self.pauli_form_factor
             
             # (4): Calculate the CFFs appearance:
-            cff_appearance = compton_form_factor_h_tilde * (1. + (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED / self.kinematics.squared_Q_momentum_transfer)) + (self.kinematics.x_Bjorken * compton_form_factor_e_tilde_real_part / 2.)
+            cff_appearance = self.cff_values.compton_form_factor_h_tilde * (1. + (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED / self.kinematics.squared_Q_momentum_transfer)) + (self.kinematics.x_Bjorken * self.cff_values.compton_form_factor_e_tilde / 2.)
 
             # (5): Calculate the entire thing:
             curly_C_A_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * cff_appearance

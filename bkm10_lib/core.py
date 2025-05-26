@@ -143,6 +143,13 @@ class DifferentialCrossSection:
             # (X): Too general, yes, but not sure what we put here yet:
             raise Exception("> Error occurred during validation...") from error
         
+    def compute_prefactor(self) -> float:
+        """
+        Later!
+        """
+        return self.formalism.compute_cross_section_prefactor()
+
+        
     def compute_c0_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         """
@@ -232,24 +239,27 @@ class DifferentialCrossSection:
         # (X): Verify that the array of angles is at least 1D:
         verified_phi_values = np.atleast_1d(phi_values)
 
+        # (X): Obtain the cross-section prefactor:
+        cross_section_prefactor = self.compute_prefactor()
+
         # (X): Obtain coefficients:
-        coefficient_c_0 = self.compute_c0_coefficient()
-        coefficient_c_1 = self.compute_c1_coefficient()
-        coefficient_c_2 = self.compute_c2_coefficient()
-        coefficient_c_3 = self.compute_c3_coefficient()
-        coefficient_s_1 = self.compute_s1_coefficient()
-        coefficient_s_2 = self.compute_s2_coefficient()
-        coefficient_s_3 = self.compute_s3_coefficient()
+        coefficient_c_0 = self.compute_c0_coefficient(verified_phi_values)
+        coefficient_c_1 = self.compute_c1_coefficient(verified_phi_values)
+        coefficient_c_2 = self.compute_c2_coefficient(verified_phi_values)
+        coefficient_c_3 = self.compute_c3_coefficient(verified_phi_values)
+        coefficient_s_1 = self.compute_s1_coefficient(verified_phi_values)
+        coefficient_s_2 = self.compute_s2_coefficient(verified_phi_values)
+        coefficient_s_3 = self.compute_s3_coefficient(verified_phi_values)
 
         # (X): Compute the dfferential cross-section:
-        differential_cross_section = (
+        differential_cross_section = (cross_section_prefactor * (
             coefficient_c_0 + 
             coefficient_c_1 * np.cos(verified_phi_values) +
             coefficient_c_2 * np.cos(verified_phi_values) +
             coefficient_c_3 * np.cos(verified_phi_values) +
             coefficient_s_1 * np.sin(verified_phi_values) + 
             coefficient_s_2 * np.sin(verified_phi_values) +
-            coefficient_s_3 * np.sin(verified_phi_values))
+            coefficient_s_3 * np.sin(verified_phi_values)))
 
         # (X): Store cross-section data as class attribute:
         self.cross_section_values = differential_cross_section
