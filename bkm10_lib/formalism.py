@@ -150,7 +150,7 @@ class BKMFormalism:
         """
         ## Description
         Calculate the Skewness Parameter
-        x_{i} = x_{B} * (1 + \frac{ t Q^{2} }{ 2 } ) ... FUCK OFF
+        x_{i} = x_{B} * (1 + \frac{ t Q^{2} }{ 2 } ) ... HUGE THING
 
         ## Parameters
         squared_Q_momentum_transfer: (float)
@@ -336,7 +336,6 @@ class BKMFormalism:
         """
         ## Description:
         The Electric Form Factor is quite mysterious still...
-        Where the fuck do these numbers come from?
 
         ## Parameters:
         squared_hadronic_momentum_transfer_t: (float)

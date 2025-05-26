@@ -261,7 +261,7 @@ class DifferentialCrossSection:
             coefficient_s_1 * np.sin(verified_phi_values) + 
             coefficient_s_2 * np.sin(verified_phi_values) +
             coefficient_s_3 * np.sin(verified_phi_values)))
-
+        
         # (X): Store cross-section data as class attribute:
         self.cross_section_values = differential_cross_section
 
