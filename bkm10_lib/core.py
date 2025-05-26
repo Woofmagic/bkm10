@@ -62,6 +62,31 @@ class DifferentialCrossSection:
             if debugging:
                 print(f"> [DEBUGGING]: Configuration succeeded! Now set internal attribute: {self._passed_configuration}")
 
+    @staticmethod
+    def _set_plot_style():
+        
+        plt.rcParams.update({
+            "text.usetex": True,
+            "font.family": "serif",
+        })
+
+        plt.rcParams['xtick.direction'] = 'in'
+        plt.rcParams['xtick.major.size'] = 5
+        plt.rcParams['xtick.major.width'] = 0.5
+        plt.rcParams['xtick.minor.size'] = 2.5
+        plt.rcParams['xtick.minor.width'] = 0.5
+        plt.rcParams['xtick.minor.visible'] = True
+        plt.rcParams['xtick.top'] = True    
+
+        # Set y axis
+        plt.rcParams['ytick.direction'] = 'in'
+        plt.rcParams['ytick.major.size'] = 5
+        plt.rcParams['ytick.major.width'] = 0.5
+        plt.rcParams['ytick.minor.size'] = 2.5
+        plt.rcParams['ytick.minor.width'] = 0.5
+        plt.rcParams['ytick.minor.visible'] = True
+        plt.rcParams['ytick.right'] = True
+
     def _initialize_from_config(self, configuration_dictionary: dict):
         try:
 
@@ -174,25 +199,27 @@ class DifferentialCrossSection:
             if self.verbose:
                 print("> [VERBOSE]: Found cross-section data... Now constructing plots.")
 
-        cross_section_figur_instance, cross_section_axis_instance = plt.subplots(figsize = (8, 5))
+        self._set_plot_style()
 
-        cross_section_axis_instance.plot(phi_values, self.cross_section_values, label = r"$\frac{d^4\sigma}{dQ^2 dx_B dt d\phi}$", color = 'blue')
-        cross_section_axis_instance.set_xlabel(r"Azimuthal angle $\phi$ (degrees)", fontsize = 14)
-        cross_section_axis_instance.set_ylabel(r"Cross section (nb/GeV$^4$)", fontsize = 14)
+        cross_section_figure_instance, cross_section_axis_instance = plt.subplots(figsize = (8, 5))
+
+        cross_section_axis_instance.plot(phi_values, self.cross_section_values, color = 'black')
+        cross_section_axis_instance.set_xlabel(r"Azimuthal Angle $\phi$ (degrees)", fontsize = 14)
+        cross_section_axis_instance.set_ylabel(r"$\frac{d^4\sigma}{dQ^2 dx_B dt d\phi}$ (nb/GeV$^4$)", fontsize = 14)
         cross_section_axis_instance.grid(True)
-        cross_section_axis_instance.legend(fontsize = 12)
+        # cross_section_axis_instance.legend(fontsize = 12)
 
         try:
             kinematics = self.kinematic_inputs
 
-            title_str = (
+            title_string = (
                 rf"$Q^2 = {kinematics.squared_Q_momentum_transfer:.2f}$ GeV$^2$, "
                 rf"$x_B = {kinematics.x_Bjorken:.2f}$, "
                 rf"$t = {kinematics.squared_hadronic_momentum_transfer_t:.2f}$ GeV$^2$, "
                 rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV"
                 )
             
-            cross_section_axis_instance.set_title(title_str, fontsize = 14)
+            cross_section_axis_instance.set_title(title_string, fontsize = 14)
 
         except AttributeError:
 
