@@ -10,7 +10,36 @@ import matplotlib.pyplot as plt
 
 class DifferentialCrossSection:
     """
+    Welcome to the `DifferentialCrossSection` class!
+
+    ## Description:
+    Compute BKM10 differential cross sections using user-defined inputs.
+
+    ## Parameters
+    configuration : dict
+        A dictionary containing the configuration settings with the following keys:
+        
+        - "kinematics" : BKM10Inputs
+            Dataclass containing the required kinematic variables.
+        
+        - "cff_inputs" : Any
+            Object or dictionary containing Compton Form Factor values or parameters.
+        
+        - "target_polarization" : float
+            Polarization value for the target (e.g., 0 for unpolarized).
+        
+        - "lepton_beam_polarization" : float
+            Polarization of the lepton beam (e.g., +1 or -1).
+
+    verbose : bool
+        A boolean flag that will tell the class to print out various messages at
+        intermediate steps in the calculation. Useful if you want to determine when
+        you have, say, calculated a given coefficient, like C_{++}^{LP}(n = 1).
     
+    debugging : bool
+        A boolean flag that will bomb anybody's terminal with output. As the flag is
+        entitled, DO NOT USE THIS unless you need to do some serious debugging. We are
+        talking about following how the data gets transformed through every calculation.
     """
 
     def __init__(self, configuration = None, verbose = False, debugging = False):
@@ -103,11 +132,68 @@ class DifferentialCrossSection:
 
             self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
 
-            
+            self.formalism = BKMFormalism(self.kinematic_inputs, verbose = self.verbose)
+
         except Exception as error:
 
             # (X): Too general, yes, but not sure what we put here yet:
             raise Exception("> Error occurred during validation...") from error
+        
+    def compute_c0_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_c0_coefficinent(phi_values)
+    
+    def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_c1_coefficient(phi_values)
+    
+    def compute_c2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_c2_coefficinent(phi_values)
+    
+    def compute_c3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_c3_coefficinent(phi_values)
+    
+    def compute_s1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_s1_coefficinent(phi_values)
+    
+    def compute_s2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_s2_coefficinent(phi_values)
+    
+    def compute_s3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+        """
+        """
+        if not hasattr(self, "formalism"):
+            raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
+
+        return self.formalism.calculate_s3_coefficinent(phi_values)
 
     def compute_cross_section(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -143,8 +229,13 @@ class DifferentialCrossSection:
         verified_phi_values = np.atleast_1d(phi_values)
 
         # (X): Obtain coefficients:
-        coefficient_c_0 = 0.
-        coefficient_c_1 = 0.
+        coefficient_c_0 = self.compute_c0_coefficient()
+        coefficient_c_1 = self.compute_c1_coefficient()
+        coefficient_c_2 = self.compute_c2_coefficient()
+        coefficient_c_3 = self.compute_c3_coefficient()
+        coefficient_s_1 = self.compute_s1_coefficient()
+        coefficient_s_2 = self.compute_s2_coefficient()
+        coefficient_s_3 = self.compute_s3_coefficient()
 
         # (X): Compute the dfferential cross-section:
         differential_cross_section = (
