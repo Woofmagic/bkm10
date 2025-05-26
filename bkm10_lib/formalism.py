@@ -4,7 +4,7 @@
 
 from bkm10_lib.inputs import BKM10Inputs
 
-from bkm10_lib.constants import MASS_OF_PROTON_IN_GEV
+from bkm10_lib.constants import _MASS_OF_PROTON_IN_GEV
 
 import numpy as np
 
