@@ -54,7 +54,7 @@ def validate_configuration(configuration_dictionary: dict, verbose: bool):
     if target_polarization is None:
         raise ValueError("> Missing 'target_polarization' key.")
 
-    if target_polarization != 0. and target_polarization != 1. and target_polarization != - 1.:
+    if target_polarization != 0. and target_polarization != 0.5 and target_polarization != -0.5:
         raise TypeError("> 'target_polarization' key must be a *float* of -1.0, 0.0, or 1.0 only.")
     
     lepton_beam_polarization = configuration_dictionary["lepton_beam_polarization"]
@@ -62,7 +62,7 @@ def validate_configuration(configuration_dictionary: dict, verbose: bool):
     if lepton_beam_polarization is None:
         raise ValueError("> Missing 'lepton_beam_polarization' key.")
 
-    if lepton_beam_polarization != 0 and lepton_beam_polarization != 0.5 and lepton_beam_polarization != -0.5:
+    if lepton_beam_polarization != 0. and lepton_beam_polarization != 1.0 and lepton_beam_polarization != -1.0:
         raise TypeError("> 'lepton_beam_polarization' key must be a *float* of -0.5, 0.0, or 0.5 only.")
     
     return configuration_dictionary

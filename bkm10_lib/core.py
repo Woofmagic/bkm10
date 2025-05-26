@@ -134,6 +134,7 @@ class DifferentialCrossSection:
 
             self.formalism = BKMFormalism(
                 inputs = self.kinematic_inputs,
+                cff_values = self.cff_inputs,
                 lepton_polarization = self.lepton_polarization,
                 target_polarization = self.target_polarization,
                 verbose = self.verbose)

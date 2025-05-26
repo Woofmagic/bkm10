@@ -103,7 +103,7 @@ class BKMFormalism:
                 print(f"> Calculated epsilon to be:\n{epsilon}")
 
             # (2): Return self.epsilon:
-            self.epsilon = epsilon
+            return epsilon
         
         except Exception as ERROR:
             print(f"> Error in computing kinematic self.epsilon:\n> {ERROR}")
@@ -133,17 +133,17 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the y right away:
-            lepton_energy_fraction = np.sqrt(self.kinematics.squared_Q_momentum_transfer) / (self.epsilon * self.kinematic_k)
+            lepton_energy_fraction = np.sqrt(self.kinematics.squared_Q_momentum_transfer) / (self.epsilon * self.kinematics.lab_kinematics_k)
 
             # (1.1): If verbose output, then print the result:
             if self.verbose:
                 print(f"> Calculated y to be:\n{lepton_energy_fraction}")
 
             # (2): Return the calculation:
-            self.lepton_energy_fraction = lepton_energy_fraction
+            return lepton_energy_fraction
         
         except Exception as ERROR:
-            print(f"> Error in computing self.lepton_energy_fraction:\n> {ERROR}")
+            print(f"> Error in computing lepton_energy_fraction:\n> {ERROR}")
             return 0.
 
     def _calculate_skewness_parameter(self) -> float:
@@ -180,7 +180,7 @@ class BKMFormalism:
                 print(f"> Calculated skewness xi to be:\n{skewness_parameter}")
 
             # (4): Return Xi:
-            self.skewness_parameter = skewness_parameter
+            return skewness_parameter
 
         except Exception as ERROR:
             print(f"> Error in computing skewness xi:\n> {ERROR}")
@@ -220,7 +220,7 @@ class BKMFormalism:
                 print(f"> Calculated t_minimum to be:\n{t_minimum}")
 
             # (5): Print the result:
-            self.t_minimum = t_minimum
+            return t_minimum
 
         except Exception as ERROR:
             print(f"> Error calculating t_minimum:\n> {ERROR}")
@@ -250,10 +250,10 @@ class BKMFormalism:
 
             # (1.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated t prime to be:\n{self.t_prime}")
+                print(f"> Calculated t prime to be:\n{t_prime}")
 
             # (2): Return self.t_prime
-            self.t_prime = t_prime
+            return t_prime
 
         except Exception as ERROR:
             print(f"> Error calculating t_prime:\n> {ERROR}")
@@ -301,10 +301,10 @@ class BKMFormalism:
 
             # (6.1): Print the result of the calculation:
             if self.verbose:
-                print(f"> Calculated to be:\n{self.k_tilde}")
+                print(f"> Calculated k_tilde to be:\n{k_tilde}")
 
             # (7) Return:
-            self.k_tilde = k_tilde
+            return k_tilde
 
         except Exception as ERROR:
             print(f"> Error in calculating K_tilde:\n> {ERROR}")
@@ -316,7 +316,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the amazing prefactor:
-            prefactor = np.sqrt(((1. - self.lepton_energy_fraction + (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) / self.kinematics.squared_Q_momentum_transfer))
+            prefactor = np.sqrt((1. - self.lepton_energy_fraction + (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) / self.kinematics.squared_Q_momentum_transfer)
 
             # (2): Calculate the remaining part of the term:
             kinematic_k = prefactor * self.k_tilde
@@ -326,7 +326,7 @@ class BKMFormalism:
                 print(f"> Calculated kinematic K to be:\n{kinematic_k}")
 
             # (3): Return the value:
-            self.kinematic_k = kinematic_k
+            return kinematic_k
 
         except Exception as ERROR:
             print(f"> Error in calculating derived kinematic K:\n> {ERROR}")
@@ -363,7 +363,7 @@ class BKMFormalism:
             if self.verbose:
                 print(f"> Calculated electric form factor as: {form_factor_electric}")
 
-            self.electric_form_factor = form_factor_electric
+            return form_factor_electric
 
         except Exception as ERROR:
             print(f"> Error in calculating electric form factor:\n> {ERROR}")
@@ -401,7 +401,7 @@ class BKMFormalism:
             if self.verbose:
                 print(f"> Calculated magnetic form factor as: {form_factor_magnetic}")
 
-            self.form_factor_magnetic = form_factor_magnetic
+            return form_factor_magnetic
 
         except Exception as ERROR:
             print(f"> Error in calculating magnetic form factor:\n> {ERROR}")
@@ -452,7 +452,7 @@ class BKMFormalism:
             if self.verbose:
                 print(f"> Calculated Fermi form factor as: {pauli_form_factor}")
 
-            self.pauli_form_factor = pauli_form_factor
+            return pauli_form_factor
 
         except Exception as ERROR:
             print(f"> Error in calculating Fermi form factor:\n> {ERROR}")
@@ -491,7 +491,7 @@ class BKMFormalism:
             if self.verbose:
                 print(f"> Calculated Dirac form factor as: {dirac_form_factor}")
 
-            self.dirac_form_factor = dirac_form_factor
+            return dirac_form_factor
 
         except Exception as ERROR:
             print(f"> Error in calculating Dirac form factor:\n> {ERROR}")
@@ -586,7 +586,7 @@ class BKMFormalism:
                 print(f"> Calculated k dot delta: {k_dot_delta_result}")
 
             # (9): Return the number:
-            self.k_dot_delta = k_dot_delta_result
+            return k_dot_delta_result
         
         except Exception as E:
             print(f"> Error in calculating k.Delta:\n> {E}")
@@ -691,7 +691,7 @@ class BKMFormalism:
 
         return c0_coefficient
     
-    def compute_c1_coefficient(self) -> float:
+    def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the second coefficient in the BKM mode expansion: c_{1}
@@ -712,11 +712,21 @@ class BKMFormalism:
         dvcs_c1_contribution = self.compute_dvcs_c1_coefficient()
         interference_c1_contribution = self.compute_interference_c1_coefficient()
 
-        c1_coefficient = bh_c1_contribution + dvcs_c1_contribution + interference_c1_contribution
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
+
+        c1_coefficient = bh_c1_contribution + dvcs_c1_contribution + interference_prefactor * interference_c1_contribution
 
         return c1_coefficient
     
-    def compute_c2_coefficient(self) -> float:
+    def compute_c2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the third coefficient in the BKM mode expansion: c_{2}
@@ -736,12 +746,22 @@ class BKMFormalism:
         bh_c2_contribution = self.compute_bh_c2_coefficient()
         dvcs_c2_contribution = self.compute_dvcs_c2_coefficient()
         interference_c2_contribution = self.compute_interference_c2_coefficient()
+        
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
 
-        c2_coefficient = bh_c2_contribution + dvcs_c2_contribution + interference_c2_contribution
+        c2_coefficient = bh_c2_contribution + dvcs_c2_contribution + interference_prefactor * interference_c2_contribution
 
         return c2_coefficient
     
-    def compute_c3_coefficient(self) -> float:
+    def compute_c3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the fourth coefficient in the BKM mode expansion: c_{3}
@@ -762,11 +782,21 @@ class BKMFormalism:
         dvcs_c3_contribution = self.compute_dvcs_c3_coefficient()
         interference_c3_contribution = self.compute_interference_c3_coefficient()
 
-        c3_coefficient = bh_c3_contribution + dvcs_c3_contribution + interference_c3_contribution
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
+
+        c3_coefficient = bh_c3_contribution + dvcs_c3_contribution + interference_prefactor * interference_c3_contribution
 
         return c3_coefficient
     
-    def compute_s1_coefficient(self) -> float:
+    def compute_s1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the fifth coefficient in the BKM mode expansion: s_{1}
@@ -787,11 +817,21 @@ class BKMFormalism:
         dvcs_s1_contribution = self.compute_dvcs_s1_coefficient()
         interference_s1_contribution = self.compute_interference_s1_coefficient()
 
-        s1_coefficient = bh_s1_contribution + dvcs_s1_contribution + interference_s1_contribution
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
+
+        s1_coefficient = bh_s1_contribution + dvcs_s1_contribution + interference_prefactor * interference_s1_contribution
 
         return s1_coefficient
     
-    def compute_s2_coefficient(self) -> float:
+    def compute_s2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the sixth coefficient in the BKM mode expansion: s_{2}
@@ -812,11 +852,21 @@ class BKMFormalism:
         dvcs_s2_contribution = self.compute_dvcs_s2_coefficient()
         interference_s2_contribution = self.compute_interference_s2_coefficient()
 
-        s2_coefficient = bh_s2_contribution + dvcs_s2_contribution + interference_s2_contribution
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
+
+        s2_coefficient = bh_s2_contribution + dvcs_s2_contribution + interference_prefactor * interference_s2_contribution
 
         return s2_coefficient
     
-    def compute_s3_coefficient(self) -> float:
+    def compute_s3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
         ## Description:
         We compute the seventh coefficient in the BKM mode expansion: s_{3}
@@ -837,7 +887,17 @@ class BKMFormalism:
         dvcs_s3_contribution = self.compute_dvcs_s3_coefficient()
         interference_s3_contribution = self.compute_interference_s3_coefficient()
 
-        s3_coefficient = bh_s3_contribution + dvcs_s3_contribution + interference_s3_contribution
+        interference_prefactor = (
+            1. / (
+                self.kinematics.x_Bjorken * 
+                self.lepton_energy_fraction**3 * 
+                self.kinematics.squared_hadronic_momentum_transfer_t * 
+                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.calculate_lepton_propagator_p2(phi_values)
+                )
+            )
+
+        s3_coefficient = bh_s3_contribution + dvcs_s3_contribution + interference_prefactor * interference_s3_contribution
 
         return s3_coefficient
     
@@ -967,16 +1027,6 @@ class BKMFormalism:
 
             # (X): Calculate C_{0+}^{A}(n = 0) using the *unpolarized* prescription:
             c0a_zero_plus = self.calculate_c_0_zero_plus_unpolarized_a()
-
-            # (X): Calculate Curly C_{++}(n = 0):
-            curly_c0_plus_plus = (curly_c_plus_plus
-                        + (c0v_plus_plus * curly_cv_plus_plus / c0_plus_plus)
-                        + (c0a_plus_plus * curly_ca_plus_plus / c0_plus_plus))
-            
-            # (X): Calculate Curly C_{0+}(n = 0):
-            curly_c0_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (c0v_zero_plus * curly_cv_zero_plus / c0_zero_plus)
-                        + (c0a_zero_plus * curly_ca_zero_plus / c0_zero_plus)))
             
         elif self.target_polarization == 0.5:
 
@@ -1015,6 +1065,16 @@ class BKMFormalism:
 
             # (X): Calculate C_{0+}^{A}(n = 0) using the *longitudinally-polarized* prescription:
             c0a_zero_plus = self.calculate_c_0_zero_plus_longitudinally_polarized_a()
+
+        # (X): Calculate Curly C_{++}(n = 0):
+        curly_c0_plus_plus = (curly_c_plus_plus
+                    + (c0v_plus_plus * curly_cv_plus_plus / c0_plus_plus)
+                    + (c0a_plus_plus * curly_ca_plus_plus / c0_plus_plus))
+        
+        # (X): Calculate Curly C_{0+}(n = 0):
+        curly_c0_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+                    + (c0v_zero_plus * curly_cv_zero_plus / c0_zero_plus)
+                    + (c0a_zero_plus * curly_ca_zero_plus / c0_zero_plus)))
         
         c_0_interference_coefficient  = c0_plus_plus * curly_c0_plus_plus.real + c0_zero_plus * curly_c0_zero_plus.real
 
@@ -1062,16 +1122,6 @@ class BKMFormalism:
 
             # (X): Calculate C_{0+}^{A}(n = 1) using the *unpolarized* prescription:
             c1a_zero_plus = self.calculate_c_1_zero_plus_unpolarized_a()
-
-            # (X): Calculate Curly C_{++}(n = 0):
-            curly_c1_plus_plus = (curly_c_plus_plus
-                        + (c1v_plus_plus * curly_cv_plus_plus / c1_plus_plus)
-                        + (c1a_plus_plus * curly_ca_plus_plus / c1_plus_plus))
-            
-            # (X): Calculate Curly C_{0+}(n = 0):
-            curly_c1_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (c1v_zero_plus * curly_cv_zero_plus / c1_zero_plus)
-                        + (c1a_zero_plus * curly_ca_zero_plus / c1_zero_plus)))
             
         elif self.target_polarization == 0.5:
 
@@ -1110,6 +1160,16 @@ class BKMFormalism:
 
             # (X): C_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
             c1a_zero_plus = 0.
+
+        # (X): Calculate Curly C_{++}(n = 0):
+        curly_c1_plus_plus = (curly_c_plus_plus
+                    + (c1v_plus_plus * curly_cv_plus_plus / c1_plus_plus)
+                    + (c1a_plus_plus * curly_ca_plus_plus / c1_plus_plus))
+        
+        # (X): Calculate Curly C_{0+}(n = 0):
+        curly_c1_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+                    + (c1v_zero_plus * curly_cv_zero_plus / c1_zero_plus)
+                    + (c1a_zero_plus * curly_ca_zero_plus / c1_zero_plus)))
 
         c_1_interference_coefficient  = c1_plus_plus * curly_c1_plus_plus.real + c1_zero_plus * curly_c1_zero_plus.real
 
@@ -1157,16 +1217,6 @@ class BKMFormalism:
 
             # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
             c2a_zero_plus = self.calculate_c_2_zero_plus_unpolarized_a()
-
-            # (X): Calculate Curly C_{++}(n = 0):
-            curly_c2_plus_plus = (curly_c_plus_plus
-                        + (c2v_plus_plus * curly_cv_plus_plus / c2_plus_plus)
-                        + (c2a_plus_plus * curly_ca_plus_plus / c2_plus_plus))
-            
-            # (X): Calculate Curly C_{0+}(n = 0):
-            curly_c2_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (c2v_zero_plus * curly_cv_zero_plus / c2_zero_plus)
-                        + (c2a_zero_plus * curly_ca_zero_plus / c2_zero_plus)))
             
         elif self.target_polarization == 0.5:
 
@@ -1206,6 +1256,16 @@ class BKMFormalism:
             # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
             c2a_zero_plus = self.calculate_c_2_zero_plus_longitudinally_polarized_a()
         
+        # (X): Calculate Curly C_{++}(n = 0):
+        curly_c2_plus_plus = (curly_c_plus_plus
+                    + (c2v_plus_plus * curly_cv_plus_plus / c2_plus_plus)
+                    + (c2a_plus_plus * curly_ca_plus_plus / c2_plus_plus))
+        
+        # (X): Calculate Curly C_{0+}(n = 0):
+        curly_c2_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+                    + (c2v_zero_plus * curly_cv_zero_plus / c2_zero_plus)
+                    + (c2a_zero_plus * curly_ca_zero_plus / c2_zero_plus)))
+            
         c_2_interference_coefficient  = c2_plus_plus * curly_c2_plus_plus.real + c2_zero_plus * curly_c2_zero_plus.real
 
         return c_2_interference_coefficient
@@ -1259,9 +1319,7 @@ class BKMFormalism:
                         + (c3a_plus_plus * curly_ca_plus_plus / c3_plus_plus))
             
             # (X): Calculate Curly C_{0+}(n = 3):
-            curly_c3_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (c3v_zero_plus * curly_cv_zero_plus / c3_zero_plus)
-                        + (c3a_zero_plus * curly_ca_zero_plus / c3_zero_plus)))
+            curly_c3_zero_plus = 0.
             
         elif self.target_polarization == 0.5:
 
@@ -1300,6 +1358,14 @@ class BKMFormalism:
 
             # (X): Calculate C_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
             c3a_zero_plus = 0.
+
+            # (X): Calculate Curly C_{++}(n = 3):
+            curly_c3_plus_plus = (curly_c_plus_plus
+                        + (c3v_plus_plus * curly_cv_plus_plus / c3_plus_plus)
+                        + (c3a_plus_plus * curly_ca_plus_plus / c3_plus_plus))
+            
+            # (X): Calculate Curly C_{0+}(n = 3):
+            curly_c3_zero_plus = 0.
         
         c_3_interference_coefficient  = c3_plus_plus * curly_c3_plus_plus.real + c3_zero_plus * curly_c3_zero_plus.real
 
@@ -1347,16 +1413,6 @@ class BKMFormalism:
 
             # (X): Calculate S_{0+}^{A}(n = 1) using the *unpolarized* prescription:
             s1a_zero_plus = self.calculate_s_1_zero_plus_unpolarized_a()
-
-            # (X): Calculate Curly S_{++}(n = 1):
-            curly_s1_plus_plus = (curly_c_plus_plus
-                        + (s1v_plus_plus * curly_cv_plus_plus / s1_plus_plus)
-                        + (s1a_plus_plus * curly_ca_plus_plus / s1_plus_plus))
-            
-            # (X): Calculate Curly S_{0+}(n = 1):
-            curly_s1_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (s1v_zero_plus * curly_cv_zero_plus / s1_zero_plus)
-                        + (s1a_zero_plus * curly_ca_zero_plus / s1_zero_plus)))
             
         elif self.target_polarization == 0.5:
 
@@ -1395,8 +1451,18 @@ class BKMFormalism:
 
             # (X): S_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
             s1a_zero_plus = self.calculate_s_1_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate Curly S_{++}(n = 1):
+        curly_s1_plus_plus = (curly_c_plus_plus
+                    + (s1v_plus_plus * curly_cv_plus_plus / s1_plus_plus)
+                    + (s1a_plus_plus * curly_ca_plus_plus / s1_plus_plus))
         
-        s_1_interference_coefficient  = s1_plus_plus * curly_s1_plus_plus.real + s1_zero_plus * curly_s1_zero_plus.real
+        # (X): Calculate Curly S_{0+}(n = 1):
+        curly_s1_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+                    + (s1v_zero_plus * curly_cv_zero_plus / s1_zero_plus)
+                    + (s1a_zero_plus * curly_ca_zero_plus / s1_zero_plus)))
+        
+        s_1_interference_coefficient  = s1_plus_plus * curly_s1_plus_plus.imag + s1_zero_plus * curly_s1_zero_plus.imag
 
         return s_1_interference_coefficient
     
@@ -1442,16 +1508,6 @@ class BKMFormalism:
 
             # (X): Calculate S_{0+}^{V}(n = 2) using the *unpolarized* prescription:
             s2a_zero_plus = self.calculate_s_2_zero_plus_unpolarized_a()
-
-            # (X): Calculate Curly S_{++}(n = 2):
-            curly_s2_plus_plus = (curly_c_plus_plus
-                        + (s2v_plus_plus * curly_cv_plus_plus / s2_plus_plus)
-                        + (s2a_plus_plus * curly_ca_plus_plus / s2_plus_plus))
-            
-            # (X): Calculate Curly S_{0+}(n = 2):
-            curly_s2_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (s2v_zero_plus * curly_cv_zero_plus / s2_zero_plus)
-                        + (s2a_zero_plus * curly_ca_zero_plus / s2_zero_plus)))
             
         elif self.target_polarization == 0.5:
 
@@ -1491,7 +1547,17 @@ class BKMFormalism:
             # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
             s2a_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized_a()
         
-        s_2_interference_coefficient  = s2_plus_plus * curly_s2_plus_plus.real + s2_zero_plus * curly_s2_zero_plus.real
+        # (X): Calculate Curly S_{++}(n = 2):
+        curly_s2_plus_plus = (curly_c_plus_plus
+                    + (s2v_plus_plus * curly_cv_plus_plus / s2_plus_plus)
+                    + (s2a_plus_plus * curly_ca_plus_plus / s2_plus_plus))
+        
+        # (X): Calculate Curly S_{0+}(n = 2):
+        curly_s2_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+                    + (s2v_zero_plus * curly_cv_zero_plus / s2_zero_plus)
+                    + (s2a_zero_plus * curly_ca_zero_plus / s2_zero_plus)))
+        
+        s_2_interference_coefficient  = s2_plus_plus * curly_s2_plus_plus.imag + s2_zero_plus * curly_s2_zero_plus.imag
 
         return s_2_interference_coefficient
     
@@ -1539,14 +1605,10 @@ class BKMFormalism:
             s3a_zero_plus = 0.
 
             # (X): Calculate Curly S_{++}(n = 3):
-            curly_s3_plus_plus = (curly_c_plus_plus
-                        + (s3v_plus_plus * curly_cv_plus_plus / s3_plus_plus)
-                        + (s3a_plus_plus * curly_ca_plus_plus / s3_plus_plus))
-            
+            curly_s3_plus_plus = 0.
+
             # (X): Calculate Curly S_{0+}(n = 3):
-            curly_s3_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                        + (s3v_zero_plus * curly_cv_zero_plus / s3_zero_plus)
-                        + (s3a_zero_plus * curly_ca_zero_plus / s3_zero_plus)))
+            curly_s3_zero_plus = 0.
             
         elif self.target_polarization == 0.5:
 
@@ -1585,8 +1647,16 @@ class BKMFormalism:
 
             # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
             s3a_zero_plus = 0.
+
+            # (X): Calculate Curly S_{++}(n = 3):
+            curly_s3_plus_plus = (curly_c_plus_plus
+                        + (s3v_plus_plus * curly_cv_plus_plus / s3_plus_plus)
+                        + (s3a_plus_plus * curly_ca_plus_plus / s3_plus_plus))
+            
+            # (X): Calculate Curly S_{0+}(n = 3):
+            curly_s3_zero_plus = 0.
         
-        s_3_interference_coefficient  = s3_plus_plus * curly_s3_plus_plus.real + s3_zero_plus * curly_s3_zero_plus.real
+        s_3_interference_coefficient  = s3_plus_plus * curly_s3_plus_plus.imag + s3_zero_plus * curly_s3_zero_plus.imag
 
         return s_3_interference_coefficient
     
@@ -4102,4 +4172,5 @@ class BKMFormalism:
 
         except Exception as ERROR:
             print(f"> Error in calculating s_3_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            
             return 0.
