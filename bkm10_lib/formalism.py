@@ -40,7 +40,7 @@ class BKMFormalism:
         self.t_minimum = self._calculate_t_minimum()
 
         # (X): Derived Quantity | t':
-        self.self.t_prime = self._calculate_t_prime()
+        self.t_prime = self._calculate_t_prime()
 
         # (X): Derived Quantity | K_tilde:
         self.k_tilde = self._calculate_k_tilde()
@@ -407,13 +407,235 @@ class BKMFormalism:
 
         return c0_coefficient
     
+    def compute_c1_coefficient(self) -> float:
+        """
+        ## Description:
+        We compute the second coefficient in the BKM mode expansion: c_{1}
+        The computation of this coefficient will not disambiguate between
+        contributions from the three terms: BH squared, DVCS squared, and
+        interference.
+
+        ## Arguments:
+        Later!
+
+        ## Notes:
+        Later!
+
+        ## Examples:
+        Later!
+        """
+        bh_c1_contribution = self.compute_bh_c1_coefficient()
+        dvcs_c1_contribution = self.compute_dvcs_c1_coefficient()
+        interference_c1_contribution = self.compute_interference_c1_coefficient()
+
+        c1_coefficient = bh_c1_contribution + dvcs_c1_contribution + interference_c1_contribution
+
+        return c1_coefficient
+    
+    def compute_c2_coefficient(self) -> float:
+        """
+        ## Description:
+        We compute the third coefficient in the BKM mode expansion: c_{2}
+        The computation of this coefficient will not disambiguate between
+        contributions from the three terms: BH squared, DVCS squared, and
+        interference.
+
+        ## Arguments:
+        Later!
+
+        ## Notes:
+        Later!
+
+        ## Examples:
+        Later!
+        """
+        bh_c2_contribution = self.compute_bh_c2_coefficient()
+        dvcs_c2_contribution = self.compute_dvcs_c2_coefficient()
+        interference_c2_contribution = self.compute_interference_c2_coefficient()
+
+        c2_coefficient = bh_c2_contribution + dvcs_c2_contribution + interference_c2_contribution
+
+        return c2_coefficient
+    
+    def compute_c3_coefficient(self) -> float:
+        """
+        ## Description:
+        We compute the fourth coefficient in the BKM mode expansion: c_{3}
+        The computation of this coefficient will not disambiguate between
+        contributions from the three terms: BH squared, DVCS squared, and
+        interference.
+
+        ## Arguments:
+        Later!
+
+        ## Notes:
+        Later!
+
+        ## Examples:
+        Later!
+        """
+        bh_c3_contribution = self.compute_bh_c3_coefficient()
+        dvcs_c3_contribution = self.compute_dvcs_c3_coefficient()
+        interference_c3_contribution = self.compute_interference_c3_coefficient()
+
+        c3_coefficient = bh_c3_contribution + dvcs_c3_contribution + interference_c3_contribution
+
+        return c3_coefficient
+    
+    def compute_s1_coefficient(self) -> float:
+        """
+        ## Description:
+        We compute the fifth coefficient in the BKM mode expansion: s_{1}
+        The computation of this coefficient will not disambiguate between
+        contributions from the three terms: BH squared, DVCS squared, and
+        interference.
+
+        ## Arguments:
+        Later!
+
+        ## Notes:
+        Later!
+
+        ## Examples:
+        Later!
+        """
+        bh_s1_contribution = self.compute_bh_s1_coefficient()
+        dvcs_s1_contribution = self.compute_dvcs_s1_coefficient()
+        interference_s1_contribution = self.compute_interference_s1_coefficient()
+
+        s1_coefficient = bh_s1_contribution + dvcs_s1_contribution + interference_s1_contribution
+
+        return s1_coefficient
+    
+    def compute_s2_coefficient(self) -> float:
+        """
+        ## Description:
+        We compute the sixth coefficient in the BKM mode expansion: s_{2}
+        The computation of this coefficient will not disambiguate between
+        contributions from the three terms: BH squared, DVCS squared, and
+        interference.
+
+        ## Arguments:
+        Later!
+
+        ## Notes:
+        Later!
+
+        ## Examples:
+        Later!
+        """
+        bh_s2_contribution = self.compute_bh_s2_coefficient()
+        dvcs_s2_contribution = self.compute_dvcs_s2_coefficient()
+        interference_s2_contribution = self.compute_interference_s2_coefficient()
+
+        s2_coefficient = bh_s2_contribution + dvcs_s2_contribution + interference_s2_contribution
+
+        return s2_coefficient
+    
+    def compute_s3_coefficient(self) -> float:
+        """
+        ## Description:
+        We compute the seventh coefficient in the BKM mode expansion: s_{3}
+        The computation of this coefficient will not disambiguate between
+        contributions from the three terms: BH squared, DVCS squared, and
+        interference.
+
+        ## Arguments:
+        Later!
+
+        ## Notes:
+        Later!
+
+        ## Examples:
+        Later!
+        """
+        bh_s3_contribution = self.compute_bh_s3_coefficient()
+        dvcs_s3_contribution = self.compute_dvcs_s3_coefficient()
+        interference_s3_contribution = self.compute_interference_s3_coefficient()
+
+        s3_coefficient = bh_s3_contribution + dvcs_s3_contribution + interference_s3_contribution
+
+        return s3_coefficient
+    
     def compute_bh_c0_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_bh_c1_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_bh_c2_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_bh_c3_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_bh_s1_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+
+    def compute_bh_s2_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_bh_s3_coefficient(self) -> float:
         """
         Later!
         """
         return 0.
 
     def compute_dvcs_c0_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_dvcs_c1_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_dvcs_c2_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_dvcs_c3_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+
+    def compute_dvcs_s1_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_dvcs_s2_coefficient(self) -> float:
+        """
+        Later!
+        """
+        return 0.
+    
+    def compute_dvcs_s3_coefficient(self) -> float:
         """
         Later!
         """

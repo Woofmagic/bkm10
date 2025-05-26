@@ -132,7 +132,11 @@ class DifferentialCrossSection:
 
             self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
 
-            self.formalism = BKMFormalism(self.kinematic_inputs, verbose = self.verbose)
+            self.formalism = BKMFormalism(
+                inputs = self.kinematic_inputs,
+                lepton_polarization = self.lepton_polarization,
+                target_polarization = self.target_polarization,
+                verbose = self.verbose)
 
         except Exception as error:
 
@@ -145,7 +149,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_c0_coefficinent(phi_values)
+        return self.formalism.compute_c0_coefficient(phi_values)
     
     def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -153,7 +157,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_c1_coefficient(phi_values)
+        return self.formalism.compute_c1_coefficient(phi_values)
     
     def compute_c2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -161,7 +165,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_c2_coefficinent(phi_values)
+        return self.formalism.compute_c2_coefficient(phi_values)
     
     def compute_c3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -169,7 +173,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_c3_coefficinent(phi_values)
+        return self.formalism.compute_c3_coefficient(phi_values)
     
     def compute_s1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -177,7 +181,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_s1_coefficinent(phi_values)
+        return self.formalism.compute_s1_coefficient(phi_values)
     
     def compute_s2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -185,7 +189,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_s2_coefficinent(phi_values)
+        return self.formalism.compute_s2_coefficient(phi_values)
     
     def compute_s3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
@@ -193,7 +197,7 @@ class DifferentialCrossSection:
         if not hasattr(self, "formalism"):
             raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        return self.formalism.calculate_s3_coefficinent(phi_values)
+        return self.formalism.compute_s3_coefficient(phi_values)
 
     def compute_cross_section(self, phi_values: np.ndarray) -> np.ndarray:
         """
