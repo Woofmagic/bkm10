@@ -2,6 +2,8 @@
 
 from bkm10_lib.validation import validate_configuration
 
+from bkm10_lib.formalism import BKMFormalism
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -94,9 +96,13 @@ class DifferentialCrossSection:
             validated_configuration_dictionary = validate_configuration(configuration_dictionary, self.verbose)
 
             self.kinematic_inputs = validated_configuration_dictionary["kinematics"]
+
             self.cff_inputs = validated_configuration_dictionary["cff_inputs"]
+
             self.target_polarization = validated_configuration_dictionary["target_polarization"]
+
             self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
+
             
         except Exception as error:
 
@@ -141,7 +147,14 @@ class DifferentialCrossSection:
         coefficient_c_1 = 0.
 
         # (X): Compute the dfferential cross-section:
-        differential_cross_section = coefficient_c_0 + coefficient_c_1 * np.cos(verified_phi_values)
+        differential_cross_section = (
+            coefficient_c_0 + 
+            coefficient_c_1 * np.cos(verified_phi_values) +
+            coefficient_c_2 * np.cos(verified_phi_values) +
+            coefficient_c_3 * np.cos(verified_phi_values) +
+            coefficient_s_1 * np.sin(verified_phi_values) + 
+            coefficient_s_2 * np.sin(verified_phi_values) +
+            coefficient_s_3 * np.sin(verified_phi_values))
 
         # (X): Store cross-section data as class attribute:
         self.cross_section_values = differential_cross_section
