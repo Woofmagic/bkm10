@@ -147,7 +147,8 @@ class DifferentialCrossSection:
             cff_values = self.cff_inputs,
             lepton_polarization = lepton_polarization,
             target_polarization = self.target_polarization,
-            verbose = self.verbose)
+            verbose = self.verbose,
+            debugging = self.debugging)
         
     def compute_prefactor(self) -> float:
         """
@@ -291,7 +292,10 @@ class DifferentialCrossSection:
             print(f"> [DEBUGGING]: Evaluating cross-section with phi values of:\n> {phi_values}")
 
         # (X): Verify that the array of angles is at least 1D:
-        verified_phi_values = np.atleast_1d(phi_values)
+        print(phi_values)
+        print(np.atleast_1d(phi_values))
+        verified_phi_values = (np.atleast_1d(phi_values) * np.pi / 180.)
+        print(verified_phi_values)
 
         # (X): Obtain the cross-section prefactor:
         cross_section_prefactor = self.compute_prefactor()
@@ -306,7 +310,7 @@ class DifferentialCrossSection:
         coefficient_s_3 = self.compute_s3_coefficient(verified_phi_values)
 
         # (X): Compute the dfferential cross-section:
-        differential_cross_section = (cross_section_prefactor * (
+        differential_cross_section = .389379 * 1000000. * (cross_section_prefactor * (
             coefficient_c_0 + 
             coefficient_c_1 * np.cos(verified_phi_values) +
             coefficient_c_2 * np.cos(verified_phi_values) +
@@ -354,7 +358,7 @@ class DifferentialCrossSection:
             print(f"> [DEBUGGING]: Evaluating cross-section with phi values of:\n> {phi_values}")
 
         # (X): Verify that the array of angles is at least 1D:
-        verified_phi_values = np.atleast_1d(phi_values)
+        verified_phi_values = np.atleast_1d(phi_values) * np.pi / 180.
 
         # (X): Compute the differential cross-section according to lambda = +1.0:
         sigma_plus = (
@@ -389,8 +393,6 @@ class DifferentialCrossSection:
         
         # (X): Store cross-section data as class attribute:
         self.bsa_values = bsa_values
-
-        print(bsa_values)
 
         # (X): Return the cross section:
         return bsa_values

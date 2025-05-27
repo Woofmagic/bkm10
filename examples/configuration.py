@@ -38,7 +38,7 @@ example_1_config_dictionary = {
 example_1_cross_section = DifferentialCrossSection(
     configuration = example_1_config_dictionary,
     verbose = True,
-    debugging = True)
+    debugging = False)
 
 example_1_cross_section.compute_cross_section(phi_array)
 example_1_cross_section.plot_cross_section(phi_array)

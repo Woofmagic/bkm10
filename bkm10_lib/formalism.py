@@ -18,7 +18,8 @@ class BKMFormalism:
             lepton_polarization: float,
             target_polarization: float,
             formalism_version: str = "10",
-            verbose: bool = False):
+            verbose: bool = False,
+            debugging: bool = False):
 
         # (X): Collect the inputs:
         self.kinematics = inputs
@@ -37,6 +38,9 @@ class BKMFormalism:
 
         # (X): Define a verbose parameter:
         self.verbose = verbose
+
+        # (X): Define a debugging parameter: DO NOT USE THIS!
+        self.debugging = debugging
 
         # (X): Derived Quantity | self.epsilon:
         self.epsilon = self._calculate_epsilon()
@@ -359,7 +363,12 @@ class BKMFormalism:
             # (2): Calculate the F_{E}:
             form_factor_electric = 1. / (denominator**2)
 
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated electric form factor.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated electric form factor as: {form_factor_electric}")
 
             return form_factor_electric
@@ -397,7 +406,12 @@ class BKMFormalism:
             # (1): Calculate the F_{M}:
             form_factor_magnetic = _PROTON_MAGNETIC_MOMENT * self.electric_form_factor
 
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated magnetic form factor.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated magnetic form factor as: {form_factor_magnetic}")
 
             return form_factor_magnetic
@@ -448,7 +462,12 @@ class BKMFormalism:
             # (4): Calculate the Pauli form factor:
             pauli_form_factor = numerator / denominator
 
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated Fermi form factor.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated Fermi form factor as: {pauli_form_factor}")
 
             return pauli_form_factor
@@ -487,7 +506,12 @@ class BKMFormalism:
             # (1): Calculate the Dirac form factor:
             dirac_form_factor = self.magnetic_form_factor - self.pauli_form_factor
 
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated Dirac form factor.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated Dirac form factor as: {dirac_form_factor}")
 
             return dirac_form_factor
@@ -511,7 +535,12 @@ class BKMFormalism:
             # (3): Construct the prefactor:
             prefactor = numerator / denominator
 
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully BKM10 cross-section prefactor.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated BKM10 cross-section prefactor to be:\n{prefactor}")
 
             # (4): Return the prefactor:
@@ -580,8 +609,12 @@ class BKMFormalism:
             # (8): The actual equation:
             k_dot_delta_result = -1. * prefactor * in_parentheses
 
-            # (8.1): If verbose, print the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated k_dot_delta_result.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated k dot delta: {k_dot_delta_result}")
 
             # (9): Return the number:
@@ -614,7 +647,12 @@ class BKMFormalism:
         try:
             p1_propagator = 1. + (2. * (self.calculate_k_dot_delta(phi_values) / self.kinematics.squared_Q_momentum_transfer))
             
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated p1_propagator.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Computed the P1 propagator to be:\n{p1_propagator}")
 
             return p1_propagator
@@ -646,7 +684,12 @@ class BKMFormalism:
         try:
             p2_propagator = (-2. * (self.calculate_k_dot_delta(phi_values) / self.kinematics.squared_Q_momentum_transfer)) + (self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)
             
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated p2_propagator.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Computed the P2 propagator to be:\n{p2_propagator}")
 
             return p2_propagator
@@ -1674,8 +1717,12 @@ class BKMFormalism:
             # (3): Add them together:
             curly_C_unpolarized_interference = weighted_cffs + second_term
 
-            # (4.1): If verbose, print the calculation:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated curly_C_unpolarized_interference.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated Curly C interference unpolarized target to be:\n{curly_C_unpolarized_interference}")
 
             # (5): Return the output:
@@ -1700,8 +1747,12 @@ class BKMFormalism:
             # (3): Add them together:
             curly_C_unpolarized_interference_V = cff_term * second_term
 
-            # (4.1): If verbose, print the calculation:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated curly_C_unpolarized_interference_V.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated Curly C interference V unpolarized target to be:\n{curly_C_unpolarized_interference_V}")
 
             # (5): Return the output:
@@ -1723,8 +1774,12 @@ class BKMFormalism:
             # (2): Add them together:
             curly_C_unpolarized_interference_A = self.cff_values.compton_form_factor_h_tilde * xb_modulation
 
-            # (3.1): If verbose, print the calculation:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated curly_C_unpolarized_interference_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated Curly C interference A unpolarized target to be:\n{curly_C_unpolarized_interference_A}")
 
             # (4): Return the output:
@@ -1764,8 +1819,12 @@ class BKMFormalism:
             # (8): Add together with the correct signs the entire thing
             curly_C_longitudinally_polarized_interference = first_cff_contribution + second_cff_contribution - third_cff_contribution - fourth_cff_contribution
 
-            # (8.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated curly_C_longitudinally_polarized_interference.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated the curly C LP for interference to be:\n{curly_C_longitudinally_polarized_interference}")
             
             # (9): Return the output:
@@ -1793,8 +1852,12 @@ class BKMFormalism:
             # (4): Calculate the entire thing:
             curly_C_V_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * (self.cff_values.compton_form_factor_h + (self.kinematics.x_Bjorken * (1. - t_over_Q_squared) * self.cff_values.compton_form_factor_e / 2.))
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated curly_C_V_longitudinally_polarized_interference.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated the curly C LP V for interference to be:\n{curly_C_V_longitudinally_polarized_interference}")
             
             # (5): Return the output:
@@ -1825,8 +1888,12 @@ class BKMFormalism:
             # (5): Calculate the entire thing:
             curly_C_A_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * cff_appearance
 
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated curly_C_A_longitudinally_polarized_interference.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated the curly C LP A for interference to be:\n{curly_C_A_longitudinally_polarized_interference}")
             
             # (6): Return the output:
@@ -1875,8 +1942,12 @@ class BKMFormalism:
             # (11): Calculate the coefficient
             c_0_plus_plus_unp = prefactor * (first_term_in_brackets + second_term_in_brackets_first_part * second_term_in_brackets_second_part)
 
-            # (11.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_plus_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_plus_plus_unp to be:\n{c_0_plus_plus_unp}")
 
             # (12): Return the coefficient:
@@ -1925,8 +1996,12 @@ class BKMFormalism:
             # (11): The entire thing:
             c_0_plus_plus_V_unp = coefficient_prefactor * (first_term_in_brackets + second_term_in_brackets)
 
-            # (11.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_plus_plus_V_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_plus_plus_V_unp to be:\n{c_0_plus_plus_V_unp}")
 
             # (12): Return the coefficient:
@@ -1975,8 +2050,12 @@ class BKMFormalism:
             # (11): The entire thing:
             c_0_plus_plus_A_unp = coefficient_prefactor * (curly_bracket_first_term + curly_bracket_second_term)
 
-            # (11.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_plus_plus_A_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_plus_plus_A_unp to be:\n{c_0_plus_plus_A_unp}")
 
             # (12): Return the coefficient:
@@ -2001,8 +2080,12 @@ class BKMFormalism:
             # (3): Calculate the coefficient:
             c_0_zero_plus_unp = prefactor * bracket_quantity
             
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_zero_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_zero_plus_unp to be:\n{c_0_zero_plus_unp}")
 
             # (4): Return the coefficient:
@@ -2030,8 +2113,12 @@ class BKMFormalism:
             # (4): Stitch together the coefficient:
             c_0_zero_plus_V_unp = prefactor * main_part
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_zero_plus_V_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_zero_plus_V_unp to be:\n{c_0_zero_plus_V_unp}")
 
             # (5): Return the coefficient:
@@ -2062,8 +2149,12 @@ class BKMFormalism:
             # (5): Stitch together the coefficient:
             c_0_zero_plus_A_unp = prefactor * t_over_Q_squared * fancy_xb_epsilon_term * brackets_term
 
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_zero_plus_A_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_zero_plus_A_unp to be:\n{c_0_zero_plus_A_unp}")
 
             # (6): Return the coefficient:
@@ -2109,8 +2200,12 @@ class BKMFormalism:
             # (10): Calculate the coefficient
             c_1_plus_plus_unp = first_term + second_term
             
-            # (11.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_plus_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_plus_plus_unp to be:\n{c_1_plus_plus_unp}")
 
             # (12): Return the coefficient:
@@ -2147,8 +2242,12 @@ class BKMFormalism:
             # (7): The entire thing:
             c_1_plus_plus_V_unp = coefficient_prefactor * (first_bracket_term + second_bracket_term_first_part * second_bracket_term_second_part)
 
-            # (7.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_plus_plus_V_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_plus_plus_V_unp to be:\n{c_1_plus_plus_V_unp}")
 
             # (12): Return the coefficient:
@@ -2194,8 +2293,12 @@ class BKMFormalism:
             # (10): The entire thing:
             c_1_plus_plus_A_unp = prefactor * (fancy_y_stuff * first_bracket_term_second_part - (2. - self.lepton_energy_fraction)**2 * second_bracket_term)
 
-            # (10.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_plus_plus_A_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_plus_plus_A_unp to be:\n{c_1_plus_plus_A_unp}")
 
             # (11): Return the coefficient:
@@ -2238,8 +2341,12 @@ class BKMFormalism:
             # (9): Calculate the coefficient:
             c_1_zero_plus_unp = prefactor * (first_bracket_term + second_bracket_term)
             
-            # (9.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_zero_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_zero_plus_unp to be:\n{c_1_zero_plus_unp}")
 
             # (9): Return the coefficient:
@@ -2270,8 +2377,12 @@ class BKMFormalism:
             # (5): Stitch together the coefficient:
             c_1_zero_plus_V_unp = prefactor * major_part
 
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_zero_plus_V_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_zero_plus_V_unp to be:\n{c_1_zero_plus_V_unp}")
 
             # (6): Return the coefficient:
@@ -2314,8 +2425,12 @@ class BKMFormalism:
             # (9): Calculate the coefficient:
             c_1_zero_plus_unp_A = prefactor * (first_term + second_term_first_part * second_term_second_part)
             
-            # (9.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_zero_plus_unp_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_zero_plus_unp_A to be:\n{c_1_zero_plus_unp_A}")
 
             # (10): Return the coefficient:
@@ -2349,8 +2464,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient
             c_2_plus_plus_unp = prefactor * (first_bracket_term + second_bracket_term)
             
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_plus_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_plus_plus_unp to be:\n{c_2_plus_plus_unp}")
 
             # (7): Return the coefficient:
@@ -2384,8 +2503,12 @@ class BKMFormalism:
             # (6): The entire thing:
             c_2_plus_plus_V_unp = prefactor * major_term
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_plus_plus_V_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_plus_plus_V_unp to be:\n{c_2_plus_plus_V_unp}")
 
             # (7): Return the coefficient:
@@ -2422,8 +2545,12 @@ class BKMFormalism:
             # (7): The entire thing:
             c_2_plus_plus_A_unp = prefactor * (first_bracket_term - second_bracket_term)
 
-            # (7.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_plus_plus_A_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_plus_plus_A_unp to be:\n{c_2_plus_plus_A_unp}")
 
             # (8): Return the coefficient:
@@ -2457,8 +2584,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient:
             c_2_zero_plus_unp = prefactor * (1. + self.epsilon_squared_over_2) * bracket_term
             
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_zero_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_unp to be:\n{c_2_zero_plus_unp}")
 
             # (7): Return the coefficient:
@@ -2489,8 +2620,12 @@ class BKMFormalism:
             # (5): Calculate the coefficient:
             c_2_zero_plus_unp_V = prefactor * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
             
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_zero_plus_unp_V.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_unp_V to be:\n{c_2_zero_plus_unp_V}")
 
             # (6): Return the coefficient:
@@ -2530,8 +2665,12 @@ class BKMFormalism:
             # (8): Calculate the coefficient:
             c_2_zero_plus_unp_A = prefactor * bracket_term
             
-            # (8.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_zero_plus_unp_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_unp_A to be:\n{c_2_zero_plus_unp_A}")
 
             # (9): Return the coefficient:
@@ -2565,8 +2704,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient
             c_3_plus_plus_unp = prefactor * intermediate_term * major_term
             
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_3_plus_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_3_plus_plus_unp to be:\n{c_3_plus_plus_unp}")
 
             # (7): Return the coefficient:
@@ -2597,8 +2740,12 @@ class BKMFormalism:
             # (5): The entire thing:
             c_3_plus_plus_V_unp = prefactor * major_term
 
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_3_plus_plus_V_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_3_plus_plus_V_unp to be:\n{c_3_plus_plus_V_unp}")
 
             # (7): Return the coefficient:
@@ -2623,8 +2770,12 @@ class BKMFormalism:
             # (3): The entire thing:
             c_3_plus_plus_A_unp = prefactor * main_term
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_3_plus_plus_A_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_3_plus_plus_A_unp to be:\n{c_3_plus_plus_A_unp}")
 
             # (4): Return the coefficient:
@@ -2655,8 +2806,12 @@ class BKMFormalism:
             # (5): Calculate the coefficient
             s_1_plus_plus_unp = prefactor * bracket_term
             
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_1_plus_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_plus_plus_unp to be:\n{s_1_plus_plus_unp}")
 
             # (6): Return the coefficient:
@@ -2687,8 +2842,12 @@ class BKMFormalism:
             # (5): Calculate the coefficient
             s_1_plus_plus_unp_V = prefactor * bracket_term
             
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_1_plus_plus_unp_V.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_plus_plus_unp_V to be:\n{s_1_plus_plus_unp_V}")
 
             # (6): Return the coefficient:
@@ -2725,8 +2884,12 @@ class BKMFormalism:
             # (7): Calculate the coefficient
             s_1_plus_plus_unp_A = prefactor * bracket_term
             
-            # (7.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_1_plus_plus_unp_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_plus_plus_unp_A to be:\n{s_1_plus_plus_unp_A}")
 
             # (8): Return the coefficient:
@@ -2751,8 +2914,12 @@ class BKMFormalism:
             # (3): Calculate the coefficient
             s_1_zero_plus_unp = 8. * self.lepton_polarization * np.sqrt(2.) * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * y_quantity * self.k_tilde**2 / (root_one_plus_epsilon_squared * self.kinematics.squared_Q_momentum_transfer)
             
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_1_zero_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_zero_plus_unp to be:\n{s_1_zero_plus_unp}")
 
             # (4): Return the coefficient:
@@ -2786,8 +2953,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient
             s_1_zero_plus_unp_V = prefactor * bracket_term
             
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_1_zero_plus_unp_V.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_zero_plus_unp_V to be:\n{s_1_zero_plus_unp_V}")
 
             # (7): Return the coefficient:
@@ -2815,8 +2986,12 @@ class BKMFormalism:
             # (4): Calculate the coefficient
             s_1_zero_plus_unp_A = prefactor * fancy_y_stuff * self.kinematics.squared_hadronic_momentum_transfer_t * self.kinematic_k**2 / self.kinematics.squared_Q_momentum_transfer
             
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_1_zero_plus_unp_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_zero_plus_unp_A to be:\n{s_1_zero_plus_unp_A}")
 
             # (5): Return the coefficient:
@@ -2853,8 +3028,12 @@ class BKMFormalism:
             # (7): Calculate the coefficient
             s_2_plus_plus_unp = prefactor * (first_bracket_term - second_bracket_term)
             
-            # (7.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_plus_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_plus_plus_unp to be:\n{s_2_plus_plus_unp}")
 
             # (6): Return the coefficient:
@@ -2894,8 +3073,12 @@ class BKMFormalism:
             # (8): Calculate the coefficient
             s_2_plus_plus_unp_V = prefactor * parentheses_term * bracket_term
             
-            # (8.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_plus_plus_unp_V.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_plus_plus_unp_V to be:\n{s_2_plus_plus_unp_V}")
 
             # (9): Return the coefficient:
@@ -2935,8 +3118,12 @@ class BKMFormalism:
             # (8): Calculate the coefficient
             s_2_plus_plus_unp_A = prefactor * middle_term * last_term
             
-            # (8.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_plus_plus_unp_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_plus_plus_unp_A to be:\n{s_2_plus_plus_unp_A}")
 
             # (9): Return the coefficient:
@@ -2970,8 +3157,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient:
             s_2_zero_plus_unp = prefactor * (1. + self.epsilon_squared_over_2) * bracket_term
             
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_unp.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_zero_plus_unp to be:\n{s_2_zero_plus_unp}")
 
             # (7): Return the coefficient:
@@ -3002,8 +3193,12 @@ class BKMFormalism:
             # (5): Calculate the coefficient:
             s_2_zero_plus_unp_V = prefactor * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
             
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_unp_V.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_zero_plus_unp_V to be:\n{s_2_zero_plus_unp_V}")
 
             # (6): Return the coefficient:
@@ -3040,8 +3235,12 @@ class BKMFormalism:
             # (7): Calculate the coefficient:
             c_2_zero_plus_unp_A = prefactor * main_term
             
-            # (7.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_2_zero_plus_unp_A.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_unp_A to be:\n{c_2_zero_plus_unp_A}")
 
             # (8): Return the coefficient:
@@ -3084,8 +3283,12 @@ class BKMFormalism:
             # (9): Calculate the entire thing:
             c_0_plus_plus_LP = prefactor * (first_bracket_term + second_bracket_term)
 
-            # (9.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_plus_plus_V_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_plus_plus_LP to be:\n{c_0_plus_plus_LP}")
 
             # (10): Return the coefficient:
@@ -3134,8 +3337,12 @@ class BKMFormalism:
             # (11): Calculate the entire thing:
             c_0_plus_plus_V_LP = prefactor * (first_bracket_term + second_bracket_term)
 
-            # (11.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_plus_plus_V_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_plus_plus_V_LP to be:\n{c_0_plus_plus_V_LP}")
 
             # (12): Return the coefficient:
@@ -3181,8 +3388,12 @@ class BKMFormalism:
             # (10): Calculate the entire thing:
             c_0_plus_plus_A_LP = prefactor * (first_bracket_term + second_bracket_term)
 
-            # (10.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_plus_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_plus_plus_A_LP to be:\n{c_0_plus_plus_A_LP}")
 
             # (11): Return the coefficient:
@@ -3224,8 +3435,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             c_0_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_zero_plus_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_zero_plus_LP to be:\n{c_0_zero_plus_LP}")
 
             # (4): Return the coefficient:
@@ -3250,8 +3465,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             c_0_zero_plus_V_LP = c_0_zero_plus_LP * modulating_factor
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_zero_plus_V_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_zero_plus_V_LP to be:\n{c_0_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
@@ -3279,8 +3498,12 @@ class BKMFormalism:
             # (4): Calculate everything:
             c_0_zero_plus_A_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + t_over_Q_squared)
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_0_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_0_zero_plus_A_LP to be:\n{c_0_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
@@ -3314,8 +3537,12 @@ class BKMFormalism:
             # (6): Calculate the entire thing:
             c_1_plus_plus_LP = prefactor * one_plus_root_epsilon_minus_epsilon_squared * major_factor
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_plus_plus_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_plus_plus_LP to be:\n{c_1_plus_plus_LP}")
 
             # (7): Return the coefficient:
@@ -3355,8 +3582,12 @@ class BKMFormalism:
             # (8): Calculate the entire thing:
             c_1_plus_plus_V_LP = prefactor * root_epsilon_and_xb_quantity * self.kinematics.squared_hadronic_momentum_transfer_t * bracket_factor / self.kinematics.squared_Q_momentum_transfer
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_plus_plus_V_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_plus_plus_V_LP to be:\n{c_1_plus_plus_V_LP}")
 
             # (7): Return the coefficient:
@@ -3384,8 +3615,12 @@ class BKMFormalism:
             # (4): Calculate the entire thing:
             c_1_plus_plus_A_LP = prefactor * major_factor
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_plus_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_plus_plus_A_LP to be:\n{c_1_plus_plus_A_LP}")
 
             # (5): Return the coefficient:
@@ -3410,8 +3645,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             c_1_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_zero_plus_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_zero_plus_LP to be:\n{c_1_zero_plus_LP}")
 
             # (4): Return the coefficient:
@@ -3436,8 +3675,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             c_1_zero_plus_V_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.squared_hadronic_momentum_transfer_t * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer**2
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated c_1_zero_plus_V_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_1_zero_plus_V_LP to be:\n{c_1_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
@@ -3474,8 +3717,12 @@ class BKMFormalism:
             # (6): Calculate the entire thing:
             c_2_plus_plus_LP = prefactor * first_multiplicative_factor * second_multiplicative_factor
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_plus_plus_LP to be:\n{c_2_plus_plus_LP}")
 
             # (7): Return the coefficient:
@@ -3515,8 +3762,12 @@ class BKMFormalism:
             # (8): Calculate the entire thing:
             c_2_plus_plus_V_LP = prefactor * first_multiplicative_factor * second_multiplicative_factor * third_multiplicative_factor
 
-            # (8.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_plus_plus_V_LP to be:\n{c_2_plus_plus_V_LP}")
 
             # (9): Return the coefficient:
@@ -3553,8 +3804,12 @@ class BKMFormalism:
             # (7): Calculate the entire thing:
             c_2_plus_plus_A_LP = prefactor * first_multiplicative_factor * second_multiplicative_factor
 
-            # (7.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_plus_plus_A_LP to be:\n{c_2_plus_plus_A_LP}")
 
             # (8): Return the coefficient:
@@ -3579,8 +3834,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             c_2_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * (1. + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_LP to be:\n{c_2_zero_plus_LP}")
 
             # (4): Return the coefficient:
@@ -3605,8 +3864,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             c_2_zero_plus_V_LP = prefactor * root_combination_of_y_and_epsilon * (1. - self.kinematics.x_Bjorken ) * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_V_LP to be:\n{c_2_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
@@ -3634,8 +3897,12 @@ class BKMFormalism:
             # (4): Calculate everything:
             c_2_zero_plus_A_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated c_2_zero_plus_A_LP to be:\n{c_2_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
@@ -3681,8 +3948,12 @@ class BKMFormalism:
             # (10): Calculate the coefficient:
             s_1_plus_plus_LP = prefactor_one * first_bracket_term + prefactor_two * second_bracket_term
 
-            # (10.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_plus_plus_LP to be:\n{s_1_plus_plus_LP}")
 
             # (11): Return the coefficient:
@@ -3740,8 +4011,12 @@ class BKMFormalism:
             # (14): Calculate the coefficient:
             s_1_plus_plus_V_LP = prefactor_one * first_bracket_term + prefactor_two * second_term_parentheses_term * second_bracket_term
 
-            # (14.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_plus_plus_V_LP to be:\n{s_1_plus_plus_V_LP}")
 
             # (15): Return the coefficient:
@@ -3790,8 +4065,12 @@ class BKMFormalism:
             # (11): Calculate the coefficient:
             s_1_plus_plus_A_LP = prefactor_one * first_bracket_term + prefactor_two * second_bracket_term
 
-            # (11.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_plus_plus_A_LP to be:\n{s_1_plus_plus_A_LP}")
 
             # (12): Return the coefficient:
@@ -3825,8 +4104,12 @@ class BKMFormalism:
             # (6): Calculate everything:
             s_1_zero_plus_LP = prefactor * (first_bracket_term + second_bracket_term)
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_zero_plus_LP to be:\n{s_1_zero_plus_LP}")
 
             # (7): Return the coefficient:
@@ -3863,8 +4146,12 @@ class BKMFormalism:
             # (7): Calculate everything:
             s_1_zero_plus_V_LP = prefactor * (first_bracket_term + second_bracket_term)
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_zero_plus_V_LP to be:\n{s_1_zero_plus_V_LP}")
 
             # (7): Return the coefficient:
@@ -3892,8 +4179,12 @@ class BKMFormalism:
             # (4): Calculate everything:
             s_1_zero_plus_A_LP = prefactor * combination_of_y_and_epsilon_to_3_halves.epsilon_to_3_halves * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_1_zero_plus_A_LP to be:\n{s_1_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
@@ -3924,8 +4215,12 @@ class BKMFormalism:
             # (5): Calculate the coefficient
             s_2_plus_plus_LP = prefactor * bracket_term
 
-            # (5.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_plus_plus_LP to be:\n{s_2_plus_plus_LP}")
 
             # (6): Return the coefficient:
@@ -3959,8 +4254,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient
             s_2_plus_plus_V_LP = prefactor * bracket_term
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_plus_plus_V_LP to be:\n{s_2_plus_plus_V_LP}")
 
             # (7): Return the coefficient:
@@ -3994,8 +4293,12 @@ class BKMFormalism:
             # (6): Calculate the coefficient
             s_2_plus_plus_A_LP = prefactor * bracket_term
 
-            # (6.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_plus_plus_A_LP to be:\n{s_2_plus_plus_A_LP}")
 
             # (7): Return the coefficient:
@@ -4020,8 +4323,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             s_2_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * (1. + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_zero_plus_LP to be:\n{s_2_zero_plus_LP}")
 
             # (4): Return the coefficient:
@@ -4046,8 +4353,12 @@ class BKMFormalism:
             # (3): Calculate everything:
             s_2_zero_plus_V_LP = prefactor * (1. - self.kinematics.x_Bjorken) * root_combination_of_y_and_epsilon
 
-            # (3.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_zero_plus_V_LP to be:\n{s_2_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
@@ -4075,8 +4386,12 @@ class BKMFormalism:
             # (4): Calculate everything:
             s_2_zero_plus_A_LP = prefactor * root_combination_of_y_and_epsilon * (1. + t_over_Q_squared)
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_2_zero_plus_A_LP to be:\n{s_2_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
@@ -4104,8 +4419,12 @@ class BKMFormalism:
             # (4): Calculate the coefficient:
             s_3_plus_plus_LP = prefactor * (one_plus_root_epsilon_stuff - 2. * self.kinematics.x_Bjorken) * self.epsilon**2 * self.t_prime / (self.kinematics.squared_Q_momentum_transfer * one_plus_root_epsilon_stuff)
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_3_plus_plus_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_3_plus_plus_LP to be:\n{s_3_plus_plus_LP}")
 
             # (5): Return the coefficient:
@@ -4133,8 +4452,12 @@ class BKMFormalism:
             # (4): Calculate the coefficient:
             s_3_plus_plus_V_LP = prefactor * multiplicative_contribution
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_3_plus_plus_V_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_3_plus_plus_V_LP to be:\n{s_3_plus_plus_V_LP}")
 
             # (5): Return the coefficient:
@@ -4162,8 +4485,12 @@ class BKMFormalism:
             # (4): Calculate the coefficient:
             s_3_plus_plus_A_LP = prefactor * multiplicative_contribution
 
-            # (4.1): If verbose, log the output:
+            # (5): If verbose, log that the calculation finished!
             if self.verbose:
+                print(f"> Successfully calculated s_3_plus_plus_A_LP.")
+            
+            # (6): If debugging, log the entire output:
+            if self.debugging:
                 print(f"> Calculated s_3_plus_plus_A_LP to be:\n{s_3_plus_plus_A_LP}")
 
             # (5): Return the coefficient:
