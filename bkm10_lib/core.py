@@ -292,10 +292,7 @@ class DifferentialCrossSection:
             print(f"> [DEBUGGING]: Evaluating cross-section with phi values of:\n> {phi_values}")
 
         # (X): Verify that the array of angles is at least 1D:
-        print(phi_values)
-        print(np.atleast_1d(phi_values))
-        verified_phi_values = (np.atleast_1d(phi_values) * np.pi / 180.)
-        print(verified_phi_values)
+        verified_phi_values = np.pi - (np.atleast_1d(phi_values) * np.pi / 180.)
 
         # (X): Obtain the cross-section prefactor:
         cross_section_prefactor = self.compute_prefactor()
@@ -312,12 +309,12 @@ class DifferentialCrossSection:
         # (X): Compute the dfferential cross-section:
         differential_cross_section = .389379 * 1000000. * (cross_section_prefactor * (
             coefficient_c_0 + 
-            coefficient_c_1 * np.cos(verified_phi_values) +
-            coefficient_c_2 * np.cos(verified_phi_values) +
-            coefficient_c_3 * np.cos(verified_phi_values) +
-            coefficient_s_1 * np.sin(verified_phi_values) + 
-            coefficient_s_2 * np.sin(verified_phi_values) +
-            coefficient_s_3 * np.sin(verified_phi_values)))
+            coefficient_c_1 * np.cos(1.* verified_phi_values) +
+            coefficient_c_2 * np.cos(2. * verified_phi_values) +
+            coefficient_c_3 * np.cos(3. * verified_phi_values) +
+            coefficient_s_1 * np.sin(1. * verified_phi_values) + 
+            coefficient_s_2 * np.sin(2. * verified_phi_values) +
+            coefficient_s_3 * np.sin(3. * verified_phi_values)))
         
         # (X): Store cross-section data as class attribute:
         self.cross_section_values = differential_cross_section
@@ -471,7 +468,7 @@ class DifferentialCrossSection:
             if self.verbose:
                 print("> Could not find full kinematics for title.")
 
-            cross_section_axis_instance.set_title("Differential Cross Section vs. $\phi$", fontsize=14)
+            cross_section_axis_instance.set_title(r"Differential Cross Section vs. $\phi$", fontsize = 14)
 
         plt.tight_layout()
         plt.show()

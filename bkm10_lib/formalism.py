@@ -589,7 +589,7 @@ class BKMFormalism:
             prefactor = self.kinematics.squared_Q_momentum_transfer / (2. * self.lepton_energy_fraction * (1. + self.epsilon**2))
 
             # (2): Second term in parentheses: Phi-Dependent Term: 2 K np.cos(\phi)
-            phi_dependence = 2. * self.kinematic_k * np.cos(np.pi - phi_values)
+            phi_dependence = 2. * self.kinematic_k * np.cos(phi_values)
             
             # (3): Prefactor of third term in parentheses: \frac{t}{Q^{2}}
             ratio_delta_to_q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
