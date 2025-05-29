@@ -56,6 +56,9 @@ class DifferentialCrossSection:
         # (X): A dictionary of *every coefficient* that we computed:
         self.coefficients = {}
 
+        # (X): The Trento Angle convention basically shifts all phi to pi - phi:
+        self._using_trento_angle_convention = True
+
         # (X): Hidden data that says if configuration passed:
         self._passed_configuration = False
 
@@ -63,25 +66,25 @@ class DifferentialCrossSection:
         self._evaluated = False
 
         if verbose:
-            print(f"> [VERBOSE]: Verbose mode on.")
+            print("> [VERBOSE]: Verbose mode on.")
         if debugging:
-            print(f"> [DEBUGGING]: Debugging mode is on — DO NOT USE THIS!")
+            print("> [DEBUGGING]: Debugging mode is on — DO NOT USE THIS!")
 
         if configuration:
             if verbose:
-                print(f"> [VERBOSE]: Configuration dictionary received!")
+                print("> [VERBOSE]: Configuration dictionary received!")
             if debugging:
-                print(f"> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
+                print("> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
 
             try:
                 if debugging:
-                    print(f"> [DEBUGGING]: Trying to initialize configuration...")
+                    print("> [DEBUGGING]: Trying to initialize configuration...")
             
                 # (X): Initialize the class from the dictionary:
                 self._initialize_from_config(configuration)
 
                 if debugging:
-                    print(f"> [DEBUGGING]: Configuration passed!")
+                    print("> [DEBUGGING]: Configuration passed!")
 
             except:
                 raise Exception("> Unable to initialize configuration!")
@@ -89,7 +92,7 @@ class DifferentialCrossSection:
             self._passed_configuration = True
 
             if verbose:
-                print(f"> [VERBOSE]: Configuration succeeded!")
+                print("> [VERBOSE]: Configuration succeeded!")
             if debugging:
                 print(f"> [DEBUGGING]: Configuration succeeded! Now set internal attribute: {self._passed_configuration}")
 
@@ -279,7 +282,7 @@ class DifferentialCrossSection:
         # (X): If  the user has not filled in the class inputs...
         if not hasattr(self, 'kinematic_inputs'):
 
-            # (X): ...enforce the class to 
+            # (X): ...enforce the class to use this setting:
             raise RuntimeError("> Missing 'kinematic_inputs' configuration before evaluation.")
 
         # (X): If the user wants some confirmation that stuff is good...
@@ -294,8 +297,17 @@ class DifferentialCrossSection:
             # (X): ... we give it to them:
             print(f"> [DEBUGGING]: Evaluating cross-section with phi values of:\n> {phi_values}")
 
-        # (X): Verify that the array of angles is at least 1D:
-        verified_phi_values = np.pi - (np.atleast_1d(phi_values) * np.pi / 180.)
+        # (X): Remember what the Trento angle convention is...
+        if self._using_trento_angle_convention:
+
+            # (X): ...if it's on, we apply the shift to the angle array:
+            verified_phi_values = np.pi - np.atleast_1d(phi_values)
+
+        # (X): Otherwise...
+        else:
+
+            # (X): ... just verify that the array of angles is at least 1D:
+            verified_phi_values = np.atleast_1d(phi_values)
 
         # (X): Obtain the cross-section prefactor:
         cross_section_prefactor = self.compute_prefactor()
@@ -311,8 +323,8 @@ class DifferentialCrossSection:
 
         # (X): Compute the dfferential cross-section:
         differential_cross_section = .389379 * 1000000. * (cross_section_prefactor * (
-            coefficient_c_0 + 
-            coefficient_c_1 * np.cos(1.* verified_phi_values) +
+            coefficient_c_0 * np.cos(0. * verified_phi_values) + 
+            coefficient_c_1 * np.cos(1. * verified_phi_values) +
             coefficient_c_2 * np.cos(2. * verified_phi_values) +
             coefficient_c_3 * np.cos(3. * verified_phi_values) +
             coefficient_s_1 * np.sin(1. * verified_phi_values) + 
@@ -342,7 +354,7 @@ class DifferentialCrossSection:
         # (X): If  the user has not filled in the class inputs...
         if not hasattr(self, 'kinematic_inputs'):
 
-            # (X): ...enforce the class to 
+            # (X): ...enforce the class to use this key:
             raise RuntimeError("> Missing 'kinematic_inputs' configuration before evaluation.")
 
         # (X): If the user wants some confirmation that stuff is good...
@@ -357,35 +369,44 @@ class DifferentialCrossSection:
             # (X): ... we give it to them:
             print(f"> [DEBUGGING]: Evaluating cross-section with phi values of:\n> {phi_values}")
 
-        # (X): Verify that the array of angles is at least 1D:
-        verified_phi_values = np.atleast_1d(phi_values) * np.pi / 180.
+        # (X): Remember what the Trento angle convention is...
+        if self._using_trento_angle_convention:
+
+            # (X): ...if it's on, we apply the shift to the angle array:
+            verified_phi_values = np.pi - np.atleast_1d(phi_values)
+
+        # (X): Otherwise...
+        else:
+
+            # (X): ... just verify that the array of angles is at least 1D:
+            verified_phi_values = np.atleast_1d(phi_values)
 
         # (X): Compute the differential cross-section according to lambda = +1.0:
         sigma_plus = (
-            self.formalism_plus.compute_c0_coefficient(verified_phi_values)
-            + self.formalism_plus.compute_c1_coefficient(verified_phi_values)
-            + self.formalism_plus.compute_c2_coefficient(verified_phi_values)
-            + self.formalism_plus.compute_c3_coefficient(verified_phi_values)
-            + self.formalism_plus.compute_s1_coefficient(verified_phi_values)
-            + self.formalism_plus.compute_s2_coefficient(verified_phi_values)
-            + self.formalism_plus.compute_s3_coefficient(verified_phi_values)
+            self.formalism_plus.compute_c0_coefficient(verified_phi_values) * np.cos(0. * verified_phi_values)
+            + self.formalism_plus.compute_c1_coefficient(verified_phi_values) * np.cos(1. * verified_phi_values)
+            + self.formalism_plus.compute_c2_coefficient(verified_phi_values) * np.cos(2. * verified_phi_values)
+            + self.formalism_plus.compute_c3_coefficient(verified_phi_values) * np.cos(3. * verified_phi_values)
+            + self.formalism_plus.compute_s1_coefficient(verified_phi_values) * np.sin(1. * verified_phi_values)
+            + self.formalism_plus.compute_s2_coefficient(verified_phi_values) * np.sin(2. * verified_phi_values)
+            + self.formalism_plus.compute_s3_coefficient(verified_phi_values) * np.sin(3. * verified_phi_values)
             )
     
         # (X): Compute the differential cross-section according to lambda = +1.0:
         sigma_minus = (
-            self.formalism_minus.compute_c0_coefficient(verified_phi_values)
-            + self.formalism_minus.compute_c1_coefficient(verified_phi_values)
-            + self.formalism_minus.compute_c2_coefficient(verified_phi_values)
-            + self.formalism_minus.compute_c3_coefficient(verified_phi_values)
-            + self.formalism_minus.compute_s1_coefficient(verified_phi_values)
-            + self.formalism_minus.compute_s2_coefficient(verified_phi_values)
-            + self.formalism_minus.compute_s3_coefficient(verified_phi_values)
+            self.formalism_minus.compute_c0_coefficient(verified_phi_values) * np.cos(0. * verified_phi_values)
+            + self.formalism_minus.compute_c1_coefficient(verified_phi_values) * np.cos(1. * verified_phi_values)
+            + self.formalism_minus.compute_c2_coefficient(verified_phi_values) * np.cos(2. * verified_phi_values)
+            + self.formalism_minus.compute_c3_coefficient(verified_phi_values) * np.cos(3. * verified_phi_values)
+            + self.formalism_minus.compute_s1_coefficient(verified_phi_values) * np.sin(1. * verified_phi_values)
+            + self.formalism_minus.compute_s2_coefficient(verified_phi_values) * np.sin(2. * verified_phi_values)
+            + self.formalism_minus.compute_s3_coefficient(verified_phi_values) * np.sin(3. * verified_phi_values)
             )
 
         # (X): Compute the numerator of the BSA: sigma(+) - sigma(-):
         numerator = sigma_plus - sigma_minus
 
-        # (X): Compute the denominator of the BSA: sigma(+) -+ sigma(-):
+        # (X): Compute the denominator of the BSA: sigma(+) + sigma(-):
         denominator = sigma_plus + sigma_minus
 
         # (X): Compute the dfferential cross-section:
@@ -469,7 +490,7 @@ class DifferentialCrossSection:
         except AttributeError:
 
             if self.verbose:
-                print("> Could not find full kinematics for title.")
+                print("> [VERBOSE]: Could not find full kinematics for title.")
 
             cross_section_axis_instance.set_title(r"Differential Cross Section vs. $\phi$", fontsize = 14)
 
@@ -490,6 +511,7 @@ class DifferentialCrossSection:
         if not self._evaluated:
             if self.verbose:
                 print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
+
             if self.debugging:
                 print("> [DEBUGGING]: No precomputed cross-section found. Computing now...")
 
@@ -503,9 +525,16 @@ class DifferentialCrossSection:
 
         bsa_figure_instance, bsa_axis_instance = plt.subplots(figsize = (8, 5))
 
-        bsa_axis_instance.plot(phi_values, self.bsa_values, color = 'black')
-        bsa_axis_instance.set_xlabel(r"Azimuthal Angle $\phi$ (degrees)", fontsize = 14)
-        bsa_axis_instance.set_ylabel(r"$\frac{d^4\sigma \left( \lambda = +1 \right) - d^4\sigma \left( \lambda = -1 \right)}{d^4\sigma \left( \lambda = +1 \right) + d^4\sigma \left( \lambda = -1 \right)}$ (unitless)", fontsize = 14)
+        bsa_axis_instance.plot(
+            phi_values,
+            self.bsa_values,
+            color = 'black')
+        bsa_axis_instance.set_xlabel(
+            r"Azimuthal Angle $\phi$ (degrees)",
+            fontsize = 14)
+        bsa_axis_instance.set_ylabel(
+            r"$\frac{d^4\sigma \left( \lambda = +1 \right) - d^4\sigma \left( \lambda = -1 \right)}{d^4\sigma \left( \lambda = +1 \right) + d^4\sigma \left( \lambda = -1 \right)}$ (unitless)",
+            fontsize = 14)
         bsa_axis_instance.grid(True)
 
         try:
@@ -523,9 +552,9 @@ class DifferentialCrossSection:
         except AttributeError:
 
             if self.verbose:
-                print("> Could not find full kinematics for title.")
+                print("> [VERBOSE]: Could not find full kinematics for title.")
 
-            bsa_axis_instance.set_title("BSA vs. $\phi$", fontsize = 14)
+            bsa_axis_instance.set_title(r"BSA vs. $\phi$", fontsize = 14)
 
         plt.tight_layout()
         plt.show()
