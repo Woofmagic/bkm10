@@ -28,11 +28,14 @@ example_1_cff_inputs = CFFInputs(
 example_1_target_polarization = 0.
 example_1_lepton_polarization = 0.0
 
+example_1_ww_setting = True
+
 example_1_config_dictionary = {
     "kinematics": example_1_kinematic_inputs,
     "cff_inputs": example_1_cff_inputs,
     "target_polarization": example_1_target_polarization,
     "lepton_beam_polarization": example_1_lepton_polarization,
+    "using_ww": example_1_ww_setting
 }
 
 example_1_cross_section = DifferentialCrossSection(

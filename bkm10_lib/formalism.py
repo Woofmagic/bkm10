@@ -1198,22 +1198,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate C_{++}(n = 1) using the *unpolarized* prescription:
             c1_plus_plus = self.calculate_c_1_plus_plus_unpolarized()
@@ -1293,22 +1293,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
             c2_plus_plus = self.calculate_c_2_plus_plus_unpolarized()
@@ -1388,22 +1388,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
             c3_plus_plus = self.calculate_c_3_plus_plus_unpolarized()
@@ -1434,22 +1434,22 @@ class BKMFormalism:
         elif self.target_polarization == 0.5:
 
             # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
 
             # (X): Calculate C_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
             c3_plus_plus = self.calculate_c_3_plus_plus_longitudinally_polarized()
@@ -1489,22 +1489,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate S_{++}(n = 1) using the *unpolarized* prescription:
             s1_plus_plus = self.calculate_s_1_plus_plus_unpolarized()
@@ -1527,22 +1527,22 @@ class BKMFormalism:
         elif self.target_polarization == 0.5:
 
             # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
 
             # (X): Calculate S_{++}(n = 1) using the *longitudinally-polarized* prescription:
             s1_plus_plus = self.calculate_s_1_plus_plus_longitudinally_polarized()
@@ -1584,22 +1584,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate S_{++}^{V}(n = 2) using the *unpolarized* prescription:
             s2_plus_plus = self.calculate_s_2_plus_plus_unpolarized()
@@ -1622,22 +1622,22 @@ class BKMFormalism:
         elif self.target_polarization == 0.5:
 
             # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
 
             # (X): Calculate S_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
             s2_plus_plus = self.calculate_s_2_plus_plus_longitudinally_polarized()
@@ -1679,22 +1679,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
             s3_plus_plus = 0.
@@ -1723,22 +1723,22 @@ class BKMFormalism:
         elif self.target_polarization == 0.5:
 
             # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
 
             # (X): Calculate S{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
             s3_plus_plus = self.calculate_s_3_plus_plus_longitudinally_polarized()

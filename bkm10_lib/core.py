@@ -132,6 +132,8 @@ class DifferentialCrossSection:
 
             self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
 
+            self.using_ww = validated_configuration_dictionary["using_ww"]
+
             self.formalism_plus = self._build_formalism_with_polarization(+1.0)
             
             self.formalism_minus = self._build_formalism_with_polarization(-1.0)
@@ -147,6 +149,7 @@ class DifferentialCrossSection:
             cff_values = self.cff_inputs,
             lepton_polarization = lepton_polarization,
             target_polarization = self.target_polarization,
+            using_ww = self.using_ww,
             verbose = self.verbose,
             debugging = self.debugging)
         
