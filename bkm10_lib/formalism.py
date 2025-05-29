@@ -18,6 +18,7 @@ class BKMFormalism:
             lepton_polarization: float,
             target_polarization: float,
             formalism_version: str = "10",
+            using_ww: bool = False,
             verbose: bool = False,
             debugging: bool = False):
 
@@ -35,6 +36,9 @@ class BKMFormalism:
 
         # (X): Obtain the CFF values:
         self.cff_values = cff_values
+        
+        # (X): Are we using the WW relations for the CFFs?
+        self.using_ww = using_ww
 
         # (X): Define a verbose parameter:
         self.verbose = verbose
@@ -75,6 +79,9 @@ class BKMFormalism:
         # (X): Derived Form Factor | Electric Form Factor F_{1}:
         self.dirac_form_factor = self._calculate_dirac_form_factor()
 
+        # (X): Obtain the effective CFFs:
+        self.effective_cff_values = self.compute_cff_effective(self.cff_values)
+
     def _calculate_epsilon(self) -> float:
         """
         ## Description
@@ -104,7 +111,7 @@ class BKMFormalism:
 
             # (1.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated epsilon to be:\n{epsilon}")
+                print(f"> Calculated epsilon to be: {epsilon}")
 
             # (2): Return self.epsilon:
             return epsilon
@@ -141,7 +148,7 @@ class BKMFormalism:
 
             # (1.1): If verbose output, then print the result:
             if self.verbose:
-                print(f"> Calculated y to be:\n{lepton_energy_fraction}")
+                print(f"> Calculated y to be: {lepton_energy_fraction}")
 
             # (2): Return the calculation:
             return lepton_energy_fraction
@@ -181,7 +188,7 @@ class BKMFormalism:
 
             # (3.1): If verbose, print the output:
             if self.verbose:
-                print(f"> Calculated skewness xi to be:\n{skewness_parameter}")
+                print(f"> Calculated skewness xi to be: {skewness_parameter}")
 
             # (4): Return Xi:
             return skewness_parameter
@@ -221,7 +228,7 @@ class BKMFormalism:
 
             # (4.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated t_minimum to be:\n{t_minimum}")
+                print(f"> Calculated t_minimum to be: {t_minimum}")
 
             # (5): Print the result:
             return t_minimum
@@ -254,7 +261,7 @@ class BKMFormalism:
 
             # (1.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated t prime to be:\n{t_prime}")
+                print(f"> Calculated t prime to be: {t_prime}")
 
             # (2): Return self.t_prime
             return t_prime
@@ -305,7 +312,7 @@ class BKMFormalism:
 
             # (6.1): Print the result of the calculation:
             if self.verbose:
-                print(f"> Calculated k_tilde to be:\n{k_tilde}")
+                print(f"> Calculated k_tilde to be: {k_tilde}")
 
             # (7) Return:
             return k_tilde
@@ -327,7 +334,7 @@ class BKMFormalism:
 
             # (2.1); If verbose, log the output:
             if self.verbose:
-                print(f"> Calculated kinematic K to be:\n{kinematic_k}")
+                print(f"> Calculated kinematic K to be: {kinematic_k}")
 
             # (3): Return the value:
             return kinematic_k
@@ -365,7 +372,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated electric form factor.")
+                print(f"> Successfully calculated electric form factor: {form_factor_electric}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -408,7 +415,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated magnetic form factor.")
+                print(f"> Successfully calculated magnetic form factor: {form_factor_magnetic}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -464,7 +471,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated Fermi form factor.")
+                print(f"> Successfully calculated Fermi form factor: {pauli_form_factor}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -508,7 +515,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated Dirac form factor.")
+                print(f"> Successfully calculated Dirac form factor: {dirac_form_factor}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -520,6 +527,58 @@ class BKMFormalism:
             print(f"> Error in calculating Dirac form factor:\n> {ERROR}")
             return 0.
 
+    def compute_cff_effective(self, compton_form_factor: CFFInputs) -> CFFInputs:
+        """
+        ## Description:
+        The CFF_{effective} is not actually easy to compute, but
+        we are going to pretend it is and compute it as below. (All
+        it needs is the skewness parameter.)
+
+        ## Arguments:
+
+            skewness_parameter: (float)
+
+            compton_form_factor: (CFFInputs)
+
+            verbose: (bool)
+                Debugging console output.
+
+        ## Returns:
+
+            cff_effective : (CFFInputs)
+                the effective CFF
+        
+        ## Notes:
+        """
+
+        try:
+
+            if self.using_ww:
+                factor = lambda cff: 2. * cff / (1. + self.skewness_parameter)
+
+            else:
+                factor = lambda cff: -2. * self.skewness_parameter * cff / (1. + self.skewness_parameter)
+
+            effective_cffs = CFFInputs(
+                compton_form_factor_h       = factor(compton_form_factor.compton_form_factor_h),
+                compton_form_factor_e       = factor(compton_form_factor.compton_form_factor_e),
+                compton_form_factor_h_tilde = factor(compton_form_factor.compton_form_factor_h_tilde),
+                compton_form_factor_e_tilde = factor(compton_form_factor.compton_form_factor_e_tilde)
+            )
+
+            if self.verbose:
+                print("> [VERBOSE]: Computed effective CFFs using", "WW approximation" if self.using_ww else "non-WW expression")
+
+            if self.debugging:
+                print("> [DEBUGGING]: Computed effective CFFs using", f"WW approximation:\n{effective_cffs}" if self.using_ww else f"non-WW expression:\n{effective_cffs}")
+
+            # (2): Return the output:
+            return effective_cffs
+
+        except Exception as ERROR:
+            print(f"> Error in calculating F_effective:\n> {ERROR}")
+            return 0.
+    
     def compute_cross_section_prefactor(self) -> float:
         """
         Later!
@@ -611,7 +670,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated k_dot_delta_result.")
+                if isinstance(k_dot_delta_result, list) or isinstance(k_dot_delta_result, np.ndarray):
+                    print(f"> Successfully calculated k_dot_delta_result: {k_dot_delta_result[0]}")
+                else:
+                    print(f"> Successfully calculated k_dot_delta_result: {k_dot_delta_result}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -649,7 +711,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated p1_propagator.")
+                if isinstance(p1_propagator, list) or isinstance(p1_propagator, np.ndarray):
+                    print(f"> Successfully calculated p1 propagator: {p1_propagator[0]}")
+                else:
+                    print(f"> Successfully calculated p1 propagator: {p1_propagator}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -686,7 +751,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated p2_propagator.")
+                if isinstance(p2_propagator, list) or isinstance(p2_propagator, np.ndarray):
+                    print(f"> Successfully calculated p2_propagator: {p2_propagator[0]}")
+                else:
+                    print(f"> Successfully calculated p2_propagator: {p2_propagator}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1035,22 +1103,22 @@ class BKMFormalism:
         if self.target_polarization == 0.:
 
             # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized()
+            curly_c_plus_plus = self.calculate_curly_c_unpolarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized()
+            curly_c_zero_plus = self.calculate_curly_c_unpolarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
             # (X): Calculate C_{++}(n = 0) using the *unpolarized* prescription:
             c0_plus_plus = self.calculate_c_0_plus_plus_unpolarized()
@@ -1073,22 +1141,22 @@ class BKMFormalism:
         elif self.target_polarization == 0.5:
 
             # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
 
             # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
 
             # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
+            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
+            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
 
             # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
+            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
 
             # (X): Calculate C_{++}(n = 0) using the *longitudinally-polarized* prescription:
             c0_plus_plus = self.calculate_c_0_plus_plus_longitudinally_polarized()
@@ -1702,28 +1770,33 @@ class BKMFormalism:
 
         return s_3_interference_coefficient
     
-    def calculate_curly_c_unpolarized(self) -> float:
+    def calculate_curly_c_unpolarized(self, effective_cffs: bool = False) -> float:
         """
         Later!
         """
         try:
 
+            cffs = self.effective_cff_values if effective_cffs else self.cff_values
+
             # (1): Calculate the first two terms: weighted CFFs:
-            weighted_cffs = (self.dirac_form_factor * self.cff_values.compton_form_factor_h) - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor * self.cff_values.compton_form_factor_e / (4. * _MASS_OF_PROTON_IN_GEV**2))
+            weighted_cffs = (self.dirac_form_factor * cffs.compton_form_factor_h) - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor * cffs.compton_form_factor_e / (4. * _MASS_OF_PROTON_IN_GEV**2))
 
             # (2): Calculate the next term:
-            second_term = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) * self.cff_values.compton_form_factor_h_tilde / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
+            second_term = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) * cffs.compton_form_factor_h_tilde / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
             # (3): Add them together:
             curly_C_unpolarized_interference = weighted_cffs + second_term
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated curly_C_unpolarized_interference.")
+                if isinstance(curly_C_unpolarized_interference, list) or isinstance(curly_C_unpolarized_interference, np.ndarray):
+                    print(f"> Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference[0]}")
+                else:
+                    print(f"> Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated Curly C interference unpolarized target to be:\n{curly_C_unpolarized_interference}")
+                print(f"> Calculated curly_C_unpolarized_interference to be:\n{curly_C_unpolarized_interference}")
 
             # (5): Return the output:
             return curly_C_unpolarized_interference
@@ -1732,14 +1805,16 @@ class BKMFormalism:
             print(f"> Error in calculating the Curly C interference unpolarized target: \n> {ERROR}")
             return 0.
         
-    def calculate_curly_c_unpolarized_v(self) -> float:
+    def calculate_curly_c_unpolarized_v(self, effective_cffs: bool = False) -> float:
         """
         Later!
         """
         try:
 
+            cffs = self.effective_cff_values if effective_cffs else self.cff_values
+
             # (1): Calculate the first two terms: weighted CFFs:
-            cff_term = self.cff_values.compton_form_factor_h + self.cff_values.compton_form_factor_e
+            cff_term = cffs.compton_form_factor_h + cffs.compton_form_factor_e
 
             # (2): Calculate the next term:
             second_term = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
@@ -1749,7 +1824,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated curly_C_unpolarized_interference_V.")
+                if isinstance(curly_C_unpolarized_interference_V, list) or isinstance(curly_C_unpolarized_interference_V, np.ndarray):
+                    print(f"> Successfully calculated curly_C_unpolarized_interference_V: {curly_C_unpolarized_interference_V[0]}")
+                else:
+                    print(f"> Successfully calculated curly_C_unpolarized_interference_V: {curly_C_unpolarized_interference_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1762,21 +1840,26 @@ class BKMFormalism:
             print(f"> Error in calculating the Curly C interference V unpolarized target: \n> {ERROR}")
             return 0.
         
-    def calculate_curly_c_unpolarized_a(self) -> float:
+    def calculate_curly_c_unpolarized_a(self, effective_cffs: bool = False) -> float:
         """
         Later!
         """
         try:
 
+            cffs = self.effective_cff_values if effective_cffs else self.cff_values
+
             # (1): Calculate the next term:
             xb_modulation = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
 
             # (2): Add them together:
-            curly_C_unpolarized_interference_A = self.cff_values.compton_form_factor_h_tilde * xb_modulation
+            curly_C_unpolarized_interference_A = cffs.compton_form_factor_h_tilde * xb_modulation
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated curly_C_unpolarized_interference_A.")
+                if isinstance(curly_C_unpolarized_interference_A, list) or isinstance(curly_C_unpolarized_interference_A, np.ndarray):
+                    print(f"> Successfully calculated curly_C_unpolarized_interference_A: {curly_C_unpolarized_interference_A[0]}")
+                else:
+                    print(f"> Successfully calculated curly_C_unpolarized_interference_A: {curly_C_unpolarized_interference_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1789,11 +1872,13 @@ class BKMFormalism:
             print(f"> Error in calculating the Curly C interference A unpolarized target: \n> {ERROR}")
             return 0.
         
-    def calculate_curly_c_longitudinally_polarized(self) -> float:
+    def calculate_curly_c_longitudinally_polarized(self, effective_cffs: bool = False) -> float:
         """
         Later!
         """
         try:
+
+            cffs = self.effective_cff_values if effective_cffs else self.cff_values
 
             # (1): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -1805,23 +1890,26 @@ class BKMFormalism:
             x_Bjorken_correction = self.kinematics.x_Bjorken * (1. - t_over_Q_squared) / 2.
 
             # (4): Calculate the first appearance of CFFs:
-            first_cff_contribution = ratio_of_xb_to_more_xb * (self.dirac_form_factor + self.pauli_form_factor) * (self.cff_values.compton_form_factor_h + self.kinematics.x_Bjorken_correction * self.cff_values.compton_form_factor_e)
+            first_cff_contribution = ratio_of_xb_to_more_xb * (self.dirac_form_factor + self.pauli_form_factor) * (cffs.compton_form_factor_h + x_Bjorken_correction * cffs.compton_form_factor_e)
 
             # (5): Calculate the second appearance of CFFs:
-            second_cff_contribution = (1. + (_MASS_OF_PROTON_IN_GEV**2 * self.kinematics.x_Bjorken * ratio_of_xb_to_more_xb * (3. + t_over_Q_squared) / self.kinematics.squared_Q_momentum_transfer)) * self.dirac_form_factor * self.cff_values.compton_form_factor_h_tilde
+            second_cff_contribution = (1. + (_MASS_OF_PROTON_IN_GEV**2 * self.kinematics.x_Bjorken * ratio_of_xb_to_more_xb * (3. + t_over_Q_squared) / self.kinematics.squared_Q_momentum_transfer)) * self.dirac_form_factor * cffs.compton_form_factor_h_tilde
             
             # (6): Calculate the third appearance of CFFs:
-            third_cff_contribution = t_over_Q_squared * 2. * (1. - 2. * self.kinematics.x_Bjorken) * ratio_of_xb_to_more_xb * self.pauli_form_factor * self.cff_values.compton_form_factor_h_tilde
+            third_cff_contribution = t_over_Q_squared * 2. * (1. - 2. * self.kinematics.x_Bjorken) * ratio_of_xb_to_more_xb * self.pauli_form_factor * cffs.compton_form_factor_h_tilde
 
             # (7): Calculate the fourth appearance of the CFFs:
-            fourth_cff_contribution = ratio_of_xb_to_more_xb * (x_Bjorken_correction * self.dirac_form_factor + self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor / (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.cff_values.compton_form_factor_e_tilde
+            fourth_cff_contribution = ratio_of_xb_to_more_xb * (x_Bjorken_correction * self.dirac_form_factor + self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor / (4. * _MASS_OF_PROTON_IN_GEV**2)) * cffs.compton_form_factor_e_tilde
 
             # (8): Add together with the correct signs the entire thing
             curly_C_longitudinally_polarized_interference = first_cff_contribution + second_cff_contribution - third_cff_contribution - fourth_cff_contribution
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated curly_C_longitudinally_polarized_interference.")
+                if isinstance(curly_C_longitudinally_polarized_interference, list) or isinstance(curly_C_longitudinally_polarized_interference, np.ndarray):
+                    print(f"> Successfully calculated curly_C_longitudinally_polarized_interference: {curly_C_longitudinally_polarized_interference[0]}")
+                else:
+                    print(f"> Successfully calculated curly_C_longitudinally_polarized_interference: {curly_C_longitudinally_polarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1834,11 +1922,13 @@ class BKMFormalism:
             print(f"> Error in calculating the curly C LP contribution amplitude squared\n> {ERROR}")
             return 0
         
-    def calculate_curly_c_longitudinally_polarized_v(self) -> float:
+    def calculate_curly_c_longitudinally_polarized_v(self, effective_cffs: bool = False) -> float:
         """
         Later!
         """
         try:
+
+            cffs = self.effective_cff_values if effective_cffs else self.cff_values
 
             # (1): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -1850,11 +1940,14 @@ class BKMFormalism:
             sum_of_form_factors = self.dirac_form_factor + self.pauli_form_factor
 
             # (4): Calculate the entire thing:
-            curly_C_V_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * (self.cff_values.compton_form_factor_h + (self.kinematics.x_Bjorken * (1. - t_over_Q_squared) * self.cff_values.compton_form_factor_e / 2.))
+            curly_C_V_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * (cffs.compton_form_factor_h + (self.kinematics.x_Bjorken * (1. - t_over_Q_squared) * cffs.compton_form_factor_e / 2.))
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated curly_C_V_longitudinally_polarized_interference.")
+                if isinstance(curly_C_V_longitudinally_polarized_interference, list) or isinstance(curly_C_V_longitudinally_polarized_interference, np.ndarray):
+                    print(f"> Successfully calculated curly_C_V_longitudinally_polarized_interference: {curly_C_V_longitudinally_polarized_interference[0]}")
+                else:
+                    print(f"> Successfully calculated curly_C_V_longitudinally_polarized_interference: {curly_C_V_longitudinally_polarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1867,11 +1960,13 @@ class BKMFormalism:
             print(f"> Error in calculating the curly C LP V contribution amplitude squared\n> {ERROR}")
             return 0.
     
-    def calculate_curly_c_longitudinally_polarized_a(self) -> float:
+    def calculate_curly_c_longitudinally_polarized_a(self, effective_cffs: bool = False) -> float:
         """
         Later!
         """
         try:
+
+            cffs = self.effective_cff_values if effective_cffs else self.cff_values
 
             # (1): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -1883,14 +1978,17 @@ class BKMFormalism:
             sum_of_form_factors = self.dirac_form_factor + self.pauli_form_factor
             
             # (4): Calculate the CFFs appearance:
-            cff_appearance = self.cff_values.compton_form_factor_h_tilde * (1. + (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED / self.kinematics.squared_Q_momentum_transfer)) + (self.kinematics.x_Bjorken * self.cff_values.compton_form_factor_e_tilde / 2.)
+            cff_appearance = cffs.compton_form_factor_h_tilde * (1. + (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED / self.kinematics.squared_Q_momentum_transfer)) + (self.kinematics.x_Bjorken * cffs.compton_form_factor_e_tilde / 2.)
 
             # (5): Calculate the entire thing:
             curly_C_A_longitudinally_polarized_interference = ratio_of_xb_to_more_xb * sum_of_form_factors * cff_appearance
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated curly_C_A_longitudinally_polarized_interference.")
+                if isinstance(curly_C_A_longitudinally_polarized_interference, list) or isinstance(curly_C_A_longitudinally_polarized_interference, np.ndarray):
+                    print(f"> Successfully calculated curly_C_A_longitudinally_polarized_interference: {curly_C_A_longitudinally_polarized_interference[0]}")
+                else:
+                    print(f"> Successfully calculated curly_C_A_longitudinally_polarized_interference: {curly_C_A_longitudinally_polarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1944,7 +2042,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_plus_plus_unp.")
+                if isinstance(c_0_plus_plus_unp, list) or isinstance(c_0_plus_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_0_plus_plus_unp: {c_0_plus_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_plus_plus_unp: {c_0_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1998,7 +2099,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_plus_plus_V_unp.")
+                if isinstance(c_0_plus_plus_V_unp, list) or isinstance(c_0_plus_plus_V_unp, np.ndarray):
+                    print(f"> Successfully calculated c_0_plus_plus_V_unp: {c_0_plus_plus_V_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_plus_plus_V_unp: {c_0_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2052,7 +2156,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_plus_plus_A_unp.")
+                if isinstance(c_0_plus_plus_A_unp, list) or isinstance(c_0_plus_plus_A_unp, np.ndarray):
+                    print(f"> Successfully calculated c_0_plus_plus_A_unp: {c_0_plus_plus_A_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_plus_plus_A_unp: {c_0_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2082,7 +2189,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_zero_plus_unp.")
+                if isinstance(c_0_zero_plus_unp, list) or isinstance(c_0_zero_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_0_zero_plus_unp: {c_0_zero_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_zero_plus_unp: {c_0_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2115,7 +2225,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_zero_plus_V_unp.")
+                if isinstance(c_0_zero_plus_V_unp, list) or isinstance(c_0_zero_plus_V_unp, np.ndarray):
+                    print(f"> Successfully calculated c_0_zero_plus_V_unp: {c_0_zero_plus_V_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_zero_plus_V_unp: {c_0_zero_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2151,7 +2264,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_zero_plus_A_unp.")
+                if isinstance(c_0_zero_plus_A_unp, list) or isinstance(c_0_zero_plus_A_unp, np.ndarray):
+                    print(f"> Successfully calculated c_0_zero_plus_A_unp: {c_0_zero_plus_A_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_zero_plus_A_unp: {c_0_zero_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2202,7 +2318,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_plus_plus_unp.")
+                if isinstance(c_1_plus_plus_unp, list) or isinstance(c_1_plus_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_1_plus_plus_unp: {c_1_plus_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_plus_plus_unp: {c_1_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2244,7 +2363,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_plus_plus_V_unp.")
+                if isinstance(c_1_plus_plus_V_unp, list) or isinstance(c_1_plus_plus_V_unp, np.ndarray):
+                    print(f"> Successfully calculated c_1_plus_plus_V_unp: {c_1_plus_plus_V_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_plus_plus_V_unp: {c_1_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2295,7 +2417,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_plus_plus_A_unp.")
+                if isinstance(c_1_plus_plus_A_unp, list) or isinstance(c_1_plus_plus_A_unp, np.ndarray):
+                    print(f"> Successfully calculated c_1_plus_plus_A_unp: {c_1_plus_plus_A_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_plus_plus_A_unp: {c_1_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2343,7 +2468,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_zero_plus_unp.")
+                if isinstance(c_1_zero_plus_unp, list) or isinstance(c_1_zero_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_1_zero_plus_unp: {c_1_zero_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_zero_plus_unp: {c_1_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2379,7 +2507,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_zero_plus_V_unp.")
+                if isinstance(c_1_zero_plus_V_unp, list) or isinstance(c_1_zero_plus_V_unp, np.ndarray):
+                    print(f"> Successfully calculated c_1_zero_plus_V_unp: {c_1_zero_plus_V_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_zero_plus_V_unp: {c_1_zero_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2427,7 +2558,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_zero_plus_unp_A.")
+                if isinstance(c_1_zero_plus_unp_A, list) or isinstance(c_1_zero_plus_unp_A, np.ndarray):
+                    print(f"> Successfully calculated c_1_zero_plus_unp_A: {c_1_zero_plus_unp_A[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_zero_plus_unp_A: {c_1_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2466,7 +2600,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_plus_plus_unp.")
+                if isinstance(c_2_plus_plus_unp, list) or isinstance(c_2_plus_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_2_plus_plus_unp: {c_2_plus_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_plus_plus_unp: {c_2_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2505,7 +2642,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_plus_plus_V_unp.")
+                if isinstance(c_2_plus_plus_V_unp, list) or isinstance(c_2_plus_plus_V_unp, np.ndarray):
+                    print(f"> Successfully calculated c_2_plus_plus_V_unp: {c_2_plus_plus_V_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_plus_plus_V_unp: {c_2_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2547,7 +2687,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_plus_plus_A_unp.")
+                if isinstance(c_2_plus_plus_A_unp, list) or isinstance(c_2_plus_plus_A_unp, np.ndarray):
+                    print(f"> Successfully calculated c_2_plus_plus_A_unp: {c_2_plus_plus_A_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_plus_plus_A_unp: {c_2_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2586,7 +2729,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_zero_plus_unp.")
+                if isinstance(c_2_zero_plus_unp, list) or isinstance(c_2_zero_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_unp: {c_2_zero_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_unp: {c_2_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2622,7 +2768,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_zero_plus_unp_V.")
+                if isinstance(c_2_zero_plus_unp_V, list) or isinstance(c_2_zero_plus_unp_V, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_unp_V: {c_2_zero_plus_unp_V[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_unp_V: {c_2_zero_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2667,7 +2816,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_zero_plus_unp_A.")
+                if isinstance(c_2_zero_plus_unp_A, list) or isinstance(c_2_zero_plus_unp_A, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2706,7 +2858,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_3_plus_plus_unp.")
+                if isinstance(c_3_plus_plus_unp, list) or isinstance(c_3_plus_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated c_3_plus_plus_unp: {c_3_plus_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_3_plus_plus_unp: {c_3_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2742,7 +2897,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_3_plus_plus_V_unp.")
+                if isinstance(c_3_plus_plus_V_unp, list) or isinstance(c_3_plus_plus_V_unp, np.ndarray):
+                    print(f"> Successfully calculated c_3_plus_plus_V_unp: {c_3_plus_plus_V_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_3_plus_plus_V_unp: {c_3_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2772,7 +2930,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_3_plus_plus_A_unp.")
+                if isinstance(c_3_plus_plus_A_unp, list) or isinstance(c_3_plus_plus_A_unp, np.ndarray):
+                    print(f"> Successfully calculated c_3_plus_plus_A_unp: {c_3_plus_plus_A_unp[0]}")
+                else:
+                    print(f"> Successfully calculated c_3_plus_plus_A_unp: {c_3_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2808,7 +2969,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_1_plus_plus_unp.")
+                if isinstance(s_1_plus_plus_unp, list) or isinstance(s_1_plus_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated s_1_plus_plus_unp: {s_1_plus_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_plus_plus_unp: {s_1_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2844,7 +3008,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_1_plus_plus_unp_V.")
+                if isinstance(s_1_plus_plus_unp_V, list) or isinstance(s_1_plus_plus_unp_V, np.ndarray):
+                    print(f"> Successfully calculated s_1_plus_plus_unp_V: {s_1_plus_plus_unp_V[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_plus_plus_unp_V: {s_1_plus_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2886,7 +3053,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_1_plus_plus_unp_A.")
+                if isinstance(s_1_plus_plus_unp_A, list) or isinstance(s_1_plus_plus_unp_A, np.ndarray):
+                    print(f"> Successfully calculated s_1_plus_plus_unp_A: {s_1_plus_plus_unp_A[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_plus_plus_unp_A: {s_1_plus_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2916,7 +3086,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_1_zero_plus_unp.")
+                if isinstance(s_1_zero_plus_unp, list) or isinstance(s_1_zero_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated s_1_zero_plus_unp: {s_1_zero_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_zero_plus_unp: {s_1_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2955,7 +3128,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_1_zero_plus_unp_V.")
+                if isinstance(s_1_zero_plus_unp_V, list) or isinstance(s_1_zero_plus_unp_V, np.ndarray):
+                    print(f"> Successfully calculated s_1_zero_plus_unp_V: {s_1_zero_plus_unp_V[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_zero_plus_unp_V: {s_1_zero_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2988,7 +3164,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_1_zero_plus_unp_A.")
+                if isinstance(s_1_zero_plus_unp_A, list) or isinstance(s_1_zero_plus_unp_A, np.ndarray):
+                    print(f"> Successfully calculated s_1_zero_plus_unp_A: {s_1_zero_plus_unp_A[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_zero_plus_unp_A: {s_1_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3030,7 +3209,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_plus_plus_unp.")
+                if isinstance(s_2_plus_plus_unp, list) or isinstance(s_2_plus_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated s_2_plus_plus_unp: {s_2_plus_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_plus_plus_unp: {s_2_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3075,7 +3257,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_plus_plus_unp_V.")
+                if isinstance(s_2_plus_plus_unp_V, list) or isinstance(s_2_plus_plus_unp_V, np.ndarray):
+                    print(f"> Successfully calculated s_2_plus_plus_unp_V: {s_2_plus_plus_unp_V[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_plus_plus_unp_V: {s_2_plus_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3120,7 +3305,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_plus_plus_unp_A.")
+                if isinstance(s_2_plus_plus_unp_A, list) or isinstance(s_2_plus_plus_unp_A, np.ndarray):
+                    print(f"> Successfully calculated s_2_plus_plus_unp_A: {s_2_plus_plus_unp_A[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_plus_plus_unp_A: {s_2_plus_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3159,7 +3347,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_unp.")
+                if isinstance(s_2_zero_plus_unp, list) or isinstance(s_2_zero_plus_unp, np.ndarray):
+                    print(f"> Successfully calculated s_2_zero_plus_unp: {s_2_zero_plus_unp[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_zero_plus_unp: {s_2_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3195,7 +3386,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_unp_V.")
+                if isinstance(s_2_zero_plus_unp_V, list) or isinstance(s_2_zero_plus_unp_V, np.ndarray):
+                    print(f"> Successfully calculated s_2_zero_plus_unp_V: {s_2_zero_plus_unp_V[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_zero_plus_unp_V: {s_2_zero_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3237,7 +3431,10 @@ class BKMFormalism:
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_2_zero_plus_unp_A.")
+                if isinstance(c_2_zero_plus_unp_A, list) or isinstance(c_2_zero_plus_unp_A, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3285,7 +3482,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_plus_plus_V_LP.")
+                if isinstance(c_0_plus_plus_LP, list) or isinstance(c_0_plus_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated c_0_plus_plus_LP: {c_0_plus_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_plus_plus_LP: {c_0_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3339,7 +3539,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_plus_plus_V_LP.")
+                if isinstance(c_0_plus_plus_V_LP, list) or isinstance(c_0_plus_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated c_0_plus_plus_V_LP: {c_0_plus_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_plus_plus_V_LP: {c_0_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3390,7 +3593,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_plus_plus_A_LP.")
+                if isinstance(c_0_plus_plus_A_LP, list) or isinstance(c_0_plus_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated c_0_plus_plus_A_LP: {c_0_plus_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_plus_plus_A_LP: {c_0_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3437,7 +3643,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_zero_plus_LP.")
+                if isinstance(c_0_zero_plus_LP, list) or isinstance(c_0_zero_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated c_0_zero_plus_LP: {c_0_zero_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_zero_plus_LP: {c_0_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3467,7 +3676,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_zero_plus_V_LP.")
+                if isinstance(c_0_zero_plus_V_LP, list) or isinstance(c_0_zero_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated c_0_zero_plus_V_LP: {c_0_zero_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_zero_plus_V_LP: {c_0_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3500,7 +3712,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_0_zero_plus_A_LP.")
+                if isinstance(c_0_zero_plus_A_LP, list) or isinstance(c_0_zero_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated c_0_zero_plus_A_LP: {c_0_zero_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_0_zero_plus_A_LP: {c_0_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3539,7 +3754,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_plus_plus_LP.")
+                if isinstance(c_1_plus_plus_LP, list) or isinstance(c_1_plus_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated c_1_plus_plus_LP: {c_1_plus_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_plus_plus_LP: {c_1_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3584,7 +3802,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_plus_plus_V_LP.")
+                if isinstance(c_1_plus_plus_V_LP, list) or isinstance(c_1_plus_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated c_1_plus_plus_V_LP: {c_1_plus_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_plus_plus_V_LP: {c_1_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3617,7 +3838,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_plus_plus_A_LP.")
+                if isinstance(c_1_plus_plus_A_LP, list) or isinstance(c_1_plus_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated c_1_plus_plus_A_LP: {c_1_plus_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_plus_plus_A_LP: {c_1_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3647,7 +3871,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_zero_plus_LP.")
+                if isinstance(c_1_zero_plus_LP, list) or isinstance(c_1_zero_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated c_1_zero_plus_LP: {c_1_zero_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_zero_plus_LP: {c_1_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3677,7 +3904,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated c_1_zero_plus_V_LP.")
+                if isinstance(c_1_zero_plus_V_LP, list) or isinstance(c_1_zero_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated c_1_zero_plus_V_LP: {c_1_zero_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_1_zero_plus_V_LP: {c_1_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3719,7 +3949,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(c_2_plus_plus_LP, list) or isinstance(c_2_plus_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated c_2_plus_plus_LP: {c_2_plus_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_plus_plus_LP: {c_2_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3764,7 +3997,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(c_2_plus_plus_V_LP, list) or isinstance(c_2_plus_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated c_2_plus_plus_V_LP: {c_2_plus_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_plus_plus_V_LP: {c_2_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3806,7 +4042,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(c_2_plus_plus_A_LP, list) or isinstance(c_2_plus_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated c_2_plus_plus_A_LP: {c_2_plus_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_plus_plus_A_LP: {c_2_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3836,7 +4075,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(c_2_zero_plus_LP, list) or isinstance(c_2_zero_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_LP: {c_2_zero_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_LP: {c_2_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3866,7 +4108,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(c_2_zero_plus_V_LP, list) or isinstance(c_2_zero_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_V_LP: {c_2_zero_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_V_LP: {c_2_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3899,7 +4144,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(c_2_zero_plus_A_LP, list) or isinstance(c_2_zero_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated c_2_zero_plus_A_LP: {c_2_zero_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated c_2_zero_plus_A_LP: {c_2_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3950,7 +4198,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_1_plus_plus_LP, list) or isinstance(s_1_plus_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated s_1_plus_plus_LP: {s_1_plus_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_plus_plus_LP: {s_1_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4013,7 +4264,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_1_plus_plus_V_LP, list) or isinstance(s_1_plus_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated s_1_plus_plus_V_LP: {s_1_plus_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_plus_plus_V_LP: {s_1_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4067,7 +4321,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_1_plus_plus_A_LP, list) or isinstance(s_1_plus_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated s_1_plus_plus_A_LP: {s_1_plus_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_plus_plus_A_LP: {s_1_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4106,7 +4363,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_1_zero_plus_LP, list) or isinstance(s_1_zero_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated s_1_zero_plus_LP: {s_1_zero_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_zero_plus_LP: {s_1_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4148,7 +4408,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_1_zero_plus_V_LP, list) or isinstance(s_1_zero_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated s_1_zero_plus_V_LP: {s_1_zero_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_zero_plus_V_LP: {s_1_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4177,11 +4440,14 @@ class BKMFormalism:
             prefactor = -16. * np.sqrt(2.) * self.target_polarization * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + t_over_Q_squared) / np.sqrt((1. + self.epsilon**2)**5)
 
             # (4): Calculate everything:
-            s_1_zero_plus_A_LP = prefactor * combination_of_y_and_epsilon_to_3_halves.epsilon_to_3_halves * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
+            s_1_zero_plus_A_LP = prefactor * combination_of_y_and_epsilon_to_3_halves * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_1_zero_plus_A_LP, list) or isinstance(s_1_zero_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated s_1_zero_plus_A_LP: {s_1_zero_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_1_zero_plus_A_LP: {s_1_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4217,7 +4483,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_2_plus_plus_LP, list) or isinstance(s_2_plus_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated s_2_plus_plus_LP: {s_2_plus_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_plus_plus_LP: {s_2_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4256,7 +4525,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_2_plus_plus_V_LP, list) or isinstance(s_2_plus_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated s_2_plus_plus_V_LP: {s_2_plus_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_plus_plus_V_LP: {s_2_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4295,7 +4567,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_2_plus_plus_A_LP, list) or isinstance(s_2_plus_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated s_2_plus_plus_A_LP: {s_2_plus_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_plus_plus_A_LP: {s_2_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4325,7 +4600,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_2_zero_plus_LP, list) or isinstance(s_2_zero_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated s_2_zero_plus_LP: {s_2_zero_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_zero_plus_LP: {s_2_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4355,7 +4633,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_2_zero_plus_V_LP, list) or isinstance(s_2_zero_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated s_2_zero_plus_V_LP: {s_2_zero_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_zero_plus_V_LP: {s_2_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4388,7 +4669,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_2_zero_plus_A_LP.")
+                if isinstance(s_2_zero_plus_A_LP, list) or isinstance(s_2_zero_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated s_2_zero_plus_A_LP: {s_2_zero_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_2_zero_plus_A_LP: {s_2_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4421,7 +4705,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_3_plus_plus_LP.")
+                if isinstance(s_3_plus_plus_LP, list) or isinstance(s_3_plus_plus_LP, np.ndarray):
+                    print(f"> Successfully calculated s_3_plus_plus_LP: {s_3_plus_plus_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_3_plus_plus_LP: {s_3_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4454,7 +4741,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_3_plus_plus_V_LP.")
+                if isinstance(s_3_plus_plus_V_LP, list) or isinstance(s_3_plus_plus_V_LP, np.ndarray):
+                    print(f"> Successfully calculated s_3_plus_plus_V_LP: {s_3_plus_plus_V_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_3_plus_plus_V_LP: {s_3_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4487,7 +4777,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated s_3_plus_plus_A_LP.")
+                if isinstance(s_3_plus_plus_A_LP, list) or isinstance(s_3_plus_plus_A_LP, np.ndarray):
+                    print(f"> Successfully calculated s_3_plus_plus_A_LP: {s_3_plus_plus_A_LP[0]}")
+                else:
+                    print(f"> Successfully calculated s_3_plus_plus_A_LP: {s_3_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
