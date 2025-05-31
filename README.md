@@ -18,7 +18,7 @@ $$d^{4}\sigma \left(\lambda, \Lambda; k, Q^{2} , x_{B} , t , \phi; \mathcal{H}, 
 
 ### Polarization Settings:
 
-The BKM10 formalism uses $\lambda$ to refer to the lepton beam helicity. (Note: $\lambda \in \left{ -1, +1 \right}$ in this formalism!) $\Lambda$ refers to the target polarization. (In the formalism, $\Lambda \in \left{ -1/2, +1/2 \right}$.)
+The BKM10 formalism uses $\lambda$ to refer to the lepton beam helicity. (Note: $\lambda \in \{ -1, +1 \}$ in this formalism!) $\Lambda$ refers to the target polarization. (In the formalism, $\Lambda \in \{ -1/2, +1/2 \}$.)
 
 ### Kinematics:
 
