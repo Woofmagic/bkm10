@@ -28,7 +28,7 @@ Note: the library *currently does not* handle exceptions where the provided kine
 
 ### Compton Form Factors:
 
-There are four CFFs involved in the computation: $\mathcal{H}, \mathcal{E}, \tilde{\mathcal{H}}, \tilde{\mathcal{E}}$. Each of them is a complex function, so there are technically eight real numbers here. (Remember: any $z \in \mathcal{C}$ is $z = x + i y$, where $x, y \in \mathcal{R}$.) Use the dataclass `CFFInputs` to specify the values of these CFFs. (Note: they are of `complex` type!)
+There are four CFFs involved in the computation: $\mathcal{H}, \mathcal{E}, \tilde{\mathcal{H}}, \tilde{\mathcal{E}}$. Each of them is a complex function, so there are technically eight real numbers here. (Remember: any $z \in \mathbb{C}$ is $z = x + i y$, where $x, y \in \mathbb{R}$.) Use the dataclass `CFFInputs` to specify the values of these CFFs. (Note: they are of `complex` type!)
 
 ## Goals/Future Work:
 
