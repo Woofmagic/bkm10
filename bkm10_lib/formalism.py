@@ -1,19 +1,43 @@
 """
-
+Entry point for the `BKM10Formalism`.
 """
-
-from bkm10_lib.inputs import BKM10Inputs
-from bkm10_lib.cff_inputs import CFFInputs
-
-from bkm10_lib.constants import _MASS_OF_PROTON_IN_GEV, _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED, _ELECTRIC_FORM_FACTOR_CONSTANT, _PROTON_MAGNETIC_MOMENT, _ELECTROMAGNETIC_FINE_STRUCTURE_CONSTANT
 
 import numpy as np
 
+from bkm10_lib.inputs import BKM10Inputs
+
+from bkm10_lib.cff_inputs import CFFInputs
+
+from bkm10_lib.constants import _MASS_OF_PROTON_IN_GEV
+
+from bkm10_lib.constants import _MASS_OF_PROTON_SQUARED_IN_GEV_SQUARED
+
+from bkm10_lib.constants import _ELECTRIC_FORM_FACTOR_CONSTANT
+
+from bkm10_lib.constants import  _PROTON_MAGNETIC_MOMENT
+
+from bkm10_lib.constants import _ELECTROMAGNETIC_FINE_STRUCTURE_CONSTANT
+
 class BKMFormalism:
+    """
+    Welcome to the `BKMFormalism` class!
+
+    ## Description:
+    This class enables one to compute all the relevant (sub-)quantities that go into
+    calculation of the four-fold differential cross-section that describes the DVCS 
+    process. At the moment, we are only evaluating the cross-section according to the
+    "BKM10" formalism in contrast to the "BKM02" formalism. In the future, we aim
+    to implement the option to use the BKM02 formalism through the parameter `formalism_version`.
+    
+    ## Notes:
+    In order to use this class, one must use the datatypes `BKM10Inputs` and `CFFInputs`. 
+    These are "independent variables" that go into (numerical) evaluation of the cross-
+    section.
+    """
 
     def __init__(
-            self, 
-            inputs: BKM10Inputs, 
+            self,
+            inputs: BKM10Inputs,
             cff_values: CFFInputs,
             lepton_polarization: float,
             target_polarization: float,
@@ -21,6 +45,37 @@ class BKMFormalism:
             using_ww: bool = False,
             verbose: bool = False,
             debugging: bool = False):
+        """
+        # Arguments:
+
+            inputs: BKM10Inputs (datatype)
+                Kinematic inputs.
+
+            cff_values: CFFInputs (datatype)
+                Compton Form factor settings.
+
+            lepton_polarization: float
+                The BKM10 formalism uses +1.0, 0.0, or -1.0. Nothing else!
+
+            target_polarization: float
+                The BKM10 formalism uses +0.5, 0.0, or -0.5. Nothing else!
+
+            formalism_version: str
+                Default is "10." Currently, this parameter has NO EFFECT! Read the
+                description of the class to learn why.
+
+            using_ww: bool
+                The "WW" relations are a mathematical approximation that you 
+                may choose to use or not. Make sure you know what this does (physically)!
+
+            verbose: bool
+                A parameter that enables frequent print statements that show you
+                "where" the code is and some of the outputs.
+
+            debugging: bool
+                A parameter that will print virtually EVERYTHING!
+
+        """
 
         # (X): Collect the inputs:
         self.kinematics = inputs
@@ -122,7 +177,7 @@ class BKMFormalism:
         
     def _calculate_lepton_energy_fraction(self) -> float:
         """
-        ## ## Description:
+        ## Description:
         Calculate y, which measures the lepton energy fraction.
         y^{2} := \frac{ \sqrt{Q^{2}} }{ \sqrt{\self.epsilon^{2}} k }
 
@@ -173,7 +228,7 @@ class BKMFormalism:
         verbose: (bool)
             Debugging console output.
         
-        ## Notes
+        ## Notes:
         """
         try:
 
@@ -199,7 +254,7 @@ class BKMFormalism:
         
     def _calculate_t_minimum(self) -> float:
         """
-        
+        ## Description:
         Calculate t_{min}.
 
         ## Parameters:
@@ -210,6 +265,7 @@ class BKMFormalism:
             t_minimum
 
         ## Notes:
+        None!
         """
 
         try:
@@ -253,6 +309,7 @@ class BKMFormalism:
         self.t_prime: (float)
 
         ## Notes:
+        None!
         """
         try:
 
@@ -273,7 +330,8 @@ class BKMFormalism:
     def _calculate_k_tilde(self) -> float:
         """
         ## Description:
-
+        Calculate K-tilde.
+        
         ## Parameters:
         epsilon : (float)
 
@@ -295,7 +353,7 @@ class BKMFormalism:
             result of the operation
         
         ## Notes:
-        """     
+        """
         try:
 
             # (1): Calculate recurring quantity t_{min} - t
@@ -323,6 +381,9 @@ class BKMFormalism:
         
     def _calculate_k(self) -> float:
         """
+        ## Description:
+        Calculate K. (Capital K, not lower-case k, which refers to the lepton
+        beam energy.)
         """
         try:
 
@@ -1451,30 +1512,28 @@ class BKMFormalism:
             # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
             curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            c3_plus_plus = self.calculate_c_3_plus_plus_longitudinally_polarized()
+            # (X): C_{++}^{V}(n = 3) is not given in the paper, which means it's 0:
+            c3_plus_plus = 0.
 
-            # (X): Calculate C_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            c3v_plus_plus = self.calculate_c_3_plus_plus_longitudinally_polarized_v()
+            # (X): C_{++}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+            c3v_plus_plus = 0.
 
-            # (X): Calculate C_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            c3a_plus_plus = self.calculate_c_3_plus_plus_longitudinally_polarized_a()
+            # (X): C_{++}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+            c3a_plus_plus = 0.
 
-            # (X): Calculate C_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+            # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
             c3_zero_plus = 0.
 
-            # (X): Calculate C_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+            # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
             c3v_zero_plus = 0.
 
-            # (X): Calculate C_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+            # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
             c3a_zero_plus = 0.
 
-            # (X): Calculate Curly C_{++}(n = 3):
-            curly_c3_plus_plus = (curly_c_plus_plus
-                        + (c3v_plus_plus * curly_cv_plus_plus / c3_plus_plus)
-                        + (c3a_plus_plus * curly_ca_plus_plus / c3_plus_plus))
+            # (X): Curly C_{++}(n = 3) is 0 because all of its components are 0:
+            curly_c3_plus_plus = 0.
             
-            # (X): Calculate Curly C_{0+}(n = 3):
+            # (X): Curly C_{0+}(n = 3) is 0 for the same reason:
             curly_c3_zero_plus = 0.
         
         c_3_interference_coefficient  = c3_plus_plus * curly_c3_plus_plus.real + c3_zero_plus * curly_c3_zero_plus.real
@@ -1649,7 +1708,7 @@ class BKMFormalism:
             s2a_plus_plus = self.calculate_s_2_plus_plus_longitudinally_polarized_a()
 
             # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            S2_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized()
+            s2_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized()
 
             # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
             s2v_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized_v()
@@ -1667,7 +1726,7 @@ class BKMFormalism:
                     + (s2v_zero_plus * curly_cv_zero_plus / s2_zero_plus)
                     + (s2a_zero_plus * curly_ca_zero_plus / s2_zero_plus)))
         
-        s_2_interference_coefficient  = s2_plus_plus * curly_s2_plus_plus.imag + s2_zero_plus * curly_s2_zero_plus.imag
+        s_2_interference_coefficient = s2_plus_plus * curly_s2_plus_plus.imag + s2_zero_plus * curly_s2_zero_plus.imag
 
         return s_2_interference_coefficient
     

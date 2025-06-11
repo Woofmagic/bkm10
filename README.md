@@ -5,14 +5,20 @@ A Python library to help nuclear physicists use the BKM formalism in predicting 
 
 ## Installation:
 
-Wait a second...
+Available on PyPI. To install, one can run
+
+```bash
+pip install bkm10_lib
+```
+
+You will need Python 3 and pip.
 
 ## Technicalities:
 There are three different classes at play in this library: the main one, `DifferentialCrossSection`; the dataclass, `BKM10Inputs`; and another dataclass called `CFFInputs`. `DifferentialCrossSection` requires a million different inputs.
 
 ### The Four-Fold Cross Section:
 
-What we are numerically calculating is a four-fold (meaning, we need to do four integrals) cross section. We need to integrate over four variables: Q 2 , x B , t , ϕ . By the way, the first three quantities are called the \textit{kinematics}, and ϕ is an azimuthal angle that is measured in a chosen reference frame. However, the function actually requires a bit more detail. It is a function of several different things -- schematically, we express this as:
+What we are numerically calculating is a four-fold (meaning, we need to do four integrals) cross section. We need to integrate over four variables: $Q^{2}$ , $x_{B}$ , $t$, $\phi$ . By the way, the first three quantities are called the \textit{kinematics}, and $\phi$ is an azimuthal angle that is measured in a chosen reference frame. However, the function actually requires a bit more detail. It is a function of several different things -- schematically, we express this as:
 
 $$d^{4}\sigma \left(\lambda, \Lambda; k, Q^{2} , x_{B} , t , \phi; \mathcal{H}, \mathcal{E}, \tilde{\mathcal{H}}, \tilde{\mathcal{E}} \right).$$
 

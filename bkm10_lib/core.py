@@ -1,12 +1,24 @@
-# core.py
+"""
+Entry point for `DifferentialCrossSection` class.
+"""
 
-from bkm10_lib.validation import validate_configuration
+# (X): Import native libraries | shutil
+import shutil
 
-from bkm10_lib.formalism import BKMFormalism
+# (X): Import native libraries | warnings:
+import warnings
 
+# (X): Import third-party libraries | NumPy:
 import numpy as np
 
+# (X): Import third-party libraries | Matplotlib:
 import matplotlib.pyplot as plt
+
+# (X): Import accompanying modules | bkm10_lib > validation > validate_configuration
+from bkm10_lib.validation import validate_configuration
+
+# (X): Import accompanying modules | bkm10_lib > formalism > BKMFormalism:
+from bkm10_lib.formalism import BKMFormalism
 
 class DifferentialCrossSection:
     """
@@ -43,6 +55,23 @@ class DifferentialCrossSection:
     """
 
     def __init__(self, configuration = None, verbose = False, debugging = False):
+        """
+        ## Description:
+        Initialize the class!
+
+        ## Parameters:
+
+            configuration: (dict)
+                A dictionary of configuration parameters
+
+            verbose: (bool)
+                Boolean setting to turn on if you want to see 
+                frequent print output that shows you "where" the code  
+                is in its execution.
+
+            deugging: (bool)
+                Do not turn this on.
+        """
         
         # (X): Obtain a True/False to operate the calculation in:
         self.configuration_mode = configuration is not None
@@ -65,25 +94,25 @@ class DifferentialCrossSection:
         # (X): Hidden data that tells us if the functions executed correctly:
         self._evaluated = False
 
-        if verbose:
+        if self.verbose:
             print("> [VERBOSE]: Verbose mode on.")
-        if debugging:
+        if self.debugging:
             print("> [DEBUGGING]: Debugging mode is on — DO NOT USE THIS!")
 
         if configuration:
-            if verbose:
+            if self.verbose:
                 print("> [VERBOSE]: Configuration dictionary received!")
-            if debugging:
+            if self.debugging:
                 print("> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
 
             try:
-                if debugging:
+                if self.debugging:
                     print("> [DEBUGGING]: Trying to initialize configuration...")
             
                 # (X): Initialize the class from the dictionary:
                 self._initialize_from_config(configuration)
 
-                if debugging:
+                if self.debugging:
                     print("> [DEBUGGING]: Configuration passed!")
 
             except:
@@ -91,28 +120,54 @@ class DifferentialCrossSection:
             
             self._passed_configuration = True
 
-            if verbose:
+            if self.verbose:
                 print("> [VERBOSE]: Configuration succeeded!")
-            if debugging:
+            if self.debugging:
                 print(f"> [DEBUGGING]: Configuration succeeded! Now set internal attribute: {self._passed_configuration}")
 
     @staticmethod
     def _set_plot_style():
+        """
+        ## Description:
+            We want the plots to look a particular way. So, let's do that.
+            In particular, we check if a LaTeX distribution is installed!
+        """
         
-        plt.rcParams.update({
-            "text.usetex": True,
-            "font.family": "serif",
-        })
+        # (X): Call shutil to find a TeX distribution:
+        latex_installed = shutil.which("latex") is not None
 
+        # (X): If TeX was found...
+        if latex_installed:
+
+            # (X): ... matplotlib will not crash if we put this in our plots:
+            plt.rcParams.update({
+                "text.usetex": True,
+                "font.family": "serif",
+                "text.latex.preamble": r"\usepackage{amsmath}"
+            })
+
+        # (X): If TeX was not found...
+        else:
+
+            # (X): ... first, tell the user that we recommend a TeX distribution:
+            warnings.warn(
+                "> LaTeX is not installed. Falling back to Matplotlib's mathtext.",
+                UserWarning)
+            
+            # (X): If we don't have TeX, then we have to set it to false:
+            plt.rcParams.update({
+                "text.usetex": False,
+                "font.family": "serif"
+            })
+    
+        # (X): Set the rest of the rcParams:
         plt.rcParams['xtick.direction'] = 'in'
         plt.rcParams['xtick.major.size'] = 5
         plt.rcParams['xtick.major.width'] = 0.5
         plt.rcParams['xtick.minor.size'] = 2.5
         plt.rcParams['xtick.minor.width'] = 0.5
         plt.rcParams['xtick.minor.visible'] = True
-        plt.rcParams['xtick.top'] = True    
-
-        # Set y axis
+        plt.rcParams['xtick.top'] = True
         plt.rcParams['ytick.direction'] = 'in'
         plt.rcParams['ytick.major.size'] = 5
         plt.rcParams['ytick.major.width'] = 0.5
@@ -122,31 +177,58 @@ class DifferentialCrossSection:
         plt.rcParams['ytick.right'] = True
 
     def _initialize_from_config(self, configuration_dictionary: dict):
+        """
+        ## Description:
+        We demand a dictionary type, extract each of its keys and values, and then
+        we perform validation on each of the values. These values *cannot* be anything!
+        So, this function is responsible for that.
+        """
+
+        # (1): Initialize a try-catch block:
         try:
 
-            # (X): Pass the dictionary into the validation function:
+            # (1.1): Pass the whole dictionary into the validation function:
             validated_configuration_dictionary = validate_configuration(configuration_dictionary, self.verbose)
 
+            # (1.2): If validation is passed, we *set* the kinematic inputs using the `kinematics` key.
+            # | Should be of type `BKMInputs`!
             self.kinematic_inputs = validated_configuration_dictionary["kinematics"]
 
+            # (1.3): Assuming (1.2) passed, then we continue to extract dictionary keys.
+            # | Here, it is `cff_inputs`, and should be of type `CFFInputs`.
             self.cff_inputs = validated_configuration_dictionary["cff_inputs"]
 
+            # (1.4): Extract the (float) target polarization.
             self.target_polarization = validated_configuration_dictionary["target_polarization"]
 
+            # (1.5): Extract the (float) lepton polarization.
             self.lepton_polarization = validated_configuration_dictionary["lepton_beam_polarization"]
 
+            # (1.6): Extract the boolean value that tells us to evaluate with/out the WW relations:
             self.using_ww = validated_configuration_dictionary["using_ww"]
 
+            # (1.7): Initialize a BKM formalism with lepton polarization = +1.0.
+            # | We do this for unpolarized beams, i.e. when lambda = 0.0:
             self.formalism_plus = self._build_formalism_with_polarization(+1.0)
             
+            # (1.8): Initialize a BKM formalims with lepton polarization = -1.0:
             self.formalism_minus = self._build_formalism_with_polarization(-1.0)
 
+        # (2): If there are errors in the initialization above...
         except Exception as error:
 
-            # (X): Too general, yes, but not sure what we put here yet:
+            # (2.1): ... too general, yes, but not sure what we put here yet:
             raise Exception("> Error occurred during validation...") from error
         
     def _build_formalism_with_polarization(self, lepton_polarization: float) -> BKMFormalism:
+        """
+        ## Description:
+        There was not an easy way to handle unpolarized lepton beams using what we originally
+        coded. The best way to handle it is to actually instantiate *two* separate classes with 
+        the two different lepton polarizations. Then, we can easily calculate 
+        0.5 * (dsigma(+1) + dsigma(-1)), which is an cross-section for an unpolarized beam.
+        """
+        # (1): Immediately return a BKMFormalism instance:
         return BKMFormalism(
             inputs = self.kinematic_inputs,
             cff_values = self.cff_inputs,
@@ -158,7 +240,9 @@ class DifferentialCrossSection:
         
     def compute_prefactor(self) -> float:
         """
-        Later!
+        ## Description:
+        Immediately compute the prefactor that multiplies the
+        entire cross section:
         """
         return self.formalism_plus.compute_cross_section_prefactor()
         
