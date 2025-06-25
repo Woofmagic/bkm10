@@ -248,6 +248,9 @@ class DifferentialCrossSection:
         
     def compute_c0_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $c_{0}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
@@ -263,6 +266,9 @@ class DifferentialCrossSection:
     
     def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $c_{1}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
@@ -278,6 +284,9 @@ class DifferentialCrossSection:
     
     def compute_c2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $c_{2}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
@@ -293,6 +302,9 @@ class DifferentialCrossSection:
     
     def compute_c3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $c_{3}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
@@ -308,6 +320,9 @@ class DifferentialCrossSection:
     
     def compute_s1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $s_{1}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
@@ -323,6 +338,9 @@ class DifferentialCrossSection:
         
     def compute_s2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $s_{2}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
@@ -338,6 +356,9 @@ class DifferentialCrossSection:
     
     def compute_s3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
         """
+        ## Description:
+        We compute the coefficient so-called $s_{3}$ in the mode expansion
+        as according to the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
