@@ -2,7 +2,10 @@
 Entry point for the `BKM10Formalism`.
 """
 
+# 3rd Party Library | NumPy:
 import numpy as np
+
+from bkm10_lib import backend
 
 from bkm10_lib.inputs import BKM10Inputs
 
@@ -34,6 +37,9 @@ class BKMFormalism:
     These are "independent variables" that go into (numerical) evaluation of the cross-
     section.
     """
+    @property
+    def math(self):
+        return backend.math
 
     def __init__(
             self,
@@ -162,7 +168,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate self.epsilon right away:
-            epsilon = (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_IN_GEV) / np.sqrt(self.kinematics.squared_Q_momentum_transfer)
+            epsilon = (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_IN_GEV) / self.math.sqrt(self.kinematics.squared_Q_momentum_transfer)
 
             # (1.1): If verbose, print the result:
             if self.verbose:
@@ -199,7 +205,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the y right away:
-            lepton_energy_fraction = np.sqrt(self.kinematics.squared_Q_momentum_transfer) / (self.epsilon * self.kinematics.lab_kinematics_k)
+            lepton_energy_fraction = self.math.sqrt(self.kinematics.squared_Q_momentum_transfer) / (self.epsilon * self.kinematics.lab_kinematics_k)
 
             # (1.1): If verbose output, then print the result:
             if self.verbose:
@@ -274,7 +280,7 @@ class BKMFormalism:
             one_minus_xb = 1. - self.kinematics.x_Bjorken
 
             # (2): Calculate the numerator:
-            numerator = (2. * one_minus_xb * (1. - np.sqrt(1. + self.epsilon**2))) + self.epsilon**2
+            numerator = (2. * one_minus_xb * (1. - self.math.sqrt(1. + self.epsilon**2))) + self.epsilon**2
 
             # (3): Calculate the denominator:
             denominator = (4. * self.kinematics.x_Bjorken * one_minus_xb) + self.epsilon**2
@@ -363,10 +369,10 @@ class BKMFormalism:
             one_minus_xb = 1. - self.kinematics.x_Bjorken
 
             # (3): Calculate the crazy root quantity:
-            second_root_quantity = (one_minus_xb * np.sqrt((1. + self.epsilon**2))) + ((tmin_minus_t * (self.epsilon**2 + (4. * one_minus_xb * self.kinematics.x_Bjorken))) / (4. * self.kinematics.squared_Q_momentum_transfer))
+            second_root_quantity = (one_minus_xb * self.math.sqrt((1. + self.epsilon**2))) + ((tmin_minus_t * (self.epsilon**2 + (4. * one_minus_xb * self.kinematics.x_Bjorken))) / (4. * self.kinematics.squared_Q_momentum_transfer))
             
             # (6): Calculate K_tilde
-            k_tilde = np.sqrt(tmin_minus_t) * np.sqrt(second_root_quantity)
+            k_tilde = self.math.sqrt(tmin_minus_t) * self.math.sqrt(second_root_quantity)
 
             # (6.1): Print the result of the calculation:
             if self.verbose:
@@ -388,7 +394,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the amazing prefactor:
-            prefactor = np.sqrt((1. - self.lepton_energy_fraction + (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) / self.kinematics.squared_Q_momentum_transfer)
+            prefactor = self.math.sqrt((1. - self.lepton_energy_fraction + (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) / self.kinematics.squared_Q_momentum_transfer)
 
             # (2): Calculate the remaining part of the term:
             kinematic_k = prefactor * self.k_tilde
@@ -433,7 +439,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated electric form factor: {form_factor_electric}")
+                print(f"> [VERBOSE]: Successfully calculated electric form factor: {form_factor_electric}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -476,7 +482,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated magnetic form factor: {form_factor_magnetic}")
+                print(f"> [VERBOSE]: Successfully calculated magnetic form factor: {form_factor_magnetic}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -532,7 +538,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated Fermi form factor: {pauli_form_factor}")
+                print(f"> [VERBOSE]: Successfully calculated Fermi form factor: {pauli_form_factor}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -576,7 +582,7 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
-                print(f"> Successfully calculated Dirac form factor: {dirac_form_factor}")
+                print(f"> [VERBOSE]: Successfully calculated Dirac form factor: {dirac_form_factor}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -650,7 +656,7 @@ class BKMFormalism:
             numerator = _ELECTROMAGNETIC_FINE_STRUCTURE_CONSTANT**3 * self.lepton_energy_fraction**2 * self.kinematics.x_Bjorken
 
             # (2): Calculate the denominator of the prefactor:
-            denominator = 8. * np.pi * self.kinematics.squared_Q_momentum_transfer**2 * np.sqrt(1. + self.epsilon**2)
+            denominator = 8. * self.math.pi * self.kinematics.squared_Q_momentum_transfer**2 * self.math.sqrt(1. + self.epsilon**2)
 
             # (3): Construct the prefactor:
             prefactor = numerator / denominator
@@ -708,8 +714,8 @@ class BKMFormalism:
             # (1): The prefactor: \frac{Q^{2}}{2 y (1 + \varself.epsilon^{2})}
             prefactor = self.kinematics.squared_Q_momentum_transfer / (2. * self.lepton_energy_fraction * (1. + self.epsilon**2))
 
-            # (2): Second term in parentheses: Phi-Dependent Term: 2 K np.cos(\phi)
-            phi_dependence = 2. * self.kinematic_k * np.cos(phi_values)
+            # (2): Second term in parentheses: Phi-Dependent Term: 2 K self.math.cos(\phi)
+            phi_dependence = 2. * self.kinematic_k * self.math.cos(phi_values)
             
             # (3): Prefactor of third term in parentheses: \frac{t}{Q^{2}}
             ratio_delta_to_q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -732,9 +738,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(k_dot_delta_result, list) or isinstance(k_dot_delta_result, np.ndarray):
-                    print(f"> Successfully calculated k_dot_delta_result: {k_dot_delta_result[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated k_dot_delta_result: {k_dot_delta_result[0]}")
                 else:
-                    print(f"> Successfully calculated k_dot_delta_result: {k_dot_delta_result}")
+                    print(f"> [VERBOSE]: Successfully calculated k_dot_delta_result: {k_dot_delta_result}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -773,9 +779,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(p1_propagator, list) or isinstance(p1_propagator, np.ndarray):
-                    print(f"> Successfully calculated p1 propagator: {p1_propagator[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated p1 propagator: {p1_propagator[0]}")
                 else:
-                    print(f"> Successfully calculated p1 propagator: {p1_propagator}")
+                    print(f"> [VERBOSE]: Successfully calculated p1 propagator: {p1_propagator}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -813,9 +819,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(p2_propagator, list) or isinstance(p2_propagator, np.ndarray):
-                    print(f"> Successfully calculated p2_propagator: {p2_propagator[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated p2_propagator: {p2_propagator[0]}")
                 else:
-                    print(f"> Successfully calculated p2_propagator: {p2_propagator}")
+                    print(f"> [VERBOSE]: Successfully calculated p2_propagator: {p2_propagator}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1243,7 +1249,7 @@ class BKMFormalism:
                     + (c0a_plus_plus * curly_ca_plus_plus / c0_plus_plus))
         
         # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c0_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+        curly_c0_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
                     + (c0v_zero_plus * curly_cv_zero_plus / c0_zero_plus)
                     + (c0a_zero_plus * curly_ca_zero_plus / c0_zero_plus)))
         
@@ -1338,7 +1344,7 @@ class BKMFormalism:
                     + (c1a_plus_plus * curly_ca_plus_plus / c1_plus_plus))
         
         # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c1_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+        curly_c1_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
                     + (c1v_zero_plus * curly_cv_zero_plus / c1_zero_plus)
                     + (c1a_zero_plus * curly_ca_zero_plus / c1_zero_plus)))
 
@@ -1433,7 +1439,7 @@ class BKMFormalism:
                     + (c2a_plus_plus * curly_ca_plus_plus / c2_plus_plus))
         
         # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c2_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+        curly_c2_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
                     + (c2v_zero_plus * curly_cv_zero_plus / c2_zero_plus)
                     + (c2a_zero_plus * curly_ca_zero_plus / c2_zero_plus)))
             
@@ -1627,7 +1633,7 @@ class BKMFormalism:
                     + (s1a_plus_plus * curly_ca_plus_plus / s1_plus_plus))
         
         # (X): Calculate Curly S_{0+}(n = 1):
-        curly_s1_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+        curly_s1_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
                     + (s1v_zero_plus * curly_cv_zero_plus / s1_zero_plus)
                     + (s1a_zero_plus * curly_ca_zero_plus / s1_zero_plus)))
         
@@ -1722,7 +1728,7 @@ class BKMFormalism:
                     + (s2a_plus_plus * curly_ca_plus_plus / s2_plus_plus))
         
         # (X): Calculate Curly S_{0+}(n = 2):
-        curly_s2_zero_plus = ((np.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
+        curly_s2_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
                     + (s2v_zero_plus * curly_cv_zero_plus / s2_zero_plus)
                     + (s2a_zero_plus * curly_ca_zero_plus / s2_zero_plus)))
         
@@ -1849,9 +1855,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(curly_C_unpolarized_interference, list) or isinstance(curly_C_unpolarized_interference, np.ndarray):
-                    print(f"> Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference[0]}")
                 else:
-                    print(f"> Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1884,9 +1890,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(curly_C_unpolarized_interference_V, list) or isinstance(curly_C_unpolarized_interference_V, np.ndarray):
-                    print(f"> Successfully calculated curly_C_unpolarized_interference_V: {curly_C_unpolarized_interference_V[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference_V: {curly_C_unpolarized_interference_V[0]}")
                 else:
-                    print(f"> Successfully calculated curly_C_unpolarized_interference_V: {curly_C_unpolarized_interference_V}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference_V: {curly_C_unpolarized_interference_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1916,9 +1922,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(curly_C_unpolarized_interference_A, list) or isinstance(curly_C_unpolarized_interference_A, np.ndarray):
-                    print(f"> Successfully calculated curly_C_unpolarized_interference_A: {curly_C_unpolarized_interference_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference_A: {curly_C_unpolarized_interference_A[0]}")
                 else:
-                    print(f"> Successfully calculated curly_C_unpolarized_interference_A: {curly_C_unpolarized_interference_A}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference_A: {curly_C_unpolarized_interference_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -1966,9 +1972,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(curly_C_longitudinally_polarized_interference, list) or isinstance(curly_C_longitudinally_polarized_interference, np.ndarray):
-                    print(f"> Successfully calculated curly_C_longitudinally_polarized_interference: {curly_C_longitudinally_polarized_interference[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_longitudinally_polarized_interference: {curly_C_longitudinally_polarized_interference[0]}")
                 else:
-                    print(f"> Successfully calculated curly_C_longitudinally_polarized_interference: {curly_C_longitudinally_polarized_interference}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_longitudinally_polarized_interference: {curly_C_longitudinally_polarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2004,9 +2010,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(curly_C_V_longitudinally_polarized_interference, list) or isinstance(curly_C_V_longitudinally_polarized_interference, np.ndarray):
-                    print(f"> Successfully calculated curly_C_V_longitudinally_polarized_interference: {curly_C_V_longitudinally_polarized_interference[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_V_longitudinally_polarized_interference: {curly_C_V_longitudinally_polarized_interference[0]}")
                 else:
-                    print(f"> Successfully calculated curly_C_V_longitudinally_polarized_interference: {curly_C_V_longitudinally_polarized_interference}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_V_longitudinally_polarized_interference: {curly_C_V_longitudinally_polarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2045,9 +2051,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(curly_C_A_longitudinally_polarized_interference, list) or isinstance(curly_C_A_longitudinally_polarized_interference, np.ndarray):
-                    print(f"> Successfully calculated curly_C_A_longitudinally_polarized_interference: {curly_C_A_longitudinally_polarized_interference[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_A_longitudinally_polarized_interference: {curly_C_A_longitudinally_polarized_interference[0]}")
                 else:
-                    print(f"> Successfully calculated curly_C_A_longitudinally_polarized_interference: {curly_C_A_longitudinally_polarized_interference}")
+                    print(f"> [VERBOSE]: Successfully calculated curly_C_A_longitudinally_polarized_interference: {curly_C_A_longitudinally_polarized_interference}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2067,7 +2073,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2094,7 +2100,7 @@ class BKMFormalism:
             second_term_in_brackets_second_part =  1. + second_term_in_brackets_second_part_numerator / (two_minus_xb * one_plus_root_epsilon_stuff)
             
             # (10): Calculate the prefactor:
-            prefactor = -4. * two_minus_y * one_plus_root_epsilon_stuff / np.power(root_one_plus_epsilon_squared, 4)
+            prefactor = -4. * two_minus_y * one_plus_root_epsilon_stuff / self.math.power(root_one_plus_epsilon_squared, 4)
 
             # (11): Calculate the coefficient
             c_0_plus_plus_unp = prefactor * (first_term_in_brackets + second_term_in_brackets_first_part * second_term_in_brackets_second_part)
@@ -2102,9 +2108,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_plus_plus_unp, list) or isinstance(c_0_plus_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_0_plus_plus_unp: {c_0_plus_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_unp: {c_0_plus_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_plus_plus_unp: {c_0_plus_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_unp: {c_0_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2124,7 +2130,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2159,9 +2165,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_plus_plus_V_unp, list) or isinstance(c_0_plus_plus_V_unp, np.ndarray):
-                    print(f"> Successfully calculated c_0_plus_plus_V_unp: {c_0_plus_plus_V_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_V_unp: {c_0_plus_plus_V_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_plus_plus_V_unp: {c_0_plus_plus_V_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_V_unp: {c_0_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2181,7 +2187,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2216,9 +2222,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_plus_plus_A_unp, list) or isinstance(c_0_plus_plus_A_unp, np.ndarray):
-                    print(f"> Successfully calculated c_0_plus_plus_A_unp: {c_0_plus_plus_A_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_A_unp: {c_0_plus_plus_A_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_plus_plus_A_unp: {c_0_plus_plus_A_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_A_unp: {c_0_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2241,7 +2247,7 @@ class BKMFormalism:
             bracket_quantity = self.epsilon**2 + self.kinematics.squared_hadronic_momentum_transfer_t * (2. - 6.* self.kinematics.x_Bjorken - self.epsilon**2) / (3. * self.kinematics.squared_Q_momentum_transfer)
             
             # (2): Calculate part of the prefactor:
-            prefactor = 12. * np.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4)) / np.power(1. + self.epsilon**2, 2.5)
+            prefactor = 12. * self.math.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4)) / self.math.power(1. + self.epsilon**2, 2.5)
             
             # (3): Calculate the coefficient:
             c_0_zero_plus_unp = prefactor * bracket_quantity
@@ -2249,9 +2255,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_zero_plus_unp, list) or isinstance(c_0_zero_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_0_zero_plus_unp: {c_0_zero_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_unp: {c_0_zero_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_zero_plus_unp: {c_0_zero_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_unp: {c_0_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2277,7 +2283,7 @@ class BKMFormalism:
             main_part = self.kinematics.x_Bjorken * t_over_Q_squared * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
 
             # (3): Calculate the prefactor:
-            prefactor = 24. * np.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / (1. + self.epsilon**2)**2.5
+            prefactor = 24. * self.math.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / (1. + self.epsilon**2)**2.5
 
             # (4): Stitch together the coefficient:
             c_0_zero_plus_V_unp = prefactor * main_part
@@ -2285,9 +2291,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_zero_plus_V_unp, list) or isinstance(c_0_zero_plus_V_unp, np.ndarray):
-                    print(f"> Successfully calculated c_0_zero_plus_V_unp: {c_0_zero_plus_V_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_V_unp: {c_0_zero_plus_V_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_zero_plus_V_unp: {c_0_zero_plus_V_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_V_unp: {c_0_zero_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2316,7 +2322,7 @@ class BKMFormalism:
             brackets_term = 1. - t_over_Q_squared * (2. - 12. * self.kinematics.x_Bjorken * (1. - self.kinematics.x_Bjorken) - self.epsilon**2) / fancy_xb_epsilon_term
 
             # (4): Calculate the prefactor:
-            prefactor = 4. * np.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / np.power(1. + self.epsilon**2, 2.5)
+            prefactor = 4. * self.math.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / self.math.power(1. + self.epsilon**2, 2.5)
 
             # (5): Stitch together the coefficient:
             c_0_zero_plus_A_unp = prefactor * t_over_Q_squared * fancy_xb_epsilon_term * brackets_term
@@ -2324,9 +2330,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_zero_plus_A_unp, list) or isinstance(c_0_zero_plus_A_unp, np.ndarray):
-                    print(f"> Successfully calculated c_0_zero_plus_A_unp: {c_0_zero_plus_A_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_A_unp: {c_0_zero_plus_A_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_zero_plus_A_unp: {c_0_zero_plus_A_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_A_unp: {c_0_zero_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2346,7 +2352,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2378,9 +2384,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_plus_plus_unp, list) or isinstance(c_1_plus_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_1_plus_plus_unp: {c_1_plus_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_unp: {c_1_plus_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_plus_plus_unp: {c_1_plus_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_unp: {c_1_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2400,7 +2406,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2415,7 +2421,7 @@ class BKMFormalism:
             second_bracket_term_second_part = 0.5 * (1. + root_one_plus_epsilon_squared - 2. * self.kinematics.x_Bjorken) * self.t_prime / self.kinematics.squared_Q_momentum_transfer
 
             # (6): The prefactor in front of the brackets:
-            coefficient_prefactor = 16. * self.kinematic_k * self.kinematics.x_Bjorken * t_over_Q_squared / np.power(root_one_plus_epsilon_squared, 5)
+            coefficient_prefactor = 16. * self.kinematic_k * self.kinematics.x_Bjorken * t_over_Q_squared / self.math.power(root_one_plus_epsilon_squared, 5)
 
             # (7): The entire thing:
             c_1_plus_plus_V_unp = coefficient_prefactor * (first_bracket_term + second_bracket_term_first_part * second_bracket_term_second_part)
@@ -2423,9 +2429,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_plus_plus_V_unp, list) or isinstance(c_1_plus_plus_V_unp, np.ndarray):
-                    print(f"> Successfully calculated c_1_plus_plus_V_unp: {c_1_plus_plus_V_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_V_unp: {c_1_plus_plus_V_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_plus_plus_V_unp: {c_1_plus_plus_V_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_V_unp: {c_1_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2445,7 +2451,7 @@ class BKMFormalism:
         try:
     
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2477,9 +2483,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_plus_plus_A_unp, list) or isinstance(c_1_plus_plus_A_unp, np.ndarray):
-                    print(f"> Successfully calculated c_1_plus_plus_A_unp: {c_1_plus_plus_A_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_A_unp: {c_1_plus_plus_A_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_plus_plus_A_unp: {c_1_plus_plus_A_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_A_unp: {c_1_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2499,7 +2505,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2520,7 +2526,7 @@ class BKMFormalism:
             second_bracket_term = y_quantity * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared) * (self.epsilon**2 - 2. * (1. + (self.epsilon**2 / (2. * self.kinematics.x_Bjorken))) * self.kinematics.x_Bjorken * t_over_Q_squared) / root_one_plus_epsilon_squared
             
             # (8): Calculate part of the prefactor:
-            prefactor = 8. * np.sqrt(2. * y_quantity) / root_one_plus_epsilon_squared**4
+            prefactor = 8. * self.math.sqrt(2. * y_quantity) / root_one_plus_epsilon_squared**4
             
             # (9): Calculate the coefficient:
             c_1_zero_plus_unp = prefactor * (first_bracket_term + second_bracket_term)
@@ -2528,9 +2534,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_zero_plus_unp, list) or isinstance(c_1_zero_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_1_zero_plus_unp: {c_1_zero_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_unp: {c_1_zero_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_zero_plus_unp: {c_1_zero_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_unp: {c_1_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2559,7 +2565,7 @@ class BKMFormalism:
             major_part = (2 - self.lepton_energy_fraction)**2 * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer + (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)**2 * y_quantity
 
             # (4): Calculate the prefactor:
-            prefactor = 16. * np.sqrt(2. * y_quantity) * self.kinematics.x_Bjorken * t_over_Q_squared / (1. + self.epsilon**2)**2.5
+            prefactor = 16. * self.math.sqrt(2. * y_quantity) * self.kinematics.x_Bjorken * t_over_Q_squared / (1. + self.epsilon**2)**2.5
 
             # (5): Stitch together the coefficient:
             c_1_zero_plus_V_unp = prefactor * major_part
@@ -2567,9 +2573,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_zero_plus_V_unp, list) or isinstance(c_1_zero_plus_V_unp, np.ndarray):
-                    print(f"> Successfully calculated c_1_zero_plus_V_unp: {c_1_zero_plus_V_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_V_unp: {c_1_zero_plus_V_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_zero_plus_V_unp: {c_1_zero_plus_V_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_V_unp: {c_1_zero_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2589,7 +2595,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2610,7 +2616,7 @@ class BKMFormalism:
             first_term = self.k_tilde**2 * one_minus_2xb * (2. - self.lepton_energy_fraction)**2 / self.kinematics.squared_Q_momentum_transfer
             
             # (8): Calculate part of the prefactor:
-            prefactor = 8. * np.sqrt(2. * y_quantity) * t_over_Q_squared / root_one_plus_epsilon_squared**5
+            prefactor = 8. * self.math.sqrt(2. * y_quantity) * t_over_Q_squared / root_one_plus_epsilon_squared**5
             
             # (9): Calculate the coefficient:
             c_1_zero_plus_unp_A = prefactor * (first_term + second_term_first_part * second_term_second_part)
@@ -2618,9 +2624,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_zero_plus_unp_A, list) or isinstance(c_1_zero_plus_unp_A, np.ndarray):
-                    print(f"> Successfully calculated c_1_zero_plus_unp_A: {c_1_zero_plus_unp_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_unp_A: {c_1_zero_plus_unp_A[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_zero_plus_unp_A: {c_1_zero_plus_unp_A}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_unp_A: {c_1_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2640,7 +2646,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2660,9 +2666,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_plus_plus_unp, list) or isinstance(c_2_plus_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_2_plus_plus_unp: {c_2_plus_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_unp: {c_2_plus_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_plus_plus_unp: {c_2_plus_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_unp: {c_2_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2682,7 +2688,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2702,9 +2708,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_plus_plus_V_unp, list) or isinstance(c_2_plus_plus_V_unp, np.ndarray):
-                    print(f"> Successfully calculated c_2_plus_plus_V_unp: {c_2_plus_plus_V_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_V_unp: {c_2_plus_plus_V_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_plus_plus_V_unp: {c_2_plus_plus_V_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_V_unp: {c_2_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2724,7 +2730,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2747,9 +2753,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_plus_plus_A_unp, list) or isinstance(c_2_plus_plus_A_unp, np.ndarray):
-                    print(f"> Successfully calculated c_2_plus_plus_A_unp: {c_2_plus_plus_A_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_A_unp: {c_2_plus_plus_A_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_plus_plus_A_unp: {c_2_plus_plus_A_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_A_unp: {c_2_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2769,7 +2775,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity self.epsilon^2/2:
             self.epsilon_squared_over_2 = self.epsilon**2 / 2.
@@ -2781,7 +2787,7 @@ class BKMFormalism:
             bracket_term = 1. + ((1. + self.epsilon_squared_over_2 / self.kinematics.x_Bjorken) / (1. + self.epsilon_squared_over_2)) * self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (5): Calculate the prefactor:
-            prefactor = -8. * np.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) / root_one_plus_epsilon_squared**5
+            prefactor = -8. * self.math.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) / root_one_plus_epsilon_squared**5
             
             # (6): Calculate the coefficient:
             c_2_zero_plus_unp = prefactor * (1. + self.epsilon_squared_over_2) * bracket_term
@@ -2789,9 +2795,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_unp, list) or isinstance(c_2_zero_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_unp: {c_2_zero_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp: {c_2_zero_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_unp: {c_2_zero_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp: {c_2_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2811,16 +2817,16 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (3): Calculate the annoying y quantity:
-            y_quantity = np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
+            y_quantity = self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
 
             # (4): Calculate the prefactor:
-            prefactor = 8. * np.sqrt(2.) * y_quantity * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**5
+            prefactor = 8. * self.math.sqrt(2.) * y_quantity * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**5
             
             # (5): Calculate the coefficient:
             c_2_zero_plus_unp_V = prefactor * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
@@ -2828,9 +2834,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_unp_V, list) or isinstance(c_2_zero_plus_unp_V, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_unp_V: {c_2_zero_plus_unp_V[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp_V: {c_2_zero_plus_unp_V[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_unp_V: {c_2_zero_plus_unp_V}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp_V: {c_2_zero_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2850,7 +2856,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2868,7 +2874,7 @@ class BKMFormalism:
             bracket_term = one_minus_xb + 0.5 * t_prime_over_Q_squared * (4. * self.kinematics.x_Bjorken * one_minus_xb + self.epsilon**2) / root_one_plus_epsilon_squared
             
             # (7): Calculate part of the prefactor:
-            prefactor = 8. * np.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) * t_over_Q_squared / root_one_plus_epsilon_squared**4
+            prefactor = 8. * self.math.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) * t_over_Q_squared / root_one_plus_epsilon_squared**4
             
             # (8): Calculate the coefficient:
             c_2_zero_plus_unp_A = prefactor * bracket_term
@@ -2876,9 +2882,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_unp_A, list) or isinstance(c_2_zero_plus_unp_A, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2898,7 +2904,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2918,9 +2924,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_3_plus_plus_unp, list) or isinstance(c_3_plus_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated c_3_plus_plus_unp: {c_3_plus_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_3_plus_plus_unp: {c_3_plus_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_3_plus_plus_unp: {c_3_plus_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_3_plus_plus_unp: {c_3_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2940,7 +2946,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2957,9 +2963,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_3_plus_plus_V_unp, list) or isinstance(c_3_plus_plus_V_unp, np.ndarray):
-                    print(f"> Successfully calculated c_3_plus_plus_V_unp: {c_3_plus_plus_V_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_3_plus_plus_V_unp: {c_3_plus_plus_V_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_3_plus_plus_V_unp: {c_3_plus_plus_V_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_3_plus_plus_V_unp: {c_3_plus_plus_V_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -2990,9 +2996,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_3_plus_plus_A_unp, list) or isinstance(c_3_plus_plus_A_unp, np.ndarray):
-                    print(f"> Successfully calculated c_3_plus_plus_A_unp: {c_3_plus_plus_A_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_3_plus_plus_A_unp: {c_3_plus_plus_A_unp[0]}")
                 else:
-                    print(f"> Successfully calculated c_3_plus_plus_A_unp: {c_3_plus_plus_A_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated c_3_plus_plus_A_unp: {c_3_plus_plus_A_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3012,7 +3018,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t'/Q^{2}:
             tPrime_over_Q_squared = self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -3029,9 +3035,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_plus_plus_unp, list) or isinstance(s_1_plus_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated s_1_plus_plus_unp: {s_1_plus_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_unp: {s_1_plus_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_plus_plus_unp: {s_1_plus_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_unp: {s_1_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3051,7 +3057,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3068,9 +3074,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_plus_plus_unp_V, list) or isinstance(s_1_plus_plus_unp_V, np.ndarray):
-                    print(f"> Successfully calculated s_1_plus_plus_unp_V: {s_1_plus_plus_unp_V[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_unp_V: {s_1_plus_plus_unp_V[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_plus_plus_unp_V: {s_1_plus_plus_unp_V}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_unp_V: {s_1_plus_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3090,7 +3096,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3113,9 +3119,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_plus_plus_unp_A, list) or isinstance(s_1_plus_plus_unp_A, np.ndarray):
-                    print(f"> Successfully calculated s_1_plus_plus_unp_A: {s_1_plus_plus_unp_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_unp_A: {s_1_plus_plus_unp_A[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_plus_plus_unp_A: {s_1_plus_plus_unp_A}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_unp_A: {s_1_plus_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3138,17 +3144,17 @@ class BKMFormalism:
             root_one_plus_epsilon_squared = (1. + self.epsilon**2)**2
 
             # (2): Calculate the huge y quantity:
-            y_quantity = np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
+            y_quantity = self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
 
             # (3): Calculate the coefficient
-            s_1_zero_plus_unp = 8. * self.lepton_polarization * np.sqrt(2.) * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * y_quantity * self.k_tilde**2 / (root_one_plus_epsilon_squared * self.kinematics.squared_Q_momentum_transfer)
+            s_1_zero_plus_unp = 8. * self.lepton_polarization * self.math.sqrt(2.) * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * y_quantity * self.k_tilde**2 / (root_one_plus_epsilon_squared * self.kinematics.squared_Q_momentum_transfer)
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_zero_plus_unp, list) or isinstance(s_1_zero_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated s_1_zero_plus_unp: {s_1_zero_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_unp: {s_1_zero_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_zero_plus_unp: {s_1_zero_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_unp: {s_1_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3180,7 +3186,7 @@ class BKMFormalism:
             bracket_term = 4. * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared * (1. + self.kinematics.x_Bjorken * t_over_Q_squared) + self.epsilon**2 * (1. + t_over_Q_squared)**2
 
             # (5): Calculate the prefactor:
-            prefactor = 4. * np.sqrt(2. * fancy_y_stuff) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / one_plus_epsilon_squared_squared
+            prefactor = 4. * self.math.sqrt(2. * fancy_y_stuff) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / one_plus_epsilon_squared_squared
 
             # (6): Calculate the coefficient
             s_1_zero_plus_unp_V = prefactor * bracket_term
@@ -3188,9 +3194,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_zero_plus_unp_V, list) or isinstance(s_1_zero_plus_unp_V, np.ndarray):
-                    print(f"> Successfully calculated s_1_zero_plus_unp_V: {s_1_zero_plus_unp_V[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_unp_V: {s_1_zero_plus_unp_V[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_zero_plus_unp_V: {s_1_zero_plus_unp_V}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_unp_V: {s_1_zero_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3213,10 +3219,10 @@ class BKMFormalism:
             one_plus_epsilon_squared_squared = (1. + self.epsilon**2)**2
 
             # (2): Calculate a fancy, annoying quantity:
-            fancy_y_stuff = np.sqrt(1. - self.lepton_energy_fraction - self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)
+            fancy_y_stuff = self.math.sqrt(1. - self.lepton_energy_fraction - self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)
 
             # (3): Calculate the prefactor:
-            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * (1. - 2. * self.kinematics.x_Bjorken) / one_plus_epsilon_squared_squared
+            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * (1. - 2. * self.kinematics.x_Bjorken) / one_plus_epsilon_squared_squared
 
             # (4): Calculate the coefficient
             s_1_zero_plus_unp_A = prefactor * fancy_y_stuff * self.kinematics.squared_hadronic_momentum_transfer_t * self.kinematic_k**2 / self.kinematics.squared_Q_momentum_transfer
@@ -3224,9 +3230,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_zero_plus_unp_A, list) or isinstance(s_1_zero_plus_unp_A, np.ndarray):
-                    print(f"> Successfully calculated s_1_zero_plus_unp_A: {s_1_zero_plus_unp_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_unp_A: {s_1_zero_plus_unp_A[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_zero_plus_unp_A: {s_1_zero_plus_unp_A}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_unp_A: {s_1_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3246,7 +3252,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t'/Q^{2}:
             tPrime_over_Q_squared = self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -3269,9 +3275,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_plus_plus_unp, list) or isinstance(s_2_plus_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated s_2_plus_plus_unp: {s_2_plus_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_unp: {s_2_plus_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_plus_plus_unp: {s_2_plus_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_unp: {s_2_plus_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3291,7 +3297,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3317,9 +3323,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_plus_plus_unp_V, list) or isinstance(s_2_plus_plus_unp_V, np.ndarray):
-                    print(f"> Successfully calculated s_2_plus_plus_unp_V: {s_2_plus_plus_unp_V[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_unp_V: {s_2_plus_plus_unp_V[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_plus_plus_unp_V: {s_2_plus_plus_unp_V}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_unp_V: {s_2_plus_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3339,7 +3345,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3365,9 +3371,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_plus_plus_unp_A, list) or isinstance(s_2_plus_plus_unp_A, np.ndarray):
-                    print(f"> Successfully calculated s_2_plus_plus_unp_A: {s_2_plus_plus_unp_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_unp_A: {s_2_plus_plus_unp_A[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_plus_plus_unp_A: {s_2_plus_plus_unp_A}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_unp_A: {s_2_plus_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3387,7 +3393,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity self.epsilon^2/2:
             self.epsilon_squared_over_2 = self.epsilon**2 / 2.
@@ -3399,7 +3405,7 @@ class BKMFormalism:
             bracket_term = 1. + ((1. + self.epsilon_squared_over_2 / self.kinematics.x_Bjorken) / (1. + self.epsilon_squared_over_2)) * self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (5): Calculate the prefactor:
-            prefactor = 8. * self.lepton_polarization * np.sqrt(2. * y_quantity) * self.kinematic_k * self.lepton_energy_fraction / root_one_plus_epsilon_squared**4
+            prefactor = 8. * self.lepton_polarization * self.math.sqrt(2. * y_quantity) * self.kinematic_k * self.lepton_energy_fraction / root_one_plus_epsilon_squared**4
             
             # (6): Calculate the coefficient:
             s_2_zero_plus_unp = prefactor * (1. + self.epsilon_squared_over_2) * bracket_term
@@ -3407,9 +3413,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_zero_plus_unp, list) or isinstance(s_2_zero_plus_unp, np.ndarray):
-                    print(f"> Successfully calculated s_2_zero_plus_unp: {s_2_zero_plus_unp[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_unp: {s_2_zero_plus_unp[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_zero_plus_unp: {s_2_zero_plus_unp}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_unp: {s_2_zero_plus_unp}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3429,16 +3435,16 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (3): Calculate the annoying y quantity:
-            y_quantity = np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
+            y_quantity = self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
 
             # (4): Calculate the prefactor:
-            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * y_quantity * self.kinematic_k * self.lepton_energy_fraction * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**4
+            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * y_quantity * self.kinematic_k * self.lepton_energy_fraction * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**4
             
             # (5): Calculate the coefficient:
             s_2_zero_plus_unp_V = prefactor * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
@@ -3446,9 +3452,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_zero_plus_unp_V, list) or isinstance(s_2_zero_plus_unp_V, np.ndarray):
-                    print(f"> Successfully calculated s_2_zero_plus_unp_V: {s_2_zero_plus_unp_V[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_unp_V: {s_2_zero_plus_unp_V[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_zero_plus_unp_V: {s_2_zero_plus_unp_V}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_unp_V: {s_2_zero_plus_unp_V}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3468,7 +3474,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3483,7 +3489,7 @@ class BKMFormalism:
             main_term = 4. * one_minus_xb + 2. * self.epsilon**2 + 4. * t_over_Q_squared * (4. * self.kinematics.x_Bjorken * one_minus_xb + self.epsilon**2)
             
             # (6): Calculate part of the prefactor:
-            prefactor = -2. * np.sqrt(2. * y_quantity) * self.lepton_polarization * self.kinematic_k * self.lepton_energy_fraction * t_over_Q_squared / root_one_plus_epsilon_squared**4
+            prefactor = -2. * self.math.sqrt(2. * y_quantity) * self.lepton_polarization * self.kinematic_k * self.lepton_energy_fraction * t_over_Q_squared / root_one_plus_epsilon_squared**4
             
             # (7): Calculate the coefficient:
             c_2_zero_plus_unp_A = prefactor * main_term
@@ -3491,9 +3497,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_unp_A, list) or isinstance(c_2_zero_plus_unp_A, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_unp_A: {c_2_zero_plus_unp_A}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3513,7 +3519,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3542,9 +3548,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_plus_plus_LP, list) or isinstance(c_0_plus_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated c_0_plus_plus_LP: {c_0_plus_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_LP: {c_0_plus_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_plus_plus_LP: {c_0_plus_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_LP: {c_0_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3564,7 +3570,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3599,9 +3605,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_plus_plus_V_LP, list) or isinstance(c_0_plus_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated c_0_plus_plus_V_LP: {c_0_plus_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_V_LP: {c_0_plus_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_plus_plus_V_LP: {c_0_plus_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_V_LP: {c_0_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3621,7 +3627,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3653,9 +3659,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_plus_plus_A_LP, list) or isinstance(c_0_plus_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated c_0_plus_plus_A_LP: {c_0_plus_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_A_LP: {c_0_plus_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_plus_plus_A_LP: {c_0_plus_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_plus_plus_A_LP: {c_0_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3692,10 +3698,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.kinematics.x_Bjorken) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.kinematics.x_Bjorken) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_0_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3703,9 +3709,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_zero_plus_LP, list) or isinstance(c_0_zero_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated c_0_zero_plus_LP: {c_0_zero_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_LP: {c_0_zero_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_zero_plus_LP: {c_0_zero_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_LP: {c_0_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3736,9 +3742,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_zero_plus_V_LP, list) or isinstance(c_0_zero_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated c_0_zero_plus_V_LP: {c_0_zero_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_V_LP: {c_0_zero_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_zero_plus_V_LP: {c_0_zero_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_V_LP: {c_0_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3758,10 +3764,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate t/Q^2:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3772,9 +3778,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_0_zero_plus_A_LP, list) or isinstance(c_0_zero_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated c_0_zero_plus_A_LP: {c_0_zero_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_A_LP: {c_0_zero_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_0_zero_plus_A_LP: {c_0_zero_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_0_zero_plus_A_LP: {c_0_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3794,7 +3800,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity 1 + sqrt(1 + self.epsilon^2):
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -3814,9 +3820,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_plus_plus_LP, list) or isinstance(c_1_plus_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated c_1_plus_plus_LP: {c_1_plus_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_LP: {c_1_plus_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_plus_plus_LP: {c_1_plus_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_LP: {c_1_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3836,7 +3842,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity 1 - x_{B}
             one_minus_xb = 1. - self.kinematics.x_Bjorken
@@ -3862,9 +3868,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_plus_plus_V_LP, list) or isinstance(c_1_plus_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated c_1_plus_plus_V_LP: {c_1_plus_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_V_LP: {c_1_plus_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_plus_plus_V_LP: {c_1_plus_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_V_LP: {c_1_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3890,7 +3896,7 @@ class BKMFormalism:
             major_factor = self.kinematics.x_Bjorken * t_over_Q_squared * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
 
             # (3): Calculate the prefactor:
-            prefactor = 16. * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) / np.sqrt(1. + self.epsilon**2)**5
+            prefactor = 16. * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) / self.math.sqrt(1. + self.epsilon**2)**5
 
             # (4): Calculate the entire thing:
             c_1_plus_plus_A_LP = prefactor * major_factor
@@ -3898,9 +3904,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_plus_plus_A_LP, list) or isinstance(c_1_plus_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated c_1_plus_plus_A_LP: {c_1_plus_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_A_LP: {c_1_plus_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_plus_plus_A_LP: {c_1_plus_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_plus_plus_A_LP: {c_1_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3920,10 +3926,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_1_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer
@@ -3931,9 +3937,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_zero_plus_LP, list) or isinstance(c_1_zero_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated c_1_zero_plus_LP: {c_1_zero_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_LP: {c_1_zero_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_zero_plus_LP: {c_1_zero_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_LP: {c_1_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3953,10 +3959,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization  * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization  * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_1_zero_plus_V_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.squared_hadronic_momentum_transfer_t * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer**2
@@ -3964,9 +3970,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_1_zero_plus_V_LP, list) or isinstance(c_1_zero_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated c_1_zero_plus_V_LP: {c_1_zero_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_V_LP: {c_1_zero_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_1_zero_plus_V_LP: {c_1_zero_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_1_zero_plus_V_LP: {c_1_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -3986,7 +3992,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4009,9 +4015,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_plus_plus_LP, list) or isinstance(c_2_plus_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated c_2_plus_plus_LP: {c_2_plus_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_LP: {c_2_plus_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_plus_plus_LP: {c_2_plus_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_LP: {c_2_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4031,7 +4037,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4057,9 +4063,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_plus_plus_V_LP, list) or isinstance(c_2_plus_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated c_2_plus_plus_V_LP: {c_2_plus_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_V_LP: {c_2_plus_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_plus_plus_V_LP: {c_2_plus_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_V_LP: {c_2_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4079,7 +4085,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4102,9 +4108,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_plus_plus_A_LP, list) or isinstance(c_2_plus_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated c_2_plus_plus_A_LP: {c_2_plus_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_A_LP: {c_2_plus_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_plus_plus_A_LP: {c_2_plus_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_plus_plus_A_LP: {c_2_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4124,10 +4130,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_2_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * (1. + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
@@ -4135,9 +4141,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_LP, list) or isinstance(c_2_zero_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_LP: {c_2_zero_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_LP: {c_2_zero_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_LP: {c_2_zero_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_LP: {c_2_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4157,10 +4163,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_2_zero_plus_V_LP = prefactor * root_combination_of_y_and_epsilon * (1. - self.kinematics.x_Bjorken ) * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4168,9 +4174,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_V_LP, list) or isinstance(c_2_zero_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_V_LP: {c_2_zero_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_V_LP: {c_2_zero_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_V_LP: {c_2_zero_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_V_LP: {c_2_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4190,10 +4196,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4204,9 +4210,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(c_2_zero_plus_A_LP, list) or isinstance(c_2_zero_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated c_2_zero_plus_A_LP: {c_2_zero_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_A_LP: {c_2_zero_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated c_2_zero_plus_A_LP: {c_2_zero_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated c_2_zero_plus_A_LP: {c_2_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4226,7 +4232,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate 1 + sqrt(1 + self.epsilon^2):
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -4258,9 +4264,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_plus_plus_LP, list) or isinstance(s_1_plus_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated s_1_plus_plus_LP: {s_1_plus_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_LP: {s_1_plus_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_plus_plus_LP: {s_1_plus_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_LP: {s_1_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4283,7 +4289,7 @@ class BKMFormalism:
             ep_squared = self.epsilon**2
 
             # (2): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + ep_squared)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + ep_squared)
 
             # (3): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4324,9 +4330,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_plus_plus_V_LP, list) or isinstance(s_1_plus_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated s_1_plus_plus_V_LP: {s_1_plus_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_V_LP: {s_1_plus_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_plus_plus_V_LP: {s_1_plus_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_V_LP: {s_1_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4346,7 +4352,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4381,9 +4387,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_plus_plus_A_LP, list) or isinstance(s_1_plus_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated s_1_plus_plus_A_LP: {s_1_plus_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_A_LP: {s_1_plus_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_plus_plus_A_LP: {s_1_plus_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_plus_plus_A_LP: {s_1_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4415,7 +4421,7 @@ class BKMFormalism:
             second_bracket_term = (1. + t_over_Q_squared) * combination_of_y_and_epsilon * (2. * self.kinematics.x_Bjorken * t_over_Q_squared - (self.epsilon**2 * (1. - t_over_Q_squared)))
             
             # (5): Calculate the prefactor:
-            prefactor = 8. * np.sqrt(2.) * self.target_polarization  * np.sqrt(combination_of_y_and_epsilon) / np.sqrt((1. + self.epsilon**2)**5)
+            prefactor = 8. * self.math.sqrt(2.) * self.target_polarization  * self.math.sqrt(combination_of_y_and_epsilon) / self.math.sqrt((1. + self.epsilon**2)**5)
 
             # (6): Calculate everything:
             s_1_zero_plus_LP = prefactor * (first_bracket_term + second_bracket_term)
@@ -4423,9 +4429,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_zero_plus_LP, list) or isinstance(s_1_zero_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated s_1_zero_plus_LP: {s_1_zero_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_LP: {s_1_zero_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_zero_plus_LP: {s_1_zero_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_LP: {s_1_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4460,7 +4466,7 @@ class BKMFormalism:
             second_bracket_term = (1. + t_over_Q_squared) * combination_of_y_and_epsilon * second_bracket_term_long
             
             # (6): Calculate the prefactor:
-            prefactor = -8. * np.sqrt(2.) * self.target_polarization  * np.sqrt(combination_of_y_and_epsilon) * t_over_Q_squared / np.sqrt((1. + self.epsilon**2)**5)
+            prefactor = -8. * self.math.sqrt(2.) * self.target_polarization  * self.math.sqrt(combination_of_y_and_epsilon) * t_over_Q_squared / self.math.sqrt((1. + self.epsilon**2)**5)
 
             # (7): Calculate everything:
             s_1_zero_plus_V_LP = prefactor * (first_bracket_term + second_bracket_term)
@@ -4468,9 +4474,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_zero_plus_V_LP, list) or isinstance(s_1_zero_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated s_1_zero_plus_V_LP: {s_1_zero_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_V_LP: {s_1_zero_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_zero_plus_V_LP: {s_1_zero_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_V_LP: {s_1_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4490,13 +4496,13 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity (1 - y - y^{2} self.epsilon^{2} / 4)^{3/2}
-            combination_of_y_and_epsilon_to_3_halves = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))**3
+            combination_of_y_and_epsilon_to_3_halves = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))**3
 
             # (2): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
             
             # (3): Calculate the prefactor:
-            prefactor = -16. * np.sqrt(2.) * self.target_polarization * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + t_over_Q_squared) / np.sqrt((1. + self.epsilon**2)**5)
+            prefactor = -16. * self.math.sqrt(2.) * self.target_polarization * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + t_over_Q_squared) / self.math.sqrt((1. + self.epsilon**2)**5)
 
             # (4): Calculate everything:
             s_1_zero_plus_A_LP = prefactor * combination_of_y_and_epsilon_to_3_halves * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
@@ -4504,9 +4510,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_1_zero_plus_A_LP, list) or isinstance(s_1_zero_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated s_1_zero_plus_A_LP: {s_1_zero_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_A_LP: {s_1_zero_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_1_zero_plus_A_LP: {s_1_zero_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_1_zero_plus_A_LP: {s_1_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4526,7 +4532,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate 1 + sqrt(1 + self.epsilon^2)
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -4543,9 +4549,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_plus_plus_LP, list) or isinstance(s_2_plus_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated s_2_plus_plus_LP: {s_2_plus_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_LP: {s_2_plus_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_plus_plus_LP: {s_2_plus_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_LP: {s_2_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4565,7 +4571,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the first contribution to the bracket term:
             bracket_term_second_term = (3.  - root_one_plus_epsilon_squared - (2. * self.kinematics.x_Bjorken) + (self.epsilon**2 / self.kinematics.x_Bjorken)) * self.kinematics.x_Bjorken * self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -4585,9 +4591,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_plus_plus_V_LP, list) or isinstance(s_2_plus_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated s_2_plus_plus_V_LP: {s_2_plus_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_V_LP: {s_2_plus_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_plus_plus_V_LP: {s_2_plus_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_V_LP: {s_2_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4607,7 +4613,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the first contribution to the bracket term:
             bracket_term_first_term = (1. + root_one_plus_epsilon_squared - 2. * self.kinematics.x_Bjorken) * (1. - ((1. - 2. * self.kinematics.x_Bjorken) * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)) * self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -4627,9 +4633,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_plus_plus_A_LP, list) or isinstance(s_2_plus_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated s_2_plus_plus_A_LP: {s_2_plus_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_A_LP: {s_2_plus_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_plus_plus_A_LP: {s_2_plus_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_plus_plus_A_LP: {s_2_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4649,10 +4655,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 4)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
             
             # (2): Calculate the prefactor:
-            prefactor = 8. * np.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction )/ np.sqrt((1. + self.epsilon**2)**5)
+            prefactor = 8. * self.math.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction )/ self.math.sqrt((1. + self.epsilon**2)**5)
 
             # (3): Calculate everything:
             s_2_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * (1. + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
@@ -4660,9 +4666,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_zero_plus_LP, list) or isinstance(s_2_zero_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated s_2_zero_plus_LP: {s_2_zero_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_LP: {s_2_zero_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_zero_plus_LP: {s_2_zero_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_LP: {s_2_zero_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4682,10 +4688,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 4)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
             
             # (2): Calculate the prefactor:
-            prefactor = -8. * np.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.squared_hadronic_momentum_transfer_t / (np.sqrt((1. + self.epsilon**2)**5) * self.kinematics.squared_Q_momentum_transfer)
+            prefactor = -8. * self.math.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.squared_hadronic_momentum_transfer_t / (self.math.sqrt((1. + self.epsilon**2)**5) * self.kinematics.squared_Q_momentum_transfer)
 
             # (3): Calculate everything:
             s_2_zero_plus_V_LP = prefactor * (1. - self.kinematics.x_Bjorken) * root_combination_of_y_and_epsilon
@@ -4693,9 +4699,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_zero_plus_V_LP, list) or isinstance(s_2_zero_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated s_2_zero_plus_V_LP: {s_2_zero_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_V_LP: {s_2_zero_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_zero_plus_V_LP: {s_2_zero_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_V_LP: {s_2_zero_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4715,13 +4721,13 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 4)
-            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
             
             # (3): Calculate the prefactor:
-            prefactor = -8. * np.sqrt(2.) * self.target_polarization  * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / np.sqrt((1. + self.epsilon**2)**5)
+            prefactor = -8. * self.math.sqrt(2.) * self.target_polarization  * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / self.math.sqrt((1. + self.epsilon**2)**5)
 
             # (4): Calculate everything:
             s_2_zero_plus_A_LP = prefactor * root_combination_of_y_and_epsilon * (1. + t_over_Q_squared)
@@ -4729,9 +4735,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_2_zero_plus_A_LP, list) or isinstance(s_2_zero_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated s_2_zero_plus_A_LP: {s_2_zero_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_A_LP: {s_2_zero_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_2_zero_plus_A_LP: {s_2_zero_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_2_zero_plus_A_LP: {s_2_zero_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4751,7 +4757,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate 1 + sqrt(1 + self.epsilon^2):
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -4765,9 +4771,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_3_plus_plus_LP, list) or isinstance(s_3_plus_plus_LP, np.ndarray):
-                    print(f"> Successfully calculated s_3_plus_plus_LP: {s_3_plus_plus_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_3_plus_plus_LP: {s_3_plus_plus_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_3_plus_plus_LP: {s_3_plus_plus_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_3_plus_plus_LP: {s_3_plus_plus_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4787,7 +4793,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the main contribution:
             multiplicative_contribution = self.kinematics.squared_hadronic_momentum_transfer_t * self.t_prime * (4. * (1. - self.kinematics.x_Bjorken) * self.kinematics.x_Bjorken + self.epsilon**2) / self.kinematics.squared_Q_momentum_transfer**2
@@ -4801,9 +4807,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_3_plus_plus_V_LP, list) or isinstance(s_3_plus_plus_V_LP, np.ndarray):
-                    print(f"> Successfully calculated s_3_plus_plus_V_LP: {s_3_plus_plus_V_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_3_plus_plus_V_LP: {s_3_plus_plus_V_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_3_plus_plus_V_LP: {s_3_plus_plus_V_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_3_plus_plus_V_LP: {s_3_plus_plus_V_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:
@@ -4823,7 +4829,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the main contribution:
             multiplicative_contribution = self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t * self.t_prime * (1. + root_one_plus_epsilon_squared - 2. * self.kinematics.x_Bjorken) / self.kinematics.squared_Q_momentum_transfer**2
@@ -4837,9 +4843,9 @@ class BKMFormalism:
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
                 if isinstance(s_3_plus_plus_A_LP, list) or isinstance(s_3_plus_plus_A_LP, np.ndarray):
-                    print(f"> Successfully calculated s_3_plus_plus_A_LP: {s_3_plus_plus_A_LP[0]}")
+                    print(f"> [VERBOSE]: Successfully calculated s_3_plus_plus_A_LP: {s_3_plus_plus_A_LP[0]}")
                 else:
-                    print(f"> Successfully calculated s_3_plus_plus_A_LP: {s_3_plus_plus_A_LP}")
+                    print(f"> [VERBOSE]: Successfully calculated s_3_plus_plus_A_LP: {s_3_plus_plus_A_LP}")
             
             # (6): If debugging, log the entire output:
             if self.debugging:

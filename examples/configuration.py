@@ -64,7 +64,7 @@ example_1_config_dictionary = {
 example_1_cross_section = DifferentialCrossSection(
     configuration = example_1_config_dictionary,
     verbose = True,
-    debugging = True)
+    debugging = False)
 
 # (X): `compute_cross_section` returns an array of cross-section values:
 cross_section_values = example_1_cross_section.compute_cross_section(phi_array)
