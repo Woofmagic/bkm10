@@ -42,6 +42,32 @@ def get_backend():
     # (X): Return the backend variable:
     return _backend
 
+def safe_cast(x, promote_to_complex_if_needed=False):
+    """
+    ## Description:
+    In order to handle `complex` types *and* TensorFlow tensors,
+    we need to implement a function that will *always* guarantee that
+    we are not performing illegal operations between Tensors of different
+    type
+    - In TensorFlow mode, floats become tf.float32, complexes become tf.complex64.
+    - If promote_to_complex_if_needed is True, tf.float32 values are promoted to tf.complex64.
+    """
+    if get_backend() == "tensorflow":
+        if isinstance(x, float):
+            x = _tf.constant(x, dtype = _tf.float32)
+
+        elif isinstance(x, complex):
+            x = _tf.complex(_tf.constant(x.real, dtype = _tf.float32),
+                           _tf.constant(x.imag, dtype = _tf.float32))
+            
+        elif not _tf.is_tensor(x):
+            x = _tf.convert_to_tensor(x)
+
+        if promote_to_complex_if_needed and x.dtype == _tf.float32:
+            x = _tf.complex(x, _tf.zeros_like(x))
+
+    return x
+
 class MathWrapper:
     """
     ## Description:
@@ -71,7 +97,36 @@ class MathWrapper:
         if name == "power" and _backend == "tensorflow":
             return _tf.pow
        
-        # (X): Return wha
+        # (X): Another exception is that the constant pi is *not* in TensorFlow. Yay!
+        if name == "pi":
+            return _np.pi if _backend == "numpy" else _tf.constant(_np.pi, dtype = _tf.float32)
+        
+        # (X): TensorFlow also doesn't come with Euler's Number:
+        if name == "e":
+            return _np.e if _backend == "numpy" else _tf.constant(_np.e, dtype=_tf.float32)
+        
+        # (X): A major, major hurdle is having TensorFlow handle complex types!
+        if name == "complex":
+            return complex if _backend == "numpy" else lambda real_part, imag_part: _tf.complex(real_part, imag_part)
+        
+        # (X): Since we're relying on complex types, NumPy and TensorFlow will not handle them similarly,
+        # | so we need to tell it when to us `.real` versus TensorFlow's `.real`.
+        if name == "real":
+            return (lambda x: x.real) if _backend == "numpy" else _tf.math.real
+        
+        # (X): Same as above, but for `.imag`:
+        if name == "imag":
+            return (lambda x: x.imag) if _backend == "numpy" else _tf.math.imag
+        
+        # (X): Return the computed attribute according to the backend setting:
         return getattr(mod, name)
-
+    
+    def safe_cast(self, x, promote_to_complex_if_needed = False):
+        """
+        ## Description:
+        For a description of what's happening, please see the function `safe_cast` above.
+        """
+        return safe_cast(x, promote_to_complex_if_needed)
+        
+# (X): Export the wrapper that handles the library-specific attribute business:
 math = MathWrapper()

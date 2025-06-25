@@ -1,7 +1,7 @@
 """
-Here are a few exapmples of how one might use this library
+Here is an example of how one might use this library
 for analysis. Physicists are mostly interested in: cross sections,
-vaarious cross-section asymmetries, CFFs, and GPDs.
+various cross-section asymmetries, CFFs, and GPDs.
 
 Example (1): We plot the BKM10 predictions for the four-fold differential
 cross-section at the "standard kinematic bin" using the WW relations for

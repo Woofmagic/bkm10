@@ -1,3 +1,13 @@
+"""
+# BKM10 Library
+The fundamental package for computing (cross sections using the
+BKM10 formalism)!
+
+## Description:
+A Python library to help nuclear physicists use the BKM formalism in predicting
+cross-sections, asymmetries, and comparing GPD models.
+"""
+
 # (1): Expose the cross-section calculator class:
 from .core import DifferentialCrossSection
 

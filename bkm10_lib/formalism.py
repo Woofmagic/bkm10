@@ -172,7 +172,7 @@ class BKMFormalism:
 
             # (1.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated epsilon to be: {epsilon}")
+                print(f"> [VERBOSE]: Calculated epsilon to be: {epsilon}")
 
             # (2): Return self.epsilon:
             return epsilon
@@ -209,7 +209,7 @@ class BKMFormalism:
 
             # (1.1): If verbose output, then print the result:
             if self.verbose:
-                print(f"> Calculated y to be: {lepton_energy_fraction}")
+                print(f"> [VERBOSE]: Calculated y to be: {lepton_energy_fraction}")
 
             # (2): Return the calculation:
             return lepton_energy_fraction
@@ -249,7 +249,7 @@ class BKMFormalism:
 
             # (3.1): If verbose, print the output:
             if self.verbose:
-                print(f"> Calculated skewness xi to be: {skewness_parameter}")
+                print(f"> [VERBOSE]: Calculated skewness xi to be: {skewness_parameter}")
 
             # (4): Return Xi:
             return skewness_parameter
@@ -290,7 +290,7 @@ class BKMFormalism:
 
             # (4.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated t_minimum to be: {t_minimum}")
+                print(f"> [VERBOSE]: Calculated t_minimum to be: {t_minimum}")
 
             # (5): Print the result:
             return t_minimum
@@ -324,7 +324,7 @@ class BKMFormalism:
 
             # (1.1): If verbose, print the result:
             if self.verbose:
-                print(f"> Calculated t prime to be: {t_prime}")
+                print(f"> [VERBOSE]: Calculated t prime to be: {t_prime}")
 
             # (2): Return self.t_prime
             return t_prime
@@ -376,7 +376,7 @@ class BKMFormalism:
 
             # (6.1): Print the result of the calculation:
             if self.verbose:
-                print(f"> Calculated k_tilde to be: {k_tilde}")
+                print(f"> [VERBOSE]: Calculated k_tilde to be: {k_tilde}")
 
             # (7) Return:
             return k_tilde
@@ -401,7 +401,7 @@ class BKMFormalism:
 
             # (2.1); If verbose, log the output:
             if self.verbose:
-                print(f"> Calculated kinematic K to be: {kinematic_k}")
+                print(f"> [VERBOSE]: Calculated kinematic K to be: {kinematic_k}")
 
             # (3): Return the value:
             return kinematic_k
@@ -443,7 +443,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated electric form factor as: {form_factor_electric}")
+                print(f"> [VERBOSE]: Calculated electric form factor as: {form_factor_electric}")
 
             return form_factor_electric
 
@@ -486,7 +486,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated magnetic form factor as: {form_factor_magnetic}")
+                print(f"> [VERBOSE]: Calculated magnetic form factor as: {form_factor_magnetic}")
 
             return form_factor_magnetic
 
@@ -542,7 +542,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated Fermi form factor as: {pauli_form_factor}")
+                print(f"> [VERBOSE]: Calculated Fermi form factor as: {pauli_form_factor}")
 
             return pauli_form_factor
 
@@ -586,7 +586,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated Dirac form factor as: {dirac_form_factor}")
+                print(f"> [VERBOSE]: Calculated Dirac form factor as: {dirac_form_factor}")
 
             return dirac_form_factor
 
@@ -667,7 +667,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated BKM10 cross-section prefactor to be:\n{prefactor}")
+                print(f"> [VERBOSE]: Calculated BKM10 cross-section prefactor to be:\n{prefactor}")
 
             # (4): Return the prefactor:
             return prefactor
@@ -744,7 +744,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated k dot delta: {k_dot_delta_result}")
+                print(f"> [VERBOSE]: Calculated k dot delta: {k_dot_delta_result}")
 
             # (9): Return the number:
             return k_dot_delta_result
@@ -856,10 +856,10 @@ class BKMFormalism:
 
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
@@ -1244,17 +1244,30 @@ class BKMFormalism:
             c0a_zero_plus = self.calculate_c_0_zero_plus_longitudinally_polarized_a()
 
         # (X): Calculate Curly C_{++}(n = 0):
-        curly_c0_plus_plus = (curly_c_plus_plus
-                    + (c0v_plus_plus * curly_cv_plus_plus / c0_plus_plus)
-                    + (c0a_plus_plus * curly_ca_plus_plus / c0_plus_plus))
-        
-        # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c0_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                    + (c0v_zero_plus * curly_cv_zero_plus / c0_zero_plus)
-                    + (c0a_zero_plus * curly_ca_zero_plus / c0_zero_plus)))
-        
-        c_0_interference_coefficient  = c0_plus_plus * curly_c0_plus_plus.real + c0_zero_plus * curly_c0_zero_plus.real
+        curly_c0_plus_plus = (
+            self.math.safe_cast(curly_c_plus_plus, True)
+            + self.math.safe_cast(c0v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c0_plus_plus, True)
+            + self.math.safe_cast(c0a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c0_plus_plus, True)
+        )
 
+        # (X): Safe-cast the prefactor for Curly C_{0+}(n = 0):
+        prefactor = self.math.safe_cast(
+            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
+            promote_to_complex_if_needed = True)
+
+        # (X): Calculate Curly C_{0+}(n = 0):
+        curly_c0_zero_plus = (prefactor *
+                (
+                self.math.safe_cast(curly_c_zero_plus, True)
+                + self.math.safe_cast(c0v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(c0_zero_plus, True)
+                + self.math.safe_cast(c0a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(c0_zero_plus, True)
+                )
+        )
+        
+        # (X): Compute the c_{0} coefficient with all of its required ingredients!
+        c_0_interference_coefficient  = c0_plus_plus * self.math.real(curly_c0_plus_plus) + c0_zero_plus * self.math.real(curly_c0_zero_plus)
+
+        # (X): Return the coefficient:
         return c_0_interference_coefficient
     
     def compute_interference_c1_coefficient(self) -> float:
@@ -1338,17 +1351,29 @@ class BKMFormalism:
             # (X): C_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
             c1a_zero_plus = 0.
 
-        # (X): Calculate Curly C_{++}(n = 0):
-        curly_c1_plus_plus = (curly_c_plus_plus
-                    + (c1v_plus_plus * curly_cv_plus_plus / c1_plus_plus)
-                    + (c1a_plus_plus * curly_ca_plus_plus / c1_plus_plus))
-        
-        # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c1_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                    + (c1v_zero_plus * curly_cv_zero_plus / c1_zero_plus)
-                    + (c1a_zero_plus * curly_ca_zero_plus / c1_zero_plus)))
+        # (X): Calculate Curly C_{++}(n = 1):
+        curly_c1_plus_plus = (
+            self.math.safe_cast(curly_c_plus_plus, True)
+            + self.math.safe_cast(c1v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c1_plus_plus, True)
+            + self.math.safe_cast(c1a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c1_plus_plus, True)
+        )
 
-        c_1_interference_coefficient  = c1_plus_plus * curly_c1_plus_plus.real + c1_zero_plus * curly_c1_zero_plus.real
+        # (X): Safe-cast the prefactor for Curly C_{0+}(n = 1):
+        prefactor = self.math.safe_cast(
+            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
+            promote_to_complex_if_needed = True)
+
+        # (X): Calculate Curly C_{0+}(n = 1):
+        curly_c1_zero_plus = (prefactor *
+                (
+                self.math.safe_cast(curly_c_zero_plus, True)
+                + self.math.safe_cast(c1v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(c1_zero_plus, True)
+                + self.math.safe_cast(c1a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(c1_zero_plus, True)
+                )
+        )
+        
+        # (X): Compute the c_{1} coefficient with all of its required ingredients!
+        c_1_interference_coefficient  = c1_plus_plus * self.math.real(curly_c1_plus_plus) + c1_zero_plus * self.math.real(curly_c1_zero_plus)
 
         return c_1_interference_coefficient
     
@@ -1434,16 +1459,28 @@ class BKMFormalism:
             c2a_zero_plus = self.calculate_c_2_zero_plus_longitudinally_polarized_a()
         
         # (X): Calculate Curly C_{++}(n = 0):
-        curly_c2_plus_plus = (curly_c_plus_plus
-                    + (c2v_plus_plus * curly_cv_plus_plus / c2_plus_plus)
-                    + (c2a_plus_plus * curly_ca_plus_plus / c2_plus_plus))
+        curly_c2_plus_plus = (
+            self.math.safe_cast(curly_c_plus_plus, True)
+            + self.math.safe_cast(c2v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c2_plus_plus, True)
+            + self.math.safe_cast(c2a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c2_plus_plus, True)
+        )
         
-        # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c2_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                    + (c2v_zero_plus * curly_cv_zero_plus / c2_zero_plus)
-                    + (c2a_zero_plus * curly_ca_zero_plus / c2_zero_plus)))
-            
-        c_2_interference_coefficient  = c2_plus_plus * curly_c2_plus_plus.real + c2_zero_plus * curly_c2_zero_plus.real
+        # (X): Safe-cast the prefactor for Curly C_{0+}(n = 2):
+        prefactor = self.math.safe_cast(
+            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
+            promote_to_complex_if_needed = True)
+
+        # (X): Calculate Curly C_{0+}(n = 2):
+        curly_c2_zero_plus = (prefactor *
+                (
+                self.math.safe_cast(curly_c_zero_plus, True)
+                + self.math.safe_cast(c2v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(c2_zero_plus, True)
+                + self.math.safe_cast(c2a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(c2_zero_plus, True)
+                )
+        )
+        
+        # (X): Compute the c_{2} coefficient with all of its required ingredients!
+        c_2_interference_coefficient  = c2_plus_plus * self.math.real(curly_c2_plus_plus) + c2_zero_plus * self.math.real(curly_c2_zero_plus)
 
         return c_2_interference_coefficient
     
@@ -1491,9 +1528,11 @@ class BKMFormalism:
             c3a_zero_plus = 0.
 
             # (X): Calculate Curly C_{++}(n = 3):
-            curly_c3_plus_plus = (curly_c_plus_plus
-                        + (c3v_plus_plus * curly_cv_plus_plus / c3_plus_plus)
-                        + (c3a_plus_plus * curly_ca_plus_plus / c3_plus_plus))
+            curly_c3_plus_plus = (
+                self.math.safe_cast(curly_c_plus_plus, True)
+                + self.math.safe_cast(c3v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c3_plus_plus, True)
+                + self.math.safe_cast(c3a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c3_plus_plus, True)
+            )
             
             # (X): Calculate Curly C_{0+}(n = 3):
             curly_c3_zero_plus = 0.
@@ -1542,7 +1581,7 @@ class BKMFormalism:
             # (X): Curly C_{0+}(n = 3) is 0 for the same reason:
             curly_c3_zero_plus = 0.
         
-        c_3_interference_coefficient  = c3_plus_plus * curly_c3_plus_plus.real + c3_zero_plus * curly_c3_zero_plus.real
+        c_3_interference_coefficient  = c3_plus_plus * self.math.real(curly_c3_plus_plus) + c3_zero_plus * self.math.real(curly_c3_zero_plus)
 
         return c_3_interference_coefficient
     
@@ -1628,16 +1667,28 @@ class BKMFormalism:
             s1a_zero_plus = self.calculate_s_1_plus_plus_longitudinally_polarized()
 
         # (X): Calculate Curly S_{++}(n = 1):
-        curly_s1_plus_plus = (curly_c_plus_plus
-                    + (s1v_plus_plus * curly_cv_plus_plus / s1_plus_plus)
-                    + (s1a_plus_plus * curly_ca_plus_plus / s1_plus_plus))
-        
+        curly_s1_plus_plus = (
+            self.math.safe_cast(curly_c_plus_plus, True)
+            + self.math.safe_cast(s1v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(s1_plus_plus, True)
+            + self.math.safe_cast(s1a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(s1_plus_plus, True)
+        )
+
+        # (X): Safe-cast the prefactor for Curly S_{0+}(n = 1):
+        prefactor = self.math.safe_cast(
+            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
+            promote_to_complex_if_needed = True)
+
         # (X): Calculate Curly S_{0+}(n = 1):
-        curly_s1_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                    + (s1v_zero_plus * curly_cv_zero_plus / s1_zero_plus)
-                    + (s1a_zero_plus * curly_ca_zero_plus / s1_zero_plus)))
+        curly_s1_zero_plus = (prefactor *
+                (
+                self.math.safe_cast(curly_c_zero_plus, True)
+                + self.math.safe_cast(s1v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(s1_zero_plus, True)
+                + self.math.safe_cast(s1a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(s1_zero_plus, True)
+                )
+        )
         
-        s_1_interference_coefficient  = s1_plus_plus * curly_s1_plus_plus.imag + s1_zero_plus * curly_s1_zero_plus.imag
+        # (X): Compute the s_{1} coefficient with all of its required ingredients!
+        s_1_interference_coefficient  = s1_plus_plus * self.math.imag(curly_s1_plus_plus) + s1_zero_plus * self.math.imag(curly_s1_zero_plus)
 
         return s_1_interference_coefficient
     
@@ -1701,18 +1752,6 @@ class BKMFormalism:
             # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
             curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
-
-            # (X): Calculate S_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            s2_plus_plus = self.calculate_s_2_plus_plus_longitudinally_polarized()
-
-            # (X): Calculate S_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            s2v_plus_plus = self.calculate_s_2_plus_plus_longitudinally_polarized_v()
-
-            # (X): Calculate S_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            s2a_plus_plus = self.calculate_s_2_plus_plus_longitudinally_polarized_a()
-
             # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
             s2_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized()
 
@@ -1723,16 +1762,27 @@ class BKMFormalism:
             s2a_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized_a()
         
         # (X): Calculate Curly S_{++}(n = 2):
-        curly_s2_plus_plus = (curly_c_plus_plus
-                    + (s2v_plus_plus * curly_cv_plus_plus / s2_plus_plus)
-                    + (s2a_plus_plus * curly_ca_plus_plus / s2_plus_plus))
+        curly_s2_plus_plus = (
+            self.math.safe_cast(curly_c_plus_plus, True)
+            + self.math.safe_cast(s2v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(s2_plus_plus, True)
+            + self.math.safe_cast(s2a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(s2_plus_plus, True)
+        )
         
+        # (X): Safe-cast the prefactor for Curly S_{0+}(n = 2):
+        prefactor = self.math.safe_cast(
+            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
+            promote_to_complex_if_needed = True)
+
         # (X): Calculate Curly S_{0+}(n = 2):
-        curly_s2_zero_plus = ((self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) * self.k_tilde / (2. - self.kinematics.x_Bjorken)) * (curly_c_zero_plus
-                    + (s2v_zero_plus * curly_cv_zero_plus / s2_zero_plus)
-                    + (s2a_zero_plus * curly_ca_zero_plus / s2_zero_plus)))
+        curly_s2_zero_plus = (prefactor *
+                (
+                self.math.safe_cast(curly_c_zero_plus, True)
+                + self.math.safe_cast(s2v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(s2_zero_plus, True)
+                + self.math.safe_cast(s2a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(s2_zero_plus, True)
+                )
+        )
         
-        s_2_interference_coefficient = s2_plus_plus * curly_s2_plus_plus.imag + s2_zero_plus * curly_s2_zero_plus.imag
+        s_2_interference_coefficient = s2_plus_plus * self.math.imag(curly_s2_plus_plus) + s2_zero_plus * self.math.imag(curly_s2_zero_plus)
 
         return s_2_interference_coefficient
     
@@ -1824,14 +1874,16 @@ class BKMFormalism:
             s3a_zero_plus = 0.
 
             # (X): Calculate Curly S_{++}(n = 3):
-            curly_s3_plus_plus = (curly_c_plus_plus
-                        + (s3v_plus_plus * curly_cv_plus_plus / s3_plus_plus)
-                        + (s3a_plus_plus * curly_ca_plus_plus / s3_plus_plus))
+            curly_s3_plus_plus = (
+                self.math.safe_cast(curly_c_plus_plus, True)
+                + self.math.safe_cast(s3v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(s3_plus_plus, True)
+                + self.math.safe_cast(s3a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(s3_plus_plus, True)
+            )
             
             # (X): Calculate Curly S_{0+}(n = 3):
             curly_s3_zero_plus = 0.
         
-        s_3_interference_coefficient  = s3_plus_plus * curly_s3_plus_plus.imag + s3_zero_plus * curly_s3_zero_plus.imag
+        s_3_interference_coefficient  = s3_plus_plus * self.math.imag(curly_s3_plus_plus) + s3_zero_plus * self.math.imag(curly_s3_zero_plus)
 
         return s_3_interference_coefficient
     
@@ -1861,7 +1913,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated curly_C_unpolarized_interference to be:\n{curly_C_unpolarized_interference}")
+                print(f"> [VERBOSE]: Calculated curly_C_unpolarized_interference to be:\n{curly_C_unpolarized_interference}")
 
             # (5): Return the output:
             return curly_C_unpolarized_interference
@@ -1896,7 +1948,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated Curly C interference V unpolarized target to be:\n{curly_C_unpolarized_interference_V}")
+                print(f"> [VERBOSE]: Calculated Curly C interference V unpolarized target to be:\n{curly_C_unpolarized_interference_V}")
 
             # (5): Return the output:
             return curly_C_unpolarized_interference_V
@@ -1928,7 +1980,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated Curly C interference A unpolarized target to be:\n{curly_C_unpolarized_interference_A}")
+                print(f"> [VERBOSE]: Calculated Curly C interference A unpolarized target to be:\n{curly_C_unpolarized_interference_A}")
 
             # (4): Return the output:
             return curly_C_unpolarized_interference_A
@@ -1978,7 +2030,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated the curly C LP for interference to be:\n{curly_C_longitudinally_polarized_interference}")
+                print(f"> [VERBOSE]: Calculated the curly C LP for interference to be:\n{curly_C_longitudinally_polarized_interference}")
             
             # (9): Return the output:
             return curly_C_longitudinally_polarized_interference
@@ -2016,7 +2068,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated the curly C LP V for interference to be:\n{curly_C_V_longitudinally_polarized_interference}")
+                print(f"> [VERBOSE]: Calculated the curly C LP V for interference to be:\n{curly_C_V_longitudinally_polarized_interference}")
             
             # (5): Return the output:
             return curly_C_V_longitudinally_polarized_interference
@@ -2057,7 +2109,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated the curly C LP A for interference to be:\n{curly_C_A_longitudinally_polarized_interference}")
+                print(f"> [VERBOSE]: Calculated the curly C LP A for interference to be:\n{curly_C_A_longitudinally_polarized_interference}")
             
             # (6): Return the output:
             return curly_C_A_longitudinally_polarized_interference
@@ -2114,7 +2166,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_plus_plus_unp to be:\n{c_0_plus_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_0_plus_plus_unp to be:\n{c_0_plus_plus_unp}")
 
             # (12): Return the coefficient:
             return c_0_plus_plus_unp
@@ -2171,7 +2223,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_plus_plus_V_unp to be:\n{c_0_plus_plus_V_unp}")
+                print(f"> [VERBOSE]: Calculated c_0_plus_plus_V_unp to be:\n{c_0_plus_plus_V_unp}")
 
             # (12): Return the coefficient:
             return c_0_plus_plus_V_unp
@@ -2228,7 +2280,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_plus_plus_A_unp to be:\n{c_0_plus_plus_A_unp}")
+                print(f"> [VERBOSE]: Calculated c_0_plus_plus_A_unp to be:\n{c_0_plus_plus_A_unp}")
 
             # (12): Return the coefficient:
             return c_0_plus_plus_A_unp
@@ -2261,7 +2313,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_zero_plus_unp to be:\n{c_0_zero_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_0_zero_plus_unp to be:\n{c_0_zero_plus_unp}")
 
             # (4): Return the coefficient:
             return c_0_zero_plus_unp
@@ -2297,7 +2349,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_zero_plus_V_unp to be:\n{c_0_zero_plus_V_unp}")
+                print(f"> [VERBOSE]: Calculated c_0_zero_plus_V_unp to be:\n{c_0_zero_plus_V_unp}")
 
             # (5): Return the coefficient:
             return c_0_zero_plus_V_unp
@@ -2336,7 +2388,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_zero_plus_A_unp to be:\n{c_0_zero_plus_A_unp}")
+                print(f"> [VERBOSE]: Calculated c_0_zero_plus_A_unp to be:\n{c_0_zero_plus_A_unp}")
 
             # (6): Return the coefficient:
             return c_0_zero_plus_A_unp
@@ -2390,7 +2442,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_plus_plus_unp to be:\n{c_1_plus_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_1_plus_plus_unp to be:\n{c_1_plus_plus_unp}")
 
             # (12): Return the coefficient:
             return c_1_plus_plus_unp
@@ -2435,7 +2487,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_plus_plus_V_unp to be:\n{c_1_plus_plus_V_unp}")
+                print(f"> [VERBOSE]: Calculated c_1_plus_plus_V_unp to be:\n{c_1_plus_plus_V_unp}")
 
             # (12): Return the coefficient:
             return c_1_plus_plus_V_unp
@@ -2489,7 +2541,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_plus_plus_A_unp to be:\n{c_1_plus_plus_A_unp}")
+                print(f"> [VERBOSE]: Calculated c_1_plus_plus_A_unp to be:\n{c_1_plus_plus_A_unp}")
 
             # (11): Return the coefficient:
             return c_1_plus_plus_A_unp
@@ -2540,7 +2592,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_zero_plus_unp to be:\n{c_1_zero_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_1_zero_plus_unp to be:\n{c_1_zero_plus_unp}")
 
             # (9): Return the coefficient:
             return c_1_zero_plus_unp
@@ -2579,7 +2631,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_zero_plus_V_unp to be:\n{c_1_zero_plus_V_unp}")
+                print(f"> [VERBOSE]: Calculated c_1_zero_plus_V_unp to be:\n{c_1_zero_plus_V_unp}")
 
             # (6): Return the coefficient:
             return c_1_zero_plus_V_unp
@@ -2630,7 +2682,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_zero_plus_unp_A to be:\n{c_1_zero_plus_unp_A}")
+                print(f"> [VERBOSE]: Calculated c_1_zero_plus_unp_A to be:\n{c_1_zero_plus_unp_A}")
 
             # (10): Return the coefficient:
             return c_1_zero_plus_unp_A
@@ -2672,7 +2724,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_plus_plus_unp to be:\n{c_2_plus_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_2_plus_plus_unp to be:\n{c_2_plus_plus_unp}")
 
             # (7): Return the coefficient:
             return c_2_plus_plus_unp
@@ -2714,7 +2766,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_plus_plus_V_unp to be:\n{c_2_plus_plus_V_unp}")
+                print(f"> [VERBOSE]: Calculated c_2_plus_plus_V_unp to be:\n{c_2_plus_plus_V_unp}")
 
             # (7): Return the coefficient:
             return c_2_plus_plus_V_unp
@@ -2759,7 +2811,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_plus_plus_A_unp to be:\n{c_2_plus_plus_A_unp}")
+                print(f"> [VERBOSE]: Calculated c_2_plus_plus_A_unp to be:\n{c_2_plus_plus_A_unp}")
 
             # (8): Return the coefficient:
             return c_2_plus_plus_A_unp
@@ -2801,7 +2853,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_unp to be:\n{c_2_zero_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_unp to be:\n{c_2_zero_plus_unp}")
 
             # (7): Return the coefficient:
             return c_2_zero_plus_unp
@@ -2840,7 +2892,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_unp_V to be:\n{c_2_zero_plus_unp_V}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_unp_V to be:\n{c_2_zero_plus_unp_V}")
 
             # (6): Return the coefficient:
             return c_2_zero_plus_unp_V
@@ -2888,7 +2940,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_unp_A to be:\n{c_2_zero_plus_unp_A}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_unp_A to be:\n{c_2_zero_plus_unp_A}")
 
             # (9): Return the coefficient:
             return c_2_zero_plus_unp_A
@@ -2930,7 +2982,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_3_plus_plus_unp to be:\n{c_3_plus_plus_unp}")
+                print(f"> [VERBOSE]: Calculated c_3_plus_plus_unp to be:\n{c_3_plus_plus_unp}")
 
             # (7): Return the coefficient:
             return c_3_plus_plus_unp
@@ -2969,7 +3021,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_3_plus_plus_V_unp to be:\n{c_3_plus_plus_V_unp}")
+                print(f"> [VERBOSE]: Calculated c_3_plus_plus_V_unp to be:\n{c_3_plus_plus_V_unp}")
 
             # (7): Return the coefficient:
             return c_3_plus_plus_V_unp
@@ -3002,7 +3054,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_3_plus_plus_A_unp to be:\n{c_3_plus_plus_A_unp}")
+                print(f"> [VERBOSE]: Calculated c_3_plus_plus_A_unp to be:\n{c_3_plus_plus_A_unp}")
 
             # (4): Return the coefficient:
             return c_3_plus_plus_A_unp
@@ -3041,7 +3093,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_plus_plus_unp to be:\n{s_1_plus_plus_unp}")
+                print(f"> [VERBOSE]: Calculated s_1_plus_plus_unp to be:\n{s_1_plus_plus_unp}")
 
             # (6): Return the coefficient:
             return s_1_plus_plus_unp
@@ -3080,7 +3132,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_plus_plus_unp_V to be:\n{s_1_plus_plus_unp_V}")
+                print(f"> [VERBOSE]: Calculated s_1_plus_plus_unp_V to be:\n{s_1_plus_plus_unp_V}")
 
             # (6): Return the coefficient:
             return s_1_plus_plus_unp_V
@@ -3125,7 +3177,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_plus_plus_unp_A to be:\n{s_1_plus_plus_unp_A}")
+                print(f"> [VERBOSE]: Calculated s_1_plus_plus_unp_A to be:\n{s_1_plus_plus_unp_A}")
 
             # (8): Return the coefficient:
             return s_1_plus_plus_unp_A
@@ -3158,7 +3210,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_zero_plus_unp to be:\n{s_1_zero_plus_unp}")
+                print(f"> [VERBOSE]: Calculated s_1_zero_plus_unp to be:\n{s_1_zero_plus_unp}")
 
             # (4): Return the coefficient:
             return s_1_zero_plus_unp
@@ -3200,7 +3252,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_zero_plus_unp_V to be:\n{s_1_zero_plus_unp_V}")
+                print(f"> [VERBOSE]: Calculated s_1_zero_plus_unp_V to be:\n{s_1_zero_plus_unp_V}")
 
             # (7): Return the coefficient:
             return s_1_zero_plus_unp_V
@@ -3236,7 +3288,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_zero_plus_unp_A to be:\n{s_1_zero_plus_unp_A}")
+                print(f"> [VERBOSE]: Calculated s_1_zero_plus_unp_A to be:\n{s_1_zero_plus_unp_A}")
 
             # (5): Return the coefficient:
             return s_1_zero_plus_unp_A
@@ -3281,7 +3333,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_plus_plus_unp to be:\n{s_2_plus_plus_unp}")
+                print(f"> [VERBOSE]: Calculated s_2_plus_plus_unp to be:\n{s_2_plus_plus_unp}")
 
             # (6): Return the coefficient:
             return s_2_plus_plus_unp
@@ -3329,7 +3381,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_plus_plus_unp_V to be:\n{s_2_plus_plus_unp_V}")
+                print(f"> [VERBOSE]: Calculated s_2_plus_plus_unp_V to be:\n{s_2_plus_plus_unp_V}")
 
             # (9): Return the coefficient:
             return s_2_plus_plus_unp_V
@@ -3377,7 +3429,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_plus_plus_unp_A to be:\n{s_2_plus_plus_unp_A}")
+                print(f"> [VERBOSE]: Calculated s_2_plus_plus_unp_A to be:\n{s_2_plus_plus_unp_A}")
 
             # (9): Return the coefficient:
             return s_2_plus_plus_unp_A
@@ -3419,7 +3471,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_zero_plus_unp to be:\n{s_2_zero_plus_unp}")
+                print(f"> [VERBOSE]: Calculated s_2_zero_plus_unp to be:\n{s_2_zero_plus_unp}")
 
             # (7): Return the coefficient:
             return s_2_zero_plus_unp
@@ -3458,7 +3510,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_zero_plus_unp_V to be:\n{s_2_zero_plus_unp_V}")
+                print(f"> [VERBOSE]: Calculated s_2_zero_plus_unp_V to be:\n{s_2_zero_plus_unp_V}")
 
             # (6): Return the coefficient:
             return s_2_zero_plus_unp_V
@@ -3503,7 +3555,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_unp_A to be:\n{c_2_zero_plus_unp_A}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_unp_A to be:\n{c_2_zero_plus_unp_A}")
 
             # (8): Return the coefficient:
             return c_2_zero_plus_unp_A
@@ -3554,7 +3606,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_plus_plus_LP to be:\n{c_0_plus_plus_LP}")
+                print(f"> [VERBOSE]: Calculated c_0_plus_plus_LP to be:\n{c_0_plus_plus_LP}")
 
             # (10): Return the coefficient:
             return c_0_plus_plus_LP
@@ -3611,7 +3663,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_plus_plus_V_LP to be:\n{c_0_plus_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated c_0_plus_plus_V_LP to be:\n{c_0_plus_plus_V_LP}")
 
             # (12): Return the coefficient:
             return c_0_plus_plus_V_LP
@@ -3665,7 +3717,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_plus_plus_A_LP to be:\n{c_0_plus_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated c_0_plus_plus_A_LP to be:\n{c_0_plus_plus_A_LP}")
 
             # (11): Return the coefficient:
             return c_0_plus_plus_A_LP
@@ -3715,7 +3767,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_zero_plus_LP to be:\n{c_0_zero_plus_LP}")
+                print(f"> [VERBOSE]: Calculated c_0_zero_plus_LP to be:\n{c_0_zero_plus_LP}")
 
             # (4): Return the coefficient:
             return c_0_zero_plus_LP
@@ -3748,7 +3800,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_zero_plus_V_LP to be:\n{c_0_zero_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated c_0_zero_plus_V_LP to be:\n{c_0_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
             return c_0_zero_plus_V_LP
@@ -3784,7 +3836,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_0_zero_plus_A_LP to be:\n{c_0_zero_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated c_0_zero_plus_A_LP to be:\n{c_0_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
             return c_0_zero_plus_A_LP
@@ -3826,7 +3878,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_plus_plus_LP to be:\n{c_1_plus_plus_LP}")
+                print(f"> [VERBOSE]: Calculated c_1_plus_plus_LP to be:\n{c_1_plus_plus_LP}")
 
             # (7): Return the coefficient:
             return c_1_plus_plus_LP
@@ -3874,7 +3926,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_plus_plus_V_LP to be:\n{c_1_plus_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated c_1_plus_plus_V_LP to be:\n{c_1_plus_plus_V_LP}")
 
             # (7): Return the coefficient:
             return c_1_plus_plus_V_LP
@@ -3910,7 +3962,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_plus_plus_A_LP to be:\n{c_1_plus_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated c_1_plus_plus_A_LP to be:\n{c_1_plus_plus_A_LP}")
 
             # (5): Return the coefficient:
             return c_1_plus_plus_A_LP
@@ -3943,7 +3995,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_zero_plus_LP to be:\n{c_1_zero_plus_LP}")
+                print(f"> [VERBOSE]: Calculated c_1_zero_plus_LP to be:\n{c_1_zero_plus_LP}")
 
             # (4): Return the coefficient:
             return c_1_zero_plus_LP
@@ -3976,7 +4028,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_1_zero_plus_V_LP to be:\n{c_1_zero_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated c_1_zero_plus_V_LP to be:\n{c_1_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
             return c_1_zero_plus_V_LP
@@ -4021,7 +4073,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_plus_plus_LP to be:\n{c_2_plus_plus_LP}")
+                print(f"> [VERBOSE]: Calculated c_2_plus_plus_LP to be:\n{c_2_plus_plus_LP}")
 
             # (7): Return the coefficient:
             return c_2_plus_plus_LP
@@ -4069,7 +4121,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_plus_plus_V_LP to be:\n{c_2_plus_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated c_2_plus_plus_V_LP to be:\n{c_2_plus_plus_V_LP}")
 
             # (9): Return the coefficient:
             return c_2_plus_plus_V_LP
@@ -4114,7 +4166,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_plus_plus_A_LP to be:\n{c_2_plus_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated c_2_plus_plus_A_LP to be:\n{c_2_plus_plus_A_LP}")
 
             # (8): Return the coefficient:
             return c_2_plus_plus_A_LP
@@ -4147,7 +4199,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_LP to be:\n{c_2_zero_plus_LP}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_LP to be:\n{c_2_zero_plus_LP}")
 
             # (4): Return the coefficient:
             return c_2_zero_plus_LP
@@ -4180,7 +4232,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_V_LP to be:\n{c_2_zero_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_V_LP to be:\n{c_2_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
             return c_2_zero_plus_V_LP
@@ -4216,7 +4268,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated c_2_zero_plus_A_LP to be:\n{c_2_zero_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated c_2_zero_plus_A_LP to be:\n{c_2_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
             return c_2_zero_plus_A_LP
@@ -4270,7 +4322,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_plus_plus_LP to be:\n{s_1_plus_plus_LP}")
+                print(f"> [VERBOSE]: Calculated s_1_plus_plus_LP to be:\n{s_1_plus_plus_LP}")
 
             # (11): Return the coefficient:
             return s_1_plus_plus_LP
@@ -4336,7 +4388,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_plus_plus_V_LP to be:\n{s_1_plus_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated s_1_plus_plus_V_LP to be:\n{s_1_plus_plus_V_LP}")
 
             # (15): Return the coefficient:
             return s_1_plus_plus_V_LP
@@ -4393,7 +4445,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_plus_plus_A_LP to be:\n{s_1_plus_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated s_1_plus_plus_A_LP to be:\n{s_1_plus_plus_A_LP}")
 
             # (12): Return the coefficient:
             return s_1_plus_plus_A_LP
@@ -4435,7 +4487,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_zero_plus_LP to be:\n{s_1_zero_plus_LP}")
+                print(f"> [VERBOSE]: Calculated s_1_zero_plus_LP to be:\n{s_1_zero_plus_LP}")
 
             # (7): Return the coefficient:
             return s_1_zero_plus_LP
@@ -4480,7 +4532,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_zero_plus_V_LP to be:\n{s_1_zero_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated s_1_zero_plus_V_LP to be:\n{s_1_zero_plus_V_LP}")
 
             # (7): Return the coefficient:
             return s_1_zero_plus_V_LP
@@ -4516,7 +4568,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_1_zero_plus_A_LP to be:\n{s_1_zero_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated s_1_zero_plus_A_LP to be:\n{s_1_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
             return s_1_zero_plus_A_LP
@@ -4555,7 +4607,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_plus_plus_LP to be:\n{s_2_plus_plus_LP}")
+                print(f"> [VERBOSE]: Calculated s_2_plus_plus_LP to be:\n{s_2_plus_plus_LP}")
 
             # (6): Return the coefficient:
             return s_2_plus_plus_LP
@@ -4597,7 +4649,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_plus_plus_V_LP to be:\n{s_2_plus_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated s_2_plus_plus_V_LP to be:\n{s_2_plus_plus_V_LP}")
 
             # (7): Return the coefficient:
             return s_2_plus_plus_V_LP
@@ -4639,7 +4691,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_plus_plus_A_LP to be:\n{s_2_plus_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated s_2_plus_plus_A_LP to be:\n{s_2_plus_plus_A_LP}")
 
             # (7): Return the coefficient:
             return s_2_plus_plus_A_LP
@@ -4672,7 +4724,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_zero_plus_LP to be:\n{s_2_zero_plus_LP}")
+                print(f"> [VERBOSE]: Calculated s_2_zero_plus_LP to be:\n{s_2_zero_plus_LP}")
 
             # (4): Return the coefficient:
             return s_2_zero_plus_LP
@@ -4705,7 +4757,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_zero_plus_V_LP to be:\n{s_2_zero_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated s_2_zero_plus_V_LP to be:\n{s_2_zero_plus_V_LP}")
 
             # (4): Return the coefficient:
             return s_2_zero_plus_V_LP
@@ -4741,7 +4793,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_2_zero_plus_A_LP to be:\n{s_2_zero_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated s_2_zero_plus_A_LP to be:\n{s_2_zero_plus_A_LP}")
 
             # (5): Return the coefficient:
             return s_2_zero_plus_A_LP
@@ -4777,7 +4829,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_3_plus_plus_LP to be:\n{s_3_plus_plus_LP}")
+                print(f"> [VERBOSE]: Calculated s_3_plus_plus_LP to be:\n{s_3_plus_plus_LP}")
 
             # (5): Return the coefficient:
             return s_3_plus_plus_LP
@@ -4813,7 +4865,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_3_plus_plus_V_LP to be:\n{s_3_plus_plus_V_LP}")
+                print(f"> [VERBOSE]: Calculated s_3_plus_plus_V_LP to be:\n{s_3_plus_plus_V_LP}")
 
             # (5): Return the coefficient:
             return s_3_plus_plus_V_LP
@@ -4849,7 +4901,7 @@ class BKMFormalism:
             
             # (6): If debugging, log the entire output:
             if self.debugging:
-                print(f"> Calculated s_3_plus_plus_A_LP to be:\n{s_3_plus_plus_A_LP}")
+                print(f"> [VERBOSE]: Calculated s_3_plus_plus_A_LP to be:\n{s_3_plus_plus_A_LP}")
 
             # (5): Return the coefficient:
             return s_3_plus_plus_A_LP
