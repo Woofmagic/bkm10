@@ -12,7 +12,7 @@ name = "bkm10"
 # | MAJOR is sort of about stable versions with *major changes*
 # | MINOR is about new features
 # | PATCH is about fixing bugs and other small issues
-version = "1.2.3"
+version = "1.2.4"
 
 # (X): Add the description:
 description = "A formalism for computing DVCS cross sections using the BKM10 approach."
