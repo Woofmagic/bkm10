@@ -127,6 +127,34 @@ class MathWrapper:
         For a description of what's happening, please see the function `safe_cast` above.
         """
         return safe_cast(x, promote_to_complex_if_needed)
+    
+    def promote_scalar_to_dtype(self, scalar, reference):
+        """
+        ## Description:
+        Promote a Python scalar to the same dtype as the reference tensor/array.
+        Works under both NumPy and TensorFlow backends.
+
+        ## Arguments:
+            scalar: A Python scalar (float or int)
+
+            reference: A tensor or array whose dtype will be matched
+
+        ## Returns:
+            A scalar of the same backend and dtype as `reference`
+        """
+
+        if _backend == "tensorflow":
+            reference_datatype = reference.dtype if hasattr(reference, "dtype") else _tf.float32
+
+            return _tf.constant(scalar, dtype = reference_datatype)
+
+        elif _backend == "numpy":
+            reference_datatype = reference.dtype if hasattr(reference, "dtype") else _np.float32
+
+            return _np.array(scalar, dtype = reference_datatype)
+
+        else:
+            raise ValueError(f"Unsupported backend: {_backend}")
         
 # (X): Export the wrapper that handles the library-specific attribute business:
 math = MathWrapper()

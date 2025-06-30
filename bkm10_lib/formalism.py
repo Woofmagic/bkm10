@@ -618,19 +618,44 @@ class BKMFormalism:
         ## Notes:
         """
 
+        def effective_cff_factor(cff):
+            """
+            ## Description:
+            Dynamically comptute the effective CFFs giving attention
+            to the datatypes. We required this modification to handle the case
+            in which TF is used: There, something like `1.0 * cff` would throw
+            a fit.
+            """
+
+            # (X): Determine the right datatype representaton to use for the float `1.0`:
+            scalar_one = self.math.promote_scalar_to_dtype(1.0, cff)
+
+            # (X): Determine the right datatype representaton to use for the float `2.0`:
+            scalar_two = self.math.promote_scalar_to_dtype(2.0, cff)
+
+            # (X): Determine the right datatype representaton to use for the thing called `cff`:
+            skewness = self.math.promote_scalar_to_dtype(self.skewness_parameter, cff)
+
+            # (X): If the WW relations are on...
+            if self.using_ww:
+
+                # (X): ...then return the coreect factor to the CFFs:
+                return scalar_two * cff / (scalar_one + skewness)
+            
+            # (X): If the WW relations are off...
+            else:
+                
+                # (X): ...then return a different factor:
+                return -scalar_two * skewness * cff / (scalar_one + skewness)
+
         try:
 
-            if self.using_ww:
-                factor = lambda cff: 2. * cff / (1. + self.skewness_parameter)
-
-            else:
-                factor = lambda cff: -2. * self.skewness_parameter * cff / (1. + self.skewness_parameter)
-
+            # (X): We now require *recasting* the effective CFFs into the CFFInputs dataclass:
             effective_cffs = CFFInputs(
-                compton_form_factor_h       = factor(compton_form_factor.compton_form_factor_h),
-                compton_form_factor_e       = factor(compton_form_factor.compton_form_factor_e),
-                compton_form_factor_h_tilde = factor(compton_form_factor.compton_form_factor_h_tilde),
-                compton_form_factor_e_tilde = factor(compton_form_factor.compton_form_factor_e_tilde)
+                compton_form_factor_h       = effective_cff_factor(compton_form_factor.compton_form_factor_h),
+                compton_form_factor_e       = effective_cff_factor(compton_form_factor.compton_form_factor_e),
+                compton_form_factor_h_tilde = effective_cff_factor(compton_form_factor.compton_form_factor_h_tilde),
+                compton_form_factor_e_tilde = effective_cff_factor(compton_form_factor.compton_form_factor_e_tilde)
             )
 
             if self.verbose:
