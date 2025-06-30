@@ -636,17 +636,20 @@ class BKMFormalism:
             # (X): Determine the right datatype representaton to use for the thing called `cff`:
             skewness = self.math.promote_scalar_to_dtype(self.skewness_parameter, cff)
 
+            # (X): Due to the structure of the prefactor, we require computation of the nice/unambiguous datatypes first:
+            denominator = scalar_one + skewness
+
             # (X): If the WW relations are on...
             if self.using_ww:
 
                 # (X): ...then return the coreect factor to the CFFs:
-                return scalar_two * cff / (scalar_one + skewness)
+                return scalar_two * cff / denominator
             
             # (X): If the WW relations are off...
             else:
                 
                 # (X): ...then return a different factor:
-                return -scalar_two * skewness * cff / (scalar_one + skewness)
+                return -scalar_two * skewness * cff / denominator
 
         try:
 
