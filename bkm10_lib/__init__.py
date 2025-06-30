@@ -19,3 +19,6 @@ from .cff_inputs import CFFInputs
 
 # (4): Expose the dataclass `BKM10Inputs` in order to evaluate the cross section:
 from .inputs import BKM10Inputs
+
+# (5): Expose the backend: This is important if the user is using TensorFlow:
+from .backend import math
