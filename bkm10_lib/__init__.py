@@ -14,5 +14,8 @@ from .core import DifferentialCrossSection
 # (2): Expose the BKM formalism class... in case people want that:
 from .formalism import BKMFormalism
 
-# (3): Expose the dataclass `CFFInputs`... for getting familiar with it: 
+# (3): Expose the dataclass `CFFInputs`... for getting familiar with it:
 from .cff_inputs import CFFInputs
+
+# (4): Expose the dataclass `BKM10Inputs` in order to evaluate the cross section:
+from .inputs import BKM10Inputs
