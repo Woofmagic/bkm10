@@ -33,7 +33,6 @@ def run_cross_section(azimuthal_angles: np.ndarray):
         x_Bjorken = 0.34,
         squared_hadronic_momentum_transfer_t = -0.17)
 
-
     example_cffs = CFFInputs(
         compton_form_factor_h = math.complex(-0.897, 2.421),
         compton_form_factor_h_tilde = math.complex(2.444, 1.131),
@@ -50,7 +49,7 @@ def run_cross_section(azimuthal_angles: np.ndarray):
 
     cross_section = DifferentialCrossSection(
         configuration = configuration,
-        verbose = True,
+        verbose = False,
         debugging = False)
     
     sigma = cross_section.compute_cross_section(azimuthal_angles)

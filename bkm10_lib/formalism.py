@@ -660,7 +660,7 @@ class BKMFormalism:
                 compton_form_factor_h_tilde = effective_cff_factor(compton_form_factor.compton_form_factor_h_tilde),
                 compton_form_factor_e_tilde = effective_cff_factor(compton_form_factor.compton_form_factor_e_tilde)
             )
-
+            
             if self.verbose:
                 print("> [VERBOSE]: Computed effective CFFs using", "WW approximation" if self.using_ww else "non-WW expression")
 

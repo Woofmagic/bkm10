@@ -146,7 +146,7 @@ class MathWrapper:
         if _backend == "tensorflow":
             reference_datatype = reference.dtype if hasattr(reference, "dtype") else _tf.float32
 
-            return _tf.constant(scalar, dtype = reference_datatype)
+            return _tf.cast(_tf.constant(scalar, dtype = reference.dtype), reference.dtype)
 
         elif _backend == "numpy":
             reference_datatype = reference.dtype if hasattr(reference, "dtype") else _np.float32
