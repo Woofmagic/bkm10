@@ -639,6 +639,8 @@ class BKMFormalism:
             # (X): Due to the structure of the prefactor, we require computation of the nice/unambiguous datatypes first:
             denominator = scalar_one + skewness
 
+            print("lololLLOLOLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+
             # (X): If the WW relations are on...
             if self.using_ww:
 
