@@ -118,6 +118,15 @@ class MathWrapper:
         if name == "imag":
             return (lambda x: x.imag) if _backend == "numpy" else _tf.math.imag
         
+        # (X): We also used the NumPy method `atleast_1d`
+        if name == "atleast_1d":
+
+            if _backend == "tensorflow":
+                return lambda x: _tf.convert_to_tensor(x) if isinstance(x, (list, tuple)) else _tf.expand_dims(x, axis = 0)
+            
+            else:
+                return _np.atleast_1d
+        
         # (X): Return the computed attribute according to the backend setting:
         return getattr(mod, name)
     
@@ -144,9 +153,18 @@ class MathWrapper:
         """
 
         if _backend == "tensorflow":
-            reference_datatype = reference.dtype if hasattr(reference, "dtype") else _tf.float32
+            if hasattr(reference, "dtype"):
+                ref_dtype = reference.dtype
+            else:
+                ref_dtype = _tf.complex64 if isinstance(reference, complex) else _tf.float32
 
-            return _tf.cast(_tf.constant(scalar, dtype = reference.dtype), reference.dtype)
+            if ref_dtype.is_complex:
+                return _tf.complex(
+                    _tf.constant(scalar, dtype = _tf.float32),
+                    _tf.constant(0.0, dtype = _tf.float32)
+                )
+            else:
+                return _tf.constant(scalar, dtype=ref_dtype)
 
         elif _backend == "numpy":
             reference_datatype = reference.dtype if hasattr(reference, "dtype") else _np.float32

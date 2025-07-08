@@ -626,20 +626,30 @@ class BKMFormalism:
             in which TF is used: There, something like `1.0 * cff` would throw
             a fit.
             """
+            
+            # (X): WE need to determine if the CFFs are ofcomplex type so TF will cooperate:
+            is_complex = hasattr(cff, "dtype") and cff.dtype.is_complex
 
             # (X): Determine the right datatype representaton to use for the float `1.0`:
-            scalar_one = self.math.promote_scalar_to_dtype(1.0, cff)
+            scalar_one = (
+                backend.math.complex(1.0, 0.0)
+                if is_complex else
+                backend.math.promote_scalar_to_dtype(1.0, cff))
 
             # (X): Determine the right datatype representaton to use for the float `2.0`:
-            scalar_two = self.math.promote_scalar_to_dtype(2.0, cff)
-
-            # (X): Determine the right datatype representaton to use for the thing called `cff`:
-            skewness = self.math.promote_scalar_to_dtype(self.skewness_parameter, cff)
+            scalar_two = (
+                backend.math.complex(2.0, 0.0)
+                if is_complex else
+                backend.math.promote_scalar_to_dtype(2.0, cff))
+            
+            # (X): Determine the right datatype representaton to use for the thing called `skewness`:
+            skewness = (
+                backend.math.complex(self.skewness_parameter, 0.0)
+                if is_complex else
+                backend.math.promote_scalar_to_dtype(self.skewness_parameter, cff))
 
             # (X): Due to the structure of the prefactor, we require computation of the nice/unambiguous datatypes first:
             denominator = scalar_one + skewness
-
-            print("lololLLOLOLLLLLLLLLLLLLLLLLLLLLLLLLLL")
 
             # (X): If the WW relations are on...
             if self.using_ww:
@@ -650,7 +660,7 @@ class BKMFormalism:
             # (X): If the WW relations are off...
             else:
                 
-                # (X): ...then return a different factor:
+                # (X): ...then return a different factor:            
                 return -scalar_two * skewness * cff / denominator
 
         try:
@@ -1923,10 +1933,29 @@ class BKMFormalism:
         """
         try:
 
+            # (1): Determine if we need to use the effective cffs:
             cffs = self.effective_cff_values if effective_cffs else self.cff_values
 
+            # (X): WE need to determine if the CFFs are ofcomplex type so TF will cooperate:
+            is_complex = hasattr(cffs, "dtype") and cffs.dtype.is_complex
+
+            # (X): Determine the right datatype representaton to use for the float `1.0`:
+            dirac_form_factor = (
+                backend.math.complex(
+                    self.dirac_form_factor, 0.0)
+                if is_complex else
+                backend.math.promote_scalar_to_dtype(1.0, cffs))
+
+            # (X): 
+            weighted_prefactor = (
+                backend.math.complex(
+                    (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor / (4. * _MASS_OF_PROTON_IN_GEV**2)), 0.0)
+                if is_complex else
+                backend.math.promote_scalar_to_dtype(
+                    (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor / (4. * _MASS_OF_PROTON_IN_GEV**2), cffs)))
+
             # (1): Calculate the first two terms: weighted CFFs:
-            weighted_cffs = (self.dirac_form_factor * cffs.compton_form_factor_h) - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor * cffs.compton_form_factor_e / (4. * _MASS_OF_PROTON_IN_GEV**2))
+            weighted_cffs = (dirac_form_factor * cffs.compton_form_factor_h) - (weighted_prefactor * cffs.compton_form_factor_e)
 
             # (2): Calculate the next term:
             second_term = self.kinematics.x_Bjorken * (self.dirac_form_factor + self.pauli_form_factor) * cffs.compton_form_factor_h_tilde / (2. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
@@ -1936,8 +1965,10 @@ class BKMFormalism:
 
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
+
                 if isinstance(curly_C_unpolarized_interference, list) or isinstance(curly_C_unpolarized_interference, np.ndarray):
                     print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference[0]}")
+
                 else:
                     print(f"> [VERBOSE]: Successfully calculated curly_C_unpolarized_interference: {curly_C_unpolarized_interference}")
             

@@ -14,6 +14,9 @@ import numpy as np
 # (X): Import third-party libraries | Matplotlib:
 import matplotlib.pyplot as plt
 
+# (X): 
+from bkm10_lib import backend
+
 # (X): Import accompanying modules | bkm10_lib > validation > validate_configuration
 from bkm10_lib.validation import validate_configuration
 
@@ -246,7 +249,7 @@ class DifferentialCrossSection:
         """
         return self.formalism_plus.compute_cross_section_prefactor()
         
-    def compute_c0_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_c0_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{0}$ in the mode expansion
@@ -264,7 +267,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_c0_coefficient(phi_values)
     
-    def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_c1_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{1}$ in the mode expansion
@@ -282,7 +285,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_c1_coefficient(phi_values)
     
-    def compute_c2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_c2_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{2}$ in the mode expansion
@@ -300,7 +303,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_c2_coefficient(phi_values)
     
-    def compute_c3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_c3_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{3}$ in the mode expansion
@@ -318,7 +321,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_c3_coefficient(phi_values)
     
-    def compute_s1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_s1_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $s_{1}$ in the mode expansion
@@ -336,7 +339,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_s1_coefficient(phi_values)
         
-    def compute_s2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_s2_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $s_{2}$ in the mode expansion
@@ -354,7 +357,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_s2_coefficient(phi_values)
     
-    def compute_s3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_s3_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $s_{3}$ in the mode expansion
@@ -372,7 +375,7 @@ class DifferentialCrossSection:
         elif self.lepton_polarization == -1.0:
             return self.formalism_minus.compute_s3_coefficient(phi_values)
 
-    def compute_cross_section(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_cross_section(self, phi_values):
         """
         ## Description:
         We compute the four-fold *differential cross-section* as 
@@ -380,7 +383,7 @@ class DifferentialCrossSection:
 
         ## Arguments:
         
-        phi: np.ndarray
+        phi: backend.math.ndarray
             A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
 
@@ -406,13 +409,13 @@ class DifferentialCrossSection:
         if self._using_trento_angle_convention:
 
             # (X): ...if it's on, we apply the shift to the angle array:
-            verified_phi_values = np.pi - np.atleast_1d(phi_values)
+            verified_phi_values = backend.math.pi - backend.math.atleast_1d(phi_values)
 
         # (X): Otherwise...
         else:
 
             # (X): ... just verify that the array of angles is at least 1D:
-            verified_phi_values = np.atleast_1d(phi_values)
+            verified_phi_values = backend.math.atleast_1d(phi_values)
 
         # (X): Obtain the cross-section prefactor:
         cross_section_prefactor = self.compute_prefactor()
@@ -428,13 +431,13 @@ class DifferentialCrossSection:
 
         # (X): Compute the dfferential cross-section:
         differential_cross_section = .389379 * 1000000. * (cross_section_prefactor * (
-            coefficient_c_0 * np.cos(0. * verified_phi_values) + 
-            coefficient_c_1 * np.cos(1. * verified_phi_values) +
-            coefficient_c_2 * np.cos(2. * verified_phi_values) +
-            coefficient_c_3 * np.cos(3. * verified_phi_values) +
-            coefficient_s_1 * np.sin(1. * verified_phi_values) + 
-            coefficient_s_2 * np.sin(2. * verified_phi_values) +
-            coefficient_s_3 * np.sin(3. * verified_phi_values)))
+            coefficient_c_0 * backend.math.cos(0. * verified_phi_values) +
+            coefficient_c_1 * backend.math.cos(1. * verified_phi_values) +
+            coefficient_c_2 * backend.math.cos(2. * verified_phi_values) +
+            coefficient_c_3 * backend.math.cos(3. * verified_phi_values) +
+            coefficient_s_1 * backend.math.sin(1. * verified_phi_values) +
+            coefficient_s_2 * backend.math.sin(2. * verified_phi_values) +
+            coefficient_s_3 * backend.math.sin(3. * verified_phi_values)))
         
         # (X): Store cross-section data as class attribute:
         self.cross_section_values = differential_cross_section
@@ -445,14 +448,14 @@ class DifferentialCrossSection:
         # (X): Return the cross section:
         return differential_cross_section
     
-    def compute_bsa(self, phi_values: np.ndarray) -> np.ndarray:
+    def compute_bsa(self, phi_values):
         """
         ## Description:
         We compute the BKM-predicted BSA.
 
         ## Arguments:
         
-        phi: np.ndarray
+        phi: backend.math.ndarray
             A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
 
@@ -478,34 +481,34 @@ class DifferentialCrossSection:
         if self._using_trento_angle_convention:
 
             # (X): ...if it's on, we apply the shift to the angle array:
-            verified_phi_values = np.pi - np.atleast_1d(phi_values)
+            verified_phi_values = backend.math.pi - backend.math.atleast_1d(phi_values)
 
         # (X): Otherwise...
         else:
 
             # (X): ... just verify that the array of angles is at least 1D:
-            verified_phi_values = np.atleast_1d(phi_values)
+            verified_phi_values = backend.math.atleast_1d(phi_values)
 
         # (X): Compute the differential cross-section according to lambda = +1.0:
         sigma_plus = (
-            self.formalism_plus.compute_c0_coefficient(verified_phi_values) * np.cos(0. * verified_phi_values)
-            + self.formalism_plus.compute_c1_coefficient(verified_phi_values) * np.cos(1. * verified_phi_values)
-            + self.formalism_plus.compute_c2_coefficient(verified_phi_values) * np.cos(2. * verified_phi_values)
-            + self.formalism_plus.compute_c3_coefficient(verified_phi_values) * np.cos(3. * verified_phi_values)
-            + self.formalism_plus.compute_s1_coefficient(verified_phi_values) * np.sin(1. * verified_phi_values)
-            + self.formalism_plus.compute_s2_coefficient(verified_phi_values) * np.sin(2. * verified_phi_values)
-            + self.formalism_plus.compute_s3_coefficient(verified_phi_values) * np.sin(3. * verified_phi_values)
+            self.formalism_plus.compute_c0_coefficient(verified_phi_values) * backend.math.cos(0. * verified_phi_values)
+            + self.formalism_plus.compute_c1_coefficient(verified_phi_values) * backend.math.cos(1. * verified_phi_values)
+            + self.formalism_plus.compute_c2_coefficient(verified_phi_values) * backend.math.cos(2. * verified_phi_values)
+            + self.formalism_plus.compute_c3_coefficient(verified_phi_values) * backend.math.cos(3. * verified_phi_values)
+            + self.formalism_plus.compute_s1_coefficient(verified_phi_values) * backend.math.sin(1. * verified_phi_values)
+            + self.formalism_plus.compute_s2_coefficient(verified_phi_values) * backend.math.sin(2. * verified_phi_values)
+            + self.formalism_plus.compute_s3_coefficient(verified_phi_values) * backend.math.sin(3. * verified_phi_values)
             )
     
         # (X): Compute the differential cross-section according to lambda = +1.0:
         sigma_minus = (
-            self.formalism_minus.compute_c0_coefficient(verified_phi_values) * np.cos(0. * verified_phi_values)
-            + self.formalism_minus.compute_c1_coefficient(verified_phi_values) * np.cos(1. * verified_phi_values)
-            + self.formalism_minus.compute_c2_coefficient(verified_phi_values) * np.cos(2. * verified_phi_values)
-            + self.formalism_minus.compute_c3_coefficient(verified_phi_values) * np.cos(3. * verified_phi_values)
-            + self.formalism_minus.compute_s1_coefficient(verified_phi_values) * np.sin(1. * verified_phi_values)
-            + self.formalism_minus.compute_s2_coefficient(verified_phi_values) * np.sin(2. * verified_phi_values)
-            + self.formalism_minus.compute_s3_coefficient(verified_phi_values) * np.sin(3. * verified_phi_values)
+            self.formalism_minus.compute_c0_coefficient(verified_phi_values) * backend.math.cos(0. * verified_phi_values)
+            + self.formalism_minus.compute_c1_coefficient(verified_phi_values) * backend.math.cos(1. * verified_phi_values)
+            + self.formalism_minus.compute_c2_coefficient(verified_phi_values) * backend.math.cos(2. * verified_phi_values)
+            + self.formalism_minus.compute_c3_coefficient(verified_phi_values) * backend.math.cos(3. * verified_phi_values)
+            + self.formalism_minus.compute_s1_coefficient(verified_phi_values) * backend.math.sin(1. * verified_phi_values)
+            + self.formalism_minus.compute_s2_coefficient(verified_phi_values) * backend.math.sin(2. * verified_phi_values)
+            + self.formalism_minus.compute_s3_coefficient(verified_phi_values) * backend.math.sin(3. * verified_phi_values)
             )
 
         # (X): Compute the numerator of the BSA: sigma(+) - sigma(-):
@@ -523,7 +526,7 @@ class DifferentialCrossSection:
         # (X): Return the cross section:
         return bsa_values
     
-    def get_coefficient(self, name: str) -> np.ndarray:
+    def get_coefficient(self, name: str):
         """
         ## Description:
         An interface to query a given BKM coefficient
@@ -547,13 +550,13 @@ class DifferentialCrossSection:
             # (X): Raise an error:
             raise NotImplementedError(f"> Something bad happened...: {exception}")
         
-    def plot_cross_section(self, phi_values: np.ndarray) -> np.ndarray:
+    def plot_cross_section(self, phi_values):
         """
         ## Description:
         Plot the four-fold differential cross-section as a function of azimuthal angle φ.
 
         ## Arguments:
-        phi_values : np.ndarray
+        phi_values : backend.math.ndarray
             Array of φ values (in degrees) at which to compute and plot the cross-section.
         """
 
@@ -602,13 +605,13 @@ class DifferentialCrossSection:
         plt.tight_layout()
         plt.show()
 
-    def plot_bsa(self, phi_values: np.ndarray) -> np.ndarray:
+    def plot_bsa(self, phi_values):
         """
         ## Description:
         Plot the BKM-predicted BSA with azimuthal angle φ.
 
         ## Arguments:
-        phi_values : np.ndarray
+        phi_values : backend.math.ndarray
             Array of φ values (in degrees) at which to compute and plot the cross-section.
         """
 
