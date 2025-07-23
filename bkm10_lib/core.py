@@ -430,14 +430,14 @@ class DifferentialCrossSection:
         coefficient_s_3 = self.compute_s3_coefficient(verified_phi_values)
 
         # (X): Compute the dfferential cross-section:
-        differential_cross_section = .389379 * 1000000. * (cross_section_prefactor * (
+        differential_cross_section = (.389379 * 1000000. * (cross_section_prefactor * (
             coefficient_c_0 * backend.math.cos(0. * verified_phi_values) +
             coefficient_c_1 * backend.math.cos(1. * verified_phi_values) +
             coefficient_c_2 * backend.math.cos(2. * verified_phi_values) +
             coefficient_c_3 * backend.math.cos(3. * verified_phi_values) +
             coefficient_s_1 * backend.math.sin(1. * verified_phi_values) +
             coefficient_s_2 * backend.math.sin(2. * verified_phi_values) +
-            coefficient_s_3 * backend.math.sin(3. * verified_phi_values)))
+            coefficient_s_3 * backend.math.sin(3. * verified_phi_values))))
         
         # (X): Store cross-section data as class attribute:
         self.cross_section_values = differential_cross_section

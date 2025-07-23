@@ -27,18 +27,22 @@ def run_cross_section(azimuthal_angles: np.ndarray):
     methods. The results should be the same!
     """
 
+    # (1): As required, define the kinematic settings. Here, we use the
+    # | standard kinematic settings.
     example_inputs = BKM10Inputs(
         lab_kinematics_k = 5.75,
         squared_Q_momentum_transfer = 1.82,
         x_Bjorken = 0.34,
         squared_hadronic_momentum_transfer_t = -0.17)
 
+    # (2): As required as well, define the CFF inputs:
     example_cffs = CFFInputs(
-        compton_form_factor_h = math.complex(-0.897, 2.421),
-        compton_form_factor_h_tilde = math.complex(2.444, 1.131),
-        compton_form_factor_e = math.complex(-0.541, 0.903),
-        compton_form_factor_e_tilde = math.complex(2.207, 5.383))
+        compton_form_factor_h = backend.math.complex(-0.897, 2.421),
+        compton_form_factor_h_tilde = backend.math.complex(2.444, 1.131),
+        compton_form_factor_e = backend.math.complex(-0.541, 0.903),
+        compton_form_factor_e_tilde = backend.math.complex(2.207, 5.383))
 
+    # (3): Cast the configuration settings into expected dictionary:
     configuration = {
         "kinematics": example_inputs,
         "cff_inputs": example_cffs,
@@ -47,6 +51,7 @@ def run_cross_section(azimuthal_angles: np.ndarray):
         "using_ww": True
     }
 
+    # (4): Start to compute the cross-section:
     cross_section = DifferentialCrossSection(
         configuration = configuration,
         verbose = False,
