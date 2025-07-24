@@ -877,10 +877,17 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+
+        # (1): We compute the c_{0}^{BH} coefficient:
         bh_c0_contribution = self.compute_bh_c0_coefficient()
+        
+        # (2): We compute the c_{0}^{BH} coefficient:
         dvcs_c0_contribution = self.compute_dvcs_c0_coefficient()
+
+        # (3): We compute the c_{0}^{I} coefficient:
         interference_c0_contribution = self.compute_interference_c0_coefficient()
 
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
                 self.kinematics.x_Bjorken *
@@ -891,8 +898,10 @@ class BKMFormalism:
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         c0_coefficient = bh_c0_contribution + dvcs_c0_contribution + interference_prefactor * interference_c0_contribution
 
+        # (6): And return the coefficient:
         return c0_coefficient
     
     def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -912,22 +921,30 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+        # (1): We compute the c_{1}^{BH} coefficient:
         bh_c1_contribution = self.compute_bh_c1_coefficient()
+        
+        # (2): We compute the c_{1}^{BH} coefficient:
         dvcs_c1_contribution = self.compute_dvcs_c1_coefficient()
+
+        # (3): We compute the c_{1}^{I} coefficient:
         interference_c1_contribution = self.compute_interference_c1_coefficient()
 
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         c1_coefficient = bh_c1_contribution + dvcs_c1_contribution + interference_prefactor * interference_c1_contribution
 
+        # (6): And return the coefficient:
         return c1_coefficient
     
     def compute_c2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -947,22 +964,30 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+        # (1): We compute the c_{2}^{BH} coefficient:
         bh_c2_contribution = self.compute_bh_c2_coefficient()
-        dvcs_c2_contribution = self.compute_dvcs_c2_coefficient()
-        interference_c2_contribution = self.compute_interference_c2_coefficient()
         
+        # (2): We compute the c_{2}^{BH} coefficient:
+        dvcs_c2_contribution = self.compute_dvcs_c2_coefficient()
+
+        # (3): We compute the c_{2}^{I} coefficient:
+        interference_c2_contribution = self.compute_interference_c2_coefficient()
+
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         c2_coefficient = bh_c2_contribution + dvcs_c2_contribution + interference_prefactor * interference_c2_contribution
 
+        # (6): And return the coefficient:
         return c2_coefficient
     
     def compute_c3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -982,22 +1007,30 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+        # (1): We compute the c_{3}^{BH} coefficient:
         bh_c3_contribution = self.compute_bh_c3_coefficient()
+        
+        # (2): We compute the c_{3}^{BH} coefficient:
         dvcs_c3_contribution = self.compute_dvcs_c3_coefficient()
+
+        # (3): We compute the c_{3}^{I} coefficient:
         interference_c3_contribution = self.compute_interference_c3_coefficient()
 
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         c3_coefficient = bh_c3_contribution + dvcs_c3_contribution + interference_prefactor * interference_c3_contribution
 
+        # (6): And return the coefficient:
         return c3_coefficient
     
     def compute_s1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -1017,22 +1050,30 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+        # (1): We compute the s_{1}^{BH} coefficient:
         bh_s1_contribution = self.compute_bh_s1_coefficient()
+        
+        # (2): We compute the s_{1}^{BH} coefficient:
         dvcs_s1_contribution = self.compute_dvcs_s1_coefficient()
+
+        # (3): We compute the s_{1}^{I} coefficient:
         interference_s1_contribution = self.compute_interference_s1_coefficient()
 
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         s1_coefficient = bh_s1_contribution + dvcs_s1_contribution + interference_prefactor * interference_s1_contribution
 
+        # (6): And return the coefficient:
         return s1_coefficient
     
     def compute_s2_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -1052,22 +1093,30 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+        # (1): We compute the s_{2}^{BH} coefficient:
         bh_s2_contribution = self.compute_bh_s2_coefficient()
+        
+        # (2): We compute the s_{2}^{BH} coefficient:
         dvcs_s2_contribution = self.compute_dvcs_s2_coefficient()
+
+        # (3): We compute the s_{1}^{I} coefficient:
         interference_s2_contribution = self.compute_interference_s2_coefficient()
 
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         s2_coefficient = bh_s2_contribution + dvcs_s2_contribution + interference_prefactor * interference_s2_contribution
 
+        # (6): And return the coefficient:
         return s2_coefficient
     
     def compute_s3_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -1087,22 +1136,30 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+        # (1): We compute the s_{3}^{BH} coefficient:
         bh_s3_contribution = self.compute_bh_s3_coefficient()
+        
+        # (2): We compute the s_{3}^{BH} coefficient:
         dvcs_s3_contribution = self.compute_dvcs_s3_coefficient()
+
+        # (3): We compute the s_{3}^{I} coefficient:
         interference_s3_contribution = self.compute_interference_s3_coefficient()
 
+        # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
             1. / (
-                self.kinematics.x_Bjorken * 
-                self.lepton_energy_fraction**3 * 
-                self.kinematics.squared_hadronic_momentum_transfer_t * 
-                self.calculate_lepton_propagator_p1(phi_values) * 
+                self.kinematics.x_Bjorken *
+                self.lepton_energy_fraction**3 *
+                self.kinematics.squared_hadronic_momentum_transfer_t *
+                self.calculate_lepton_propagator_p1(phi_values) *
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
 
+        # (5): Now, we sum together all the contributions:
         s3_coefficient = bh_s3_contribution + dvcs_s3_contribution + interference_prefactor * interference_s3_contribution
 
+        # (6): And return the coefficient:
         return s3_coefficient
     
     def compute_bh_c0_coefficient(self) -> float:

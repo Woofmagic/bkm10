@@ -6,6 +6,13 @@ various cross-section asymmetries, CFFs, and GPDs.
 Example (1): We plot the BKM10 predictions for the four-fold differential
 cross-section at the "standard kinematic bin" using the WW relations for
 an unpolarized target and unpolarized beam.
+
+## Notes:
+
+1. 2025/07/24:
+    Program correctly outputs *only* the interference contribution to the four-fold
+    differential cross-section --- that is the standard "U"-shape. The plot matches with
+    that one derived using the `BKM10_Spin_Polarized` repository. 
 """
 
 # External Library | NumPy
@@ -24,7 +31,7 @@ from bkm10_lib.cff_inputs import CFFInputs
 phi_array = np.linspace(0, 2 * np.pi, 360)
 
 # Example (1):
-# | We want to obtain a NumPy array for the value of the 
+# | We want to obtain a NumPy array for the value of the
 # | differential cross-section using standard plug-and-chug.
 example_1_kinematic_inputs = BKM10Inputs(
     lab_kinematics_k = 5.75,
