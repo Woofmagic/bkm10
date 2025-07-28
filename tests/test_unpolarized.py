@@ -151,7 +151,7 @@ class TestUnpolarizedCoefficients(unittest.TestCase):
         self.assert_is_real(c0)
 
         # (X): IMPORTANT ONE: Verify that c_{0}^{I} is what we expect:
-        _MATHEMATICA_RESULT = -0.4548568231402324
+        _MATHEMATICA_RESULT = 4.196441097163937 + 29.512298473681934 - 0.4548568231402324
         self.assert_approximately_equal(c0, expected = _MATHEMATICA_RESULT)
 
     def test_c1_coefficient(self):

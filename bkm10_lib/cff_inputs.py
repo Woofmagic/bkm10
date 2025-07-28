@@ -5,7 +5,10 @@ The entry point for the dataclass `CFFInputs`
 # (1): Import the specialized `dataclass` library:
 from dataclasses import dataclass
 
-# )2): Immediately define the CFFInputs dataclass:
+# (2): 
+from bkm10_lib import backend
+
+# (3): Immediately define the CFFInputs dataclass:
 @dataclass
 class CFFInputs:
     """
@@ -39,3 +42,18 @@ class CFFInputs:
 
     # (4): The CFF E_tilde --- Requires Re[Et] and Im[Et]:
     compton_form_factor_e_tilde: complex
+
+    def conjugate(self):
+        """
+        ## Description:
+        Computes the complex conjugate each of the CFFs in this dataclasss.
+        """
+
+        conjugate_function = backend.math.conj
+
+        return CFFInputs(
+            compton_form_factor_h = conjugate_function(self.compton_form_factor_h),
+            compton_form_factor_h_tilde = conjugate_function(self.compton_form_factor_h_tilde),
+            compton_form_factor_e = conjugate_function(self.compton_form_factor_e),
+            compton_form_factor_e_tilde = conjugate_function(self.compton_form_factor_e_tilde),
+        )
