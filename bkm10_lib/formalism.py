@@ -1164,21 +1164,197 @@ class BKMFormalism:
     
     def compute_bh_c0_coefficient(self) -> float:
         """
-        Later!
+        ## Description:
+        Calculates the coefficient c_{0}^{BH} involved in the mode expansion
+        for the modulus squared of the Bethe-Heitler process in both the
+        unpolarized and longitudinally-polarized target cases.
+
+        ## Notes:
+        1. Source for this function: https://arxiv.org/pdf/hep-ph/0112108
+
+        2. We still have not implemented the transversely-polarized target case.
         """
-        return 0.
+
+        if self.target_polarization == 0.:
+
+                # (1): Calculate the common appearance of F1 + F2:
+            addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
+
+            # (2): Calculate the common appearance of a weighted sum of F1 and F2:
+            weighted_combination_of_form_factors = self.dirac_form_factor**2 - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor**2 / (4. * _MASS_OF_PROTON_IN_GEV**2))
+
+            # (3): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
+            t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
+            
+            # (4):  The first line that contributes to c^{(0)}_{BH}:
+            first_line = 8. * self.kinematic_k**2 * (((2. + 3. * self.epsilon**2) * weighted_combination_of_form_factors / t_over_Q_squared) + (2. * self.kinematics.x_Bjorken**2 * addition_of_form_factors_squared))
+
+            # (5): The first part of the second line:
+            second_line_first_part = (2. + self.epsilon**2) * ((4. * self.kinematics.x_Bjorken**2 * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) * (1. + t_over_Q_squared)**2 + 4. * (1 - self.kinematics.x_Bjorken) * (1. + (self.kinematics.x_Bjorken * t_over_Q_squared))) * weighted_combination_of_form_factors
+            
+            # (6): The second part of the second line:
+            second_line_second_part = 4. * self.kinematics.x_Bjorken**2 * (self.kinematics.x_Bjorken + (1. - self.kinematics.x_Bjorken + (self.epsilon**2 / 2.)) * (1 - t_over_Q_squared)**2 - self.kinematics.x_Bjorken * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared**2) * addition_of_form_factors_squared
+
+            # (7): The second line in its entirety, which is just a prefactor times the addition of the two parts calculated earlier:
+            second_line = (2. - self.lepton_energy_fraction)**2 * (second_line_first_part + second_line_second_part)
+
+            # (8): The third line:
+            third_line = 8. * (1. + self.epsilon**2) * (1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) * (2. * self.epsilon**2 * (1 - (self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2))) * weighted_combination_of_form_factors - self.kinematics.x_Bjorken**2 * (1 - t_over_Q_squared)**2 * addition_of_form_factors_squared)
+
+            # (9): Add everything up to obtain the first coefficient:
+            c_0_bh_coefficient = first_line + second_line + third_line
+
+        elif self.target_polarization == 0.5:
+
+            # (1): Calculate the common appearance of F1 + F2:
+            sum_of_form_factors = (self.dirac_form_factor + self.pauli_form_factor)
+
+            # (2): Calculate the frequent appearance of t/4mp
+            t_over_four_mp_squared = self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
+
+            # (3): Calculate the weighted sum of the F1 and F2:
+            weighted_sum_of_form_factors = self.dirac_form_factor + t_over_four_mp_squared * self.pauli_form_factor
+
+            # (4): Calculate the recurrent appearance of 1 - xb:
+            one_minus_xb = 1. - self.kinematics.x_Bjorken
+
+            # (5): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
+            t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
+
+            # (6): Calculate the derived quantity 1 - t/Q^{2}:
+            one_minus_t_over_Q_squared = 1. - t_over_Q_squared
+
+            # (7): Calculate the first term's first bracketed term:
+            first_term_first_bracket = 0.5 * self.kinematics.x_Bjorken * (one_minus_t_over_Q_squared) - t_over_four_mp_squared
+
+            # (8): Calculate the first term's second bracketed term:
+            first_term_second_bracket = 2. - self.kinematics.x_Bjorken - (2. * (one_minus_xb)**2 * t_over_Q_squared) + (self.epsilon**2 * one_minus_t_over_Q_squared) - (self.kinematics.x_Bjorken * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared**2)
+
+            # (9): Calculate the first term (includes prefactor)
+            first_term = 0.5 * sum_of_form_factors * first_term_first_bracket * first_term_second_bracket
+
+            # (10): Calculate the first bracketed term in the second term:
+            second_term_first_bracket = self.kinematics.x_Bjorken**2 * (1. + t_over_Q_squared)**2 / (4. * t_over_four_mp_squared) + ((1. - self.kinematics.x_Bjorken) * (1. + self.kinematics.x_Bjorken * t_over_Q_squared))
+
+            # (11): Calculate the second term (including prefactor):
+            second_term = (1. - (1. - self.kinematics.x_Bjorken) * t_over_Q_squared) * weighted_sum_of_form_factors * second_term_first_bracket
+
+            # (12): Calculate the overall prefactor:
+            prefactor = 8. * self.lepton_polarization * self.target_polarization * self.kinematics.x_Bjorken * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * np.sqrt(1. + self.epsilon**2) * sum_of_form_factors / (1. - t_over_four_mp_squared)
+
+            # (13): Calculate the entire coefficient:
+            c_0_bh_coefficient = prefactor * (first_term + second_term)
+
+        else:
+
+            raise NotImplemented("> Invalid target polarization value.")
+
+        # (X): Return the coefficient:
+        return c_0_bh_coefficient
     
     def compute_bh_c1_coefficient(self) -> float:
+       """
+        ## Description:
+        Calculates the coefficient c_{1}^{BH} involved in the mode expansion
+        for the modulus squared of the Bethe-Heitler process in both the
+        unpolarized and longitudinally-polarized target cases.
+
+        ## Notes:
+        1. Source for this function: https://arxiv.org/pdf/hep-ph/0112108
+
+        2. We still have not implemented the transversely-polarized target case.
         """
-        Later!
-        """
-        return 0.
+        
+        if self.target_polarization == 0.0:
+           
+           # (1): Calculate the common appearance of F1 + F2:
+            addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
+
+            # (2): Calculate the common appearance of a weighted sum of F1 and F2:
+            weighted_combination_of_form_factors = self.dirac_form_factor**2 - ((self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.pauli_form_factor**2)
+            
+            # (3):  The first part of the first line:
+            first_line_first_part = ((4. * self.kinematics.x_Bjorken**2 * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) - 2. * self.kinematics.x_Bjorken - self.epsilon**2) * weighted_combination_of_form_factors
+            
+            # (4): The first part of the second line:
+            first_line_second_part = 2. * self.kinematics.x_Bjorken**2 * (1. - (1. - 2. * self.kinematics.x_Bjorken) * (self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)) * addition_of_form_factors_squared
+
+            # (5): Multiply by the prefactor to obtain c^{(1)}_{BH}
+            c_1_bh_coefficient = 8. * self.kinematic_k * (2. - self.lepton_energy_fraction) * (first_line_first_part + first_line_second_part)
+           
+        elif self.target_polarization == 0.5:
+           
+           # (1): Calculate the common appearance of F1 + F2:
+            sum_of_form_factors = (self.dirac_form_factor + self.pauli_form_factor)
+
+            # (2): Calculate the frequent appearance of t/4mp
+            t_over_four_mp_squared = self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
+
+            # (3): Calculate the weighted sum of the F1 and F2:
+            weighted_sum_of_form_factors = self.dirac_form_factor + t_over_four_mp_squared * self.pauli_form_factor
+
+            # (4): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
+            t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
+
+            # (5): Calculate the first term straight away:
+            first_term = ((2. * t_over_four_mp_squared) - (self.kinematics.x_Bjorken * (1. - t_over_Q_squared))) * ((1. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * t_over_Q_squared))) * sum_of_form_factors
+
+            # (6): Calculate the second term's bracketed quantity:
+            second_term_bracket_term = 1. + self.kinematics.x_Bjorken - ((3. - 2. * self.kinematics.x_Bjorken) * (1. + self.kinematics.x_Bjorken * t_over_Q_squared)) - (self.kinematics.x_Bjorken**2 * (1. + t_over_Q_squared**2) / t_over_four_mp_squared)
+            
+            # (7): Calculate the second term in entirety:
+            second_term = weighted_sum_of_form_factors * second_term_bracket_term
+            
+            # (8): Calculate the overall prefactor:
+            prefactor = -8. * self.lepton_polarization * self.target_polarization * self.kinematics.x_Bjorken * self.lepton_energy_fraction * self.kinematic_k * np.sqrt(1. + self.epsilon**2) * sum_of_form_factors / (1. - t_over_four_mp_squared)
+
+            # (13): Calculate the entire coefficient:
+            c_1_bh_coefficient = prefactor * (first_term + second_term)
+           
+        else:
+           
+           raise NotImplemented("> Invalid target polarization value!")
+       
+       return c_1_bh_coefficient
     
     def compute_bh_c2_coefficient(self) -> float:
         """
-        Later!
+        ## Description:
+        Calculates the coefficient c_{1}^{BH} involved in the mode expansion
+        for the modulus squared of the Bethe-Heitler process in both the
+        unpolarized and longitudinally-polarized target cases.
+
+        ## Notes:
+        1. Source for this function: https://arxiv.org/pdf/hep-ph/0112108
+
+        2. We still have not implemented the transversely-polarized target case.
         """
-        return 0.
+
+        if self.target_polarization == 0.0:
+           
+           # (1): Calculate the common appearance of F1 + F2:
+            addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
+
+            # (2): Calculate the common appearance of a weighted sum of F1 and F2:
+            weighted_combination_of_form_factors = self.dirac_form_factor**2 - ((self.kinematics.squared_hadronic_momentum_transfer_t/ (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.pauli_form_factor**2)
+            
+            # (3): A quick scaling of the weighted sum of F1 and F2:
+            first_part_of_contribution = (4. * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) * weighted_combination_of_form_factors
+            
+            # (4):  Multiply by the prefactor to obtain the coefficient.
+            c_2_bh_coefficient = 8. * self.kinematics.x_Bjorken**2 * self.kinematic_k**2 * (first_part_of_contribution + 2. * addition_of_form_factors_squared)
+           
+        elif self.target_polarization == 0.5:
+           
+            # (X): Make sure you understand this! https://arxiv.org/pdf/hep-ph/0112108
+            c_2_bh_coefficient = 0.
+           
+        else:
+           
+           raise NotImplemented("> Invalid target polarization value!")
+       
+        return c_2_bh_coefficient 
+        
     
     def compute_bh_c3_coefficient(self) -> float:
         """
