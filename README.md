@@ -8,7 +8,7 @@ A Python library to help nuclear physicists use the BKM formalism in predicting 
 Available on PyPI. To install, one can run
 
 ```bash
-pip install bkm10_lib
+pip install bkm10
 ```
 
 You will need Python 3 and pip.
