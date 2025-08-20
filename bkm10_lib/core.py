@@ -550,119 +550,200 @@ class DifferentialCrossSection:
             # (X): Raise an error:
             raise NotImplementedError(f"> Something bad happened...: {exception}")
         
-    def plot_cross_section(self, phi_values):
+    def plot_cross_section(
+            self,
+            phi_values,
+            save_plot_name: str):
         """
         ## Description:
         Plot the four-fold differential cross-section as a function of azimuthal angle φ.
 
-        ## Arguments:
-        phi_values : backend.math.ndarray
-            Array of φ values (in degrees) at which to compute and plot the cross-section.
+        :param backend.math.ndarray phi_values: Array of φ values (in degrees) at which to compute and plot the cross-section.
+
+        :param str save_plot_name: If you want to save the plot, provide a non-empty string here.
         """
 
         # (X): We need to check if the cross-section has been evaluated yet:
         if not self._evaluated:
+
             if self.verbose:
                 print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
+
             if self.debugging:
                 print("> [DEBUGGING]: No precomputed cross-section found. Computing now...")
 
+            # (X): If the cross section has NOT been evaluated, then we need to run the entire script to *do* that:
             self.cross_section_values = self.compute_cross_section(phi_values)
 
+        # (X): If the user has previously evaluated the cross-section:
         else:
+
             if self.verbose:
                 print("> [VERBOSE]: Found cross-section data... Now constructing plots.")
 
+        # (X): Set the plot style using this method:
         self._set_plot_style()
 
-        cross_section_figure_instance, cross_section_axis_instance = plt.subplots(figsize = (8, 5))
+        # (X): Initialize a figure for the plotting:
+        cross_section_figure_instance = plt.figure(
+            figsize = (8, 5))
+        
+        # (X): Now, add an axis on it:
+        cross_section_axis_instance = cross_section_figure_instance.add_subplot(1, 1, 1)
 
-        cross_section_axis_instance.plot(phi_values, self.cross_section_values, color = 'black')
+        # (X): Construct the plot:
+        cross_section_axis_instance.plot(
+            phi_values,
+            self.cross_section_values,
+            color = 'black')
+        
+        # (X): Set the x-label of the plot:
         cross_section_axis_instance.set_xlabel(r"Azimuthal Angle $\phi$ (degrees)", fontsize = 14)
-        cross_section_axis_instance.set_ylabel(r"$\frac{d^4\sigma}{dQ^2 dx_B dt d\phi}$ (nb/GeV$^4$)", fontsize = 14)
-        cross_section_axis_instance.grid(True)
-        # cross_section_axis_instance.legend(fontsize = 12)
 
+        # (X): Set the y-label of the plot:
+        cross_section_axis_instance.set_ylabel(r"$\frac{d^4\sigma}{dQ^2 dx_B dt d\phi}$ (nb/GeV$^4$)", fontsize = 14)
+
+        # (X): Turn the grid on:
+        cross_section_axis_instance.grid(True)
+
+        # (X): Attempt to extract the kinematic inputs:
         try:
+
+            # (X): Extract the *numerical* form of the kinematics:
             kinematics = self.kinematic_inputs
 
+            # (X): Coerce them into a string:
             title_string = (
                 rf"$Q^2 = {kinematics.squared_Q_momentum_transfer:.2f}$ GeV$^2$, "
                 rf"$x_B = {kinematics.x_Bjorken:.2f}$, "
                 rf"$t = {kinematics.squared_hadronic_momentum_transfer_t:.2f}$ GeV$^2$, "
-                rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV"
-                )
+                rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV")
             
+            # (X): We now use that string to set the plot title:
             cross_section_axis_instance.set_title(title_string, fontsize = 14)
 
+        # (X): If there are errors in extracting the numbers and making the strings...
         except AttributeError:
 
             if self.verbose:
                 print("> [VERBOSE]: Could not find full kinematics for title.")
 
+            # (X): ... we just *don't* specify the numbers, but we still make the plot:
             cross_section_axis_instance.set_title(r"Differential Cross Section vs. $\phi$", fontsize = 14)
 
+        # (X): Use a tight-layout:
         plt.tight_layout()
-        plt.show()
 
-    def plot_bsa(self, phi_values):
+        # (X): (Using type-coercion!): If the user did not specify this...
+        # | Note: `"" == False` is True:
+        if not save_plot_name:
+
+            # (X): ... then just show the plot:
+            plt.show()
+
+        # (X): If the user has an idea for the name of the plot...
+        else:
+
+            # (X): ... then we save the plot with that name!
+            cross_section_figure_instance.savefig(save_plot_name)
+
+    def plot_bsa(
+            self,
+            phi_values,
+            save_plot_name: str):
         """
         ## Description:
         Plot the BKM-predicted BSA with azimuthal angle φ.
 
-        ## Arguments:
-        phi_values : backend.math.ndarray
-            Array of φ values (in degrees) at which to compute and plot the cross-section.
+        :param backend.math.ndarray phi_values: Array of φ values (in degrees) at which to compute and plot the cross-section.
+
+        :param str save_plot_name: If you want to save the plot, provide a non-empty string here.):
         """
 
         # (X): We need to check if the cross-section has been evaluated yet:
         if not self._evaluated:
+
             if self.verbose:
                 print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
 
             if self.debugging:
                 print("> [DEBUGGING]: No precomputed cross-section found. Computing now...")
 
+            # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
             self.bsa_values = self.compute_bsa(phi_values)
 
+        # (X): Otherwise, we can go ahead and use the pre-computed values:
         else:
+
             if self.verbose:
                 print("> [VERBOSE]: Found cross-section data... Now constructing plots.")
 
+        # (X): Set the plot style using our customziation method:
         self._set_plot_style()
 
-        bsa_figure_instance, bsa_axis_instance = plt.subplots(figsize = (8, 5))
+        # (X): Initialize a figure for the plotting:
+        bsa_figure_instance = plt.figure(
+            figsize = (8, 5))
+        
+        # (X): Now, add an axis on it:
+        bsa_axis_instance = bsa_figure_instance.add_subplot(1, 1, 1)
 
+        # (X): Add the BSA curve on the plot:
         bsa_axis_instance.plot(
             phi_values,
             self.bsa_values,
             color = 'black')
+        
+        # (X): Add the x-label of the plot:
         bsa_axis_instance.set_xlabel(
             r"Azimuthal Angle $\phi$ (degrees)",
             fontsize = 14)
+        
+        # (X): Add the y-label of the plot:
         bsa_axis_instance.set_ylabel(
             r"$\frac{d^4\sigma \left( \lambda = +1 \right) - d^4\sigma \left( \lambda = -1 \right)}{d^4\sigma \left( \lambda = +1 \right) + d^4\sigma \left( \lambda = -1 \right)}$ (unitless)",
             fontsize = 14)
+        
+        # (X): Add a grid to the plot:
         bsa_axis_instance.grid(True)
 
+        # (X): Attempt to extract the kinematic inputs:
         try:
+
+            # (X): Extract the *numerical* form of the kinematics:
             kinematics = self.kinematic_inputs
 
+            # (X): Coerce them into a string:
             title_string = (
                 rf"$Q^2 = {kinematics.squared_Q_momentum_transfer:.2f}$ GeV$^2$, "
                 rf"$x_B = {kinematics.x_Bjorken:.2f}$, "
                 rf"$t = {kinematics.squared_hadronic_momentum_transfer_t:.2f}$ GeV$^2$, "
-                rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV"
-                )
+                rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV")
             
-            bsa_axis_instance.set_title(f"BSA for {title_string}", fontsize = 14)
+            # (X): We now use that string to set the plot title:
+            bsa_axis_instance.set_title(title_string, fontsize = 14)
 
+        # (X): If there are errors in extracting the numbers and making the strings...
         except AttributeError:
 
             if self.verbose:
                 print("> [VERBOSE]: Could not find full kinematics for title.")
 
-            bsa_axis_instance.set_title(r"BSA vs. $\phi$", fontsize = 14)
+            # (X): ... we just *don't* specify the numbers, but we still make the plot:
+            bsa_axis_instance.set_title(r"Differential Cross Section vs. $\phi$", fontsize = 14)
 
+        # (X): Use a tight-layout:
         plt.tight_layout()
-        plt.show()
+
+        # (X): (Using type-coercion!): If the user did not specify this...
+        # | Note: `"" == False` is True:
+        if not save_plot_name:
+
+            # (X): ... then just show the plot:
+            plt.show()
+
+        # (X): If the user has an idea for the name of the plot...
+        else:
+
+            # (X): ... then we save the plot with that name!
+            bsa_figure_instance.savefig(save_plot_name)

@@ -1,21 +1,11 @@
 """
-Here is an example of how one might use this library
-for analysis. Physicists are mostly interested in: cross sections,
-various cross-section asymmetries, CFFs, and GPDs.
-
-Example (1): We obtain the BKM10 predictions for the four-fold differential
-cross-section at the "standard kinematic bin" using the WW relations for
-an unpolarized target and unpolarized beam.
+We demonstrate how one uses this library to make plots of the cross-section 
+at a specified kinematic setting.
 
 ## Notes:
 
-1. 2025/07/24:
-    Program correctly outputs *only* the interference contribution to the four-fold
-    differential cross-section --- that is the standard "U"-shape. The plot matches with
-    that one derived using the `BKM10_Spin_Polarized` repository. 
-2. 2025/08/19:
-    This program used to include plotting of the cross-section, but we have moved that
-    to a different script: `make_plots.py`.
+1. 2025/08/19:
+    Initialized program.
 """
 
 # External Library | NumPy
@@ -30,10 +20,12 @@ from bkm10_lib.inputs import BKM10Inputs
 # Internal Package | CFFInputs
 from bkm10_lib.cff_inputs import CFFInputs
 
-# (X): For all of these, we want phi to range from 0 to 360 degrees:
+# (X): For all of these, we want phi to range from 0 to 2pi radians:
+# | Notice: What we are doing below is chopping up [0, 2pi] into 361
+# | points.
 phi_array = np.linspace(
     start = 0,
-    stop = 360,
+    stop = 2 * np.pi,
     num = 15)
 
 # Example (1):
@@ -54,6 +46,7 @@ example_1_cff_inputs = CFFInputs(
     compton_form_factor_h_tilde = complex(-0.07196088868244656,0.5885369653510624),
     compton_form_factor_e = complex(0.9693397301223567,0.0),
     compton_form_factor_e_tilde = complex(44.771526441606106,0.0))
+
 # (X): Specify the target polarization *as a float*:
 example_1_target_polarization = 0.
 
@@ -81,17 +74,8 @@ example_1_cross_section = DifferentialCrossSection(
     verbose = True,
     debugging = False)
 
-# (X): `compute_cross_section` returns an array of cross-section values:
-cross_section_values = example_1_cross_section.compute_cross_section(phi_array)
+# (X): `plot_cross_section` will *for the time being* just plt.show() the plot:
+example_1_cross_section.plot_cross_section(phi_array, save_plot_name = "cross_section_plot_v1.png")
 
-# (X): This will return True:
-print(len(cross_section_values) == len(phi_array))
-
-# (X): Cross-section values:
-print(cross_section_values)
-
-# (X): `compute_bsa` computes the beam-spin asymmetry with length = len(phi_array):
-bsa_values = example_1_cross_section.compute_bsa(phi_array)
-
-# (X): This will return True:
-print(len(bsa_values) == len(phi_array))
+# (X): `plot_bsa` will also *for the time being* just plt.show() the plot:
+example_1_cross_section.plot_bsa(phi_array, save_plot_name = "cross_section_plot_v1.png")
