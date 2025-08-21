@@ -57,7 +57,11 @@ class DifferentialCrossSection:
         talking about following how the data gets transformed through every calculation.
     """
 
-    def __init__(self, configuration = None, verbose = False, debugging = False):
+    def __init__(
+            self,
+            configuration = None,
+            verbose = False,
+            debugging = False):
         """
         ## Description:
         Initialize the class!
@@ -99,16 +103,20 @@ class DifferentialCrossSection:
 
         if self.verbose:
             print("> [VERBOSE]: Verbose mode on.")
+
         if self.debugging:
             print("> [DEBUGGING]: Debugging mode is on — DO NOT USE THIS!")
 
         if configuration:
+            
             if self.verbose:
                 print("> [VERBOSE]: Configuration dictionary received!")
+
             if self.debugging:
                 print("> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
 
             try:
+
                 if self.debugging:
                     print("> [DEBUGGING]: Trying to initialize configuration...")
             
@@ -125,6 +133,7 @@ class DifferentialCrossSection:
 
             if self.verbose:
                 print("> [VERBOSE]: Configuration succeeded!")
+
             if self.debugging:
                 print(f"> [DEBUGGING]: Configuration succeeded! Now set internal attribute: {self._passed_configuration}")
 
@@ -163,20 +172,46 @@ class DifferentialCrossSection:
                 "font.family": "serif"
             })
     
-        # (X): Set the rest of the rcParams:
+        # (X): rcParams for the x-axis tick direction:
         plt.rcParams['xtick.direction'] = 'in'
-        plt.rcParams['xtick.major.size'] = 5
+
+        # (X): rcParams for the "major" (larger) x-axis vertical size:
+        plt.rcParams['xtick.major.size'] = 8.5
+
+        # (X): rcParams for the "major" (larger) x-axis horizonal width:
         plt.rcParams['xtick.major.width'] = 0.5
+
+        # (X): rcParams for the "minor" (smaller) x-axis vertical size:
         plt.rcParams['xtick.minor.size'] = 2.5
+
+        # (X): rcParams for the "minor" (smaller) x-axis horizonal width:
         plt.rcParams['xtick.minor.width'] = 0.5
+
+        # (X): rcParams for the minor ticks to be *shown* versus invisible:
         plt.rcParams['xtick.minor.visible'] = True
+
+        # (X): rcParams dictating that we want ticks along the x-axis on *top* (opposite side) of the bounding box:
         plt.rcParams['xtick.top'] = True
+
+        # (X): rcParams for the y-axis tick direction:
         plt.rcParams['ytick.direction'] = 'in'
-        plt.rcParams['ytick.major.size'] = 5
+
+        # (X): rcParams for the "major" (larger) y-axis vertical size:
+        plt.rcParams['ytick.major.size'] = 8.5
+
+        # (X): rcParams for the "major" (larger) y-axis horizonal width:
         plt.rcParams['ytick.major.width'] = 0.5
+
+        # (X): rcParams for the "minor" (smaller) y-axis vertical size:
         plt.rcParams['ytick.minor.size'] = 2.5
+
+        # (X): rcParams for the "minor" (smaller) y-axis horizonal width:
         plt.rcParams['ytick.minor.width'] = 0.5
+
+        # (X): rcParams for the minor ticks to be *shown* versus invisible:
         plt.rcParams['ytick.minor.visible'] = True
+
+        # (X): rcParams dictating that we want ticks along the y-axis on the *left* of the bounding box:
         plt.rcParams['ytick.right'] = True
 
     def _initialize_from_config(self, configuration_dictionary: dict):
