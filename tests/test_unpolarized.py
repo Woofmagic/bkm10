@@ -120,6 +120,9 @@ class TestUnpolarizedCoefficients(unittest.TestCase):
         cls.bkm_formalism = BKMFormalism(
             inputs = cls.test_kinematics,
             cff_values = cls.test_cff_inputs,
+            
+            # (X): [NOTE]: All the S-coeffcicients are sensitive to lambda, so
+            # | they will be 0 if you do not make this value 1.0.
             lepton_polarization = 1.0,
             target_polarization = 0.0,
             using_ww = True)
@@ -606,6 +609,246 @@ class TestUnpolarizedCoefficients(unittest.TestCase):
         _MATHEMATICA_RESULT = -0.04104505925226267
 
         self.assert_approximately_equal(c20pa, expected = _MATHEMATICA_RESULT)
+
+    def test_calculate_s_1_plus_plus_unpolarized(self):
+        """
+        ## Description: Test the function corresponding to the BKM10 coefficient called $S_{++}^{unp}(n = 1)$.
+        We call it "SunpPP1" for S (series) unp (unpolarized [target]) PP (++) 1 (n = 1).
+        """
+        s1pp = self.bkm_formalism.calculate_s_1_plus_plus_unpolarized()
+
+        # (X): Verify that S_{++}^{unp}(n = 1) is a *finite* number:
+        self.assert_is_finite(s1pp)
+        
+        # (X); Verify that S_{++}^{unp}(n = 1) is not a NaN:
+        self.assert_no_nans(s1pp)
+
+        # (X): Verify that S_{++}^{unp}(n = 1) is real:
+        self.assert_is_real(s1pp)
+
+        _MATHEMATICA_RESULT = 0.409671773905892
+
+        self.assert_approximately_equal(s1pp, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_1_plus_plus_unpolarized_V(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, V}(n = 1)$.
+        We call it "SunpVPP0" for S (series) unp (unpolarized [target]) V (vector) PP (++) 1 (n = 1).
+        """
+        s1ppv = self.bkm_formalism.calculate_s_1_plus_plus_unpolarized_v()
+
+        # (X): Verify that S_{++}^{unp, V}(n = 1) is a *finite* number:
+        self.assert_is_finite(s1ppv)
+        
+        # (X); Verify that S_{++}^{unp, v}(n = 1) is not a NaN:
+        self.assert_no_nans(s1ppv)
+
+        # (X): Verify that S_{++}^{unp, V}(n = 1) is real:
+        self.assert_is_real(s1ppv)
+
+        _MATHEMATICA_RESULT = -0.00029050091110817124
+
+        self.assert_approximately_equal(s1ppv, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_1_plus_plus_unpolarized_A(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, A}(n = 1)$.
+        We call it "SunpAPP0" for S (series) unp (unpolarized [target]) A (axial vector) PP (++) 1 (n = 1).
+        """
+        s1ppa = self.bkm_formalism.calculate_s_1_plus_plus_unpolarized_a()
+
+        # (X): Verify that S_{++}^{unp, A}(n = 1) is a *finite* number:
+        self.assert_is_finite(s1ppa)
+        
+        # (X); Verify that S_{++}^{unp, A}(n = 1) is not a NaN:
+        self.assert_no_nans(s1ppa)
+
+        # (X): Verify that S_{++}^{unp, A}(n = 1) is real:
+        self.assert_is_real(s1ppa)
+
+        _MATHEMATICA_RESULT = -0.03884447591949268
+
+        self.assert_approximately_equal(s1ppa, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_2_plus_plus_unpolarized(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp}(n = 2)$.
+        We call it "SunpPP2" for S (series) unp (unpolarized [target]) PP (++) 2 (n = 2).
+        """
+        s2pp = self.bkm_formalism.calculate_s_2_plus_plus_unpolarized()
+
+        # (X): Verify that S_{++}^{unp}(n = 2) is a *finite* number:
+        self.assert_is_finite(s2pp)
+        
+        # (X); Verify that S_{++}^{unp}(n = 2) is not a NaN:
+        self.assert_no_nans(s2pp)
+
+        # (X): Verify that S_{++}^{unp}(n = 2) is real:
+        self.assert_is_real(s2pp)
+
+        _MATHEMATICA_RESULT = 0.0027036240349894262
+
+        self.assert_approximately_equal(s2pp, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_2_plus_plus_unpolarized_V(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, V}(n = 2)$.
+        We call it "SunpVP2" for S (series) unp (unpolarized [target]) V (vector) PP (++) 2 (n = 2).
+        """
+        s2ppv = self.bkm_formalism.calculate_s_2_plus_plus_unpolarized_v()
+
+        # (X): Verify that S_{++}^{unp, V}(n = 2) is a *finite* number:
+        self.assert_is_finite(s2ppv)
+        
+        # (X); Verify that S_{++}^{unp, v}(n = 2) is not a NaN:
+        self.assert_no_nans(s2ppv)
+
+        # (X): Verify that S_{++}^{unp, V}(n = 2) is real:
+        self.assert_is_real(s2ppv)
+
+        _MATHEMATICA_RESULT = -0.0005740699978240397
+
+        self.assert_approximately_equal(s2ppv, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_2_plus_plus_unpolarized_A(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, A}(n = 2)$.
+        We call it "SunpAPP2" for S (series) unp (unpolarized [target]) A (axial vector) PP (++) 2 (n = 2).
+        """
+        s2ppa = self.bkm_formalism.calculate_s_2_plus_plus_unpolarized_a()
+
+        # (X): Verify that S_{++}^{unp, A}(n = 2) is a *finite* number:
+        self.assert_is_finite(s2ppa)
+        
+        # (X); Verify that S_{++}^{unp, A}(n = 2) is not a NaN:
+        self.assert_no_nans(s2ppa)
+
+        # (X): Verify that S_{++}^{unp, A}(n = 2) is real:
+        self.assert_is_real(s2ppa)
+
+        _MATHEMATICA_RESULT = -0.0031928305319066487
+
+        self.assert_approximately_equal(s2ppa, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_1_zero_plus_unpolarized(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp}(n = 1)$.
+        We call it "Sunp0P1" for S (series) unp (unpolarized [target]) 0P (0+) 1 (n = 1).
+        """
+        s10p = self.bkm_formalism.calculate_s_1_zero_plus_unpolarized()
+
+        # (X): Verify that S_{0+}^{unp}(n = 1) is a *finite* number:
+        self.assert_is_finite(s10p)
+        
+        # (X); Verify that S_{0+}^{unp}(n = 1) is not a NaN:
+        self.assert_no_nans(s10p)
+
+        # (X): Verify that S_{0+}^{unp}(n = 1) is real:
+        self.assert_is_real(s10p)
+
+        _MATHEMATICA_RESULT = 0.05498776908654213
+
+        self.assert_approximately_equal(s10p, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_1_zero_plus_unpolarized_V(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, V}(n = 1)$.
+        We call it "Sunp0PV2" for S (series) unp (unpolarized [target]) V (vector) 0P (0+) 1 (n = 1).
+        """
+        s10pv = self.bkm_formalism.calculate_s_1_zero_plus_unpolarized_v()
+
+        # (X): Verify that S_{0+}^{unp, V}(n = 1) is a *finite* number:
+        self.assert_is_finite(s10pv)
+        
+        # (X); Verify that S_{0+}^{unp, V}(n = 1) is not a NaN:
+        self.assert_no_nans(s10pv)
+
+        # (X): Verify that S_{0+}^{unp, V}(n = 1) is real:
+        self.assert_is_real(s10pv)
+
+        _MATHEMATICA_RESULT = -0.00426598684793811
+
+        self.assert_approximately_equal(s10pv, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_1_zero_plus_unpolarized_A(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, A}(n = 1)$.
+        We call it "Sunp0PA2" for S (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 1 (n = 1).
+        """
+        s10pa = self.bkm_formalism.calculate_s_1_zero_plus_unpolarized_a()
+
+        # (X): Verify that S_{0+}^{unp, A}(n = 1) is a *finite* number:
+        self.assert_is_finite(s10pa)
+        
+        # (X); Verify that S_{0+}^{unp, A}(n = 1) is not a NaN:
+        self.assert_no_nans(s10pa)
+
+        # (X): Verify that S_{0+}^{unp, A}(n = 1) is real:
+        self.assert_is_real(s10pa)
+
+        _MATHEMATICA_RESULT = 0.0008508303918169414
+
+        self.assert_approximately_equal(s10pa, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_2_zero_plus_unpolarized(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp}(n = 2)$.
+        We call it "Sunp0P2" for S (series) unp (unpolarized [target]) 0P (0+) 2 (n = 2).
+        """
+        s20p = self.bkm_formalism.calculate_s_2_zero_plus_unpolarized()
+
+        # (X): Verify that S_{0+}^{unp}(n = 2) is a *finite* number:
+        self.assert_is_finite(s20p)
+        
+        # (X); Verify that S_{0+}^{unp}(n = 2) is not a NaN:
+        self.assert_no_nans(s20p)
+
+        # (X): Verify that S_{0+}^{unp}(n = 2) is real:
+        self.assert_is_real(s20p)
+
+        _MATHEMATICA_RESULT = 0.23838748372787139
+
+        self.assert_approximately_equal(s20p, expected = _MATHEMATICA_RESULT)
+
+    def test_calculate_s_2_zero_plus_unpolarized_V(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, V}(n = 2)$.
+        We call it "Sunp0PV2" for S (series) unp (unpolarized [target]) V (vector) 0P (0+) 2 (n = 2).
+        """
+        s20pv = self.bkm_formalism.calculate_s_2_zero_plus_unpolarized_v()
+
+        # (X): Verify that S_{0+}^{unp, V}(n = 2) is a *finite* number:
+        self.assert_is_finite(s20pv)
+        
+        # (X); Verify that S_{0+}^{unp, V}(n = 2) is not a NaN:
+        self.assert_no_nans(s20pv)
+
+        # (X): Verify that S_{0+}^{unp, V}(n = 2) is real:
+        self.assert_is_real(s20pv)
+
+        _MATHEMATICA_RESULT = 0.007289492730387789
+
+        self.assert_approximately_equal(s20pv, expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_2_zero_plus_unpolarized_A(self):
+        """
+        ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, A}(n = 2)$.
+        We call it "Sunp0PA2" for S (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 2 (n = 2).
+        """
+        s20pa = self.bkm_formalism.calculate_s_2_zero_plus_unpolarized_a()
+
+        # (X): Verify that S_{0+}^{unp, A}(n = 2) is a *finite* number:
+        self.assert_is_finite(s20pa)
+        
+        # (X); Verify that S_{0+}^{unp, A}(n = 2) is not a NaN:
+        self.assert_no_nans(s20pa)
+
+        # (X): Verify that S_{0+}^{unp, A}(n = 2) is real:
+        self.assert_is_real(s20pa)
+
+        _MATHEMATICA_RESULT = 0.01388732444214517
+
+        self.assert_approximately_equal(s20pa, expected = _MATHEMATICA_RESULT)
 
 if __name__ == "__main__":
     unittest.main()
