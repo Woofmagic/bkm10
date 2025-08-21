@@ -53,6 +53,18 @@ ENDING_PHI_VALUE_IN_DEGREES = 360
 # | at. [NOTE]: This determines the *length* of the array:
 NUMBER_OF_PHI_POINTS = 15
 
+# (X): Specify the CFF H values:
+CFF_H = complex(-1.9844358866394172, 0.7496811451932895)
+
+# (X): Specify the CFF H-tilde values:
+CFF_H_TILDE = complex(-0.07196088868244656, 0.5885369653510624)
+
+# (X): Specify the CFF E values:
+CFF_E = complex(0.9693397301223567, 0.0)
+
+# (X): Specify the CFF E-tilde values:
+CFF_E_TILDE = complex(44.771526441606106, 0.0)
+
 # (X): For all of these, we want phi to range from 0 to 360 degrees:
 phi_array = np.linspace(
     start = STARTING_PHI_VALUE_IN_DEGREES,
@@ -73,10 +85,11 @@ example_1_kinematic_inputs = BKM10Inputs(
 # | CFF/GPD models. Two of them are ZERO, and that is how
 # | you should know that they come from KM15.
 example_1_cff_inputs = CFFInputs(
-    compton_form_factor_h = complex(-1.9844358866394172,0.7496811451932895),
-    compton_form_factor_h_tilde = complex(-0.07196088868244656,0.5885369653510624),
-    compton_form_factor_e = complex(0.9693397301223567,0.0),
-    compton_form_factor_e_tilde = complex(44.771526441606106,0.0))
+    compton_form_factor_h = CFF_H,
+    compton_form_factor_h_tilde = CFF_H_TILDE,
+    compton_form_factor_e = CFF_E,
+    compton_form_factor_e_tilde = CFF_E_TILDE)
+
 # (X): Specify the target polarization *as a float*:
 example_1_target_polarization = 0.
 
