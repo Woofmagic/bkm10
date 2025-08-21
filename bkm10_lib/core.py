@@ -1,26 +1,27 @@
 """
 Entry point for `DifferentialCrossSection` class.
+
+## Description:
+This class computes *the* BKM10 four-fold differential cross section according to
+the user-provided values of the (i) kinematic settings and (ii) CFFs.
 """
 
-# (X): Import native libraries | shutil
+# (1): Import native libraries | shutil
 import shutil
 
-# (X): Import native libraries | warnings:
+# (2): Import native libraries | warnings:
 import warnings
 
-# (X): Import third-party libraries | NumPy:
-import numpy as np
-
-# (X): Import third-party libraries | Matplotlib:
+# (3)6 Import third-party libraries | Matplotlib:
 import matplotlib.pyplot as plt
 
-# (X): 
+# (4): Import current library's tool | backend
 from bkm10_lib import backend
 
-# (X): Import accompanying modules | bkm10_lib > validation > validate_configuration
+# (5): Import accompanying modules | bkm10_lib > validation > validate_configuration
 from bkm10_lib.validation import validate_configuration
 
-# (X): Import accompanying modules | bkm10_lib > formalism > BKMFormalism:
+# (6): Import accompanying modules | bkm10_lib > formalism > BKMFormalism:
 from bkm10_lib.formalism import BKMFormalism
 
 class DifferentialCrossSection:
@@ -30,9 +31,17 @@ class DifferentialCrossSection:
     ## Description:
     Compute BKM10 differential cross sections using user-defined inputs.
 
-    ## Parameters
-    configuration : dict
-        A dictionary containing the configuration settings with the following keys:
+    ## Detailed Description:
+    This class provides the means to compute the (i) four-fold differential cross section and
+    (ii) the beam-spin asymmetry as was parameterized in what is called the "BKM10 formalism." 
+    One should note that this class actually *calls* another class: `BKMFormalism`. What this class 
+    explicitly does is essenentially "gather" together all the results that are computed using 
+    `BKMFormalism` and then brings them together in a final computation. More explicitly, the `BKMFormalism`
+    class computes ALL of the 100+ coefficients that the BKM10 formalism relies, and this class,
+    `DifferentialCrossSection` computes only the "mode expansion" coefficients for the BH, the DVCS, and
+    the interference contribution to the total differential cross-section.
+
+    :param dict configuration: A dictionary containing the configuration settings with the following keys:
         
         - "kinematics" : BKM10Inputs
             Dataclass containing the required kinematic variables.
@@ -46,12 +55,12 @@ class DifferentialCrossSection:
         - "lepton_beam_polarization" : float
             Polarization of the lepton beam (e.g., +1 or -1).
 
-    verbose : bool
+    :param bool verbose:
         A boolean flag that will tell the class to print out various messages at
         intermediate steps in the calculation. Useful if you want to determine when
         you have, say, calculated a given coefficient, like C_{++}^{LP}(n = 1).
     
-    debugging : bool
+    :param bool debugging:
         A boolean flag that will bomb anybody's terminal with output. As the flag is
         entitled, DO NOT USE THIS unless you need to do some serious debugging. We are
         talking about following how the data gets transformed through every calculation.
@@ -64,87 +73,117 @@ class DifferentialCrossSection:
             debugging = False):
         """
         ## Description:
-        Initialize the class!
+        Initialize the `DifferentialCrossSection` class.
 
-        ## Parameters:
+        :param dict configuration: A dictionary of configuration parameters
 
-            configuration: (dict)
-                A dictionary of configuration parameters
+        :param bool verbose:
+            Boolean setting to turn on if you want to see 
+            frequent print output that shows you "where" the code  
+            is in its execution.
 
-            verbose: (bool)
-                Boolean setting to turn on if you want to see 
-                frequent print output that shows you "where" the code  
-                is in its execution.
-
-            deugging: (bool)
-                Do not turn this on.
+         :param bool debugging: Do not turn this on.
         """
         
-        # (X): Obtain a True/False to operate the calculation in:
+        # (1): Obtain a True/False to operate the calculation in.
+        # | [NOTE]: if the configuration *is* none, then we *must*
+        # | configure the class, and that turns `configuration_mode` to
+        # | True!
         self.configuration_mode = configuration is not None
 
-        # (X): Determine verbose mode:
+        # (2): Determine verbose mode:
         self.verbose = verbose
 
-        # (X): Determine debugging mode (DO NOT TURN ON!):
+        # (3): Determine debugging mode (DO NOT TURN ON!):
         self.debugging = debugging
 
-        # (X): A dictionary of *every coefficient* that we computed:
+        # (4): A dictionary of *every coefficient* that we computed:
         self.coefficients = {}
 
-        # (X): The Trento Angle convention basically shifts all phi to pi - phi:
+        # (5): The Trento Angle convention basically shifts all phi to pi - phi:
+        # | [TODO]: We have made this a private variable for now. We *will* eventually
+        # | make this available to the user.
+        # | [NOTE]: The "Trento Angle" convention is a transformation of the azimuthal angle
+        # | phi that follows: phi -> pi - phi.
         self._using_trento_angle_convention = True
 
-        # (X): Hidden data that says if configuration passed:
+        # (6): Hidden data that says if configuration passed:
         self._passed_configuration = False
 
-        # (X): Hidden data that tells us if the functions executed correctly:
+        # (7): Hidden data that tells us if the functions executed correctly:
         self._evaluated = False
 
+        # (8): If the verbose mode flag is True...
         if self.verbose:
+
+            # (8.1): ... inform the user that we will log verbose output:
             print("> [VERBOSE]: Verbose mode on.")
 
+        # (9): If the debugging mode flag is True...
         if self.debugging:
+
+            # (9.1): ... inform the user to turn it off ASAP.
             print("> [DEBUGGING]: Debugging mode is on — DO NOT USE THIS!")
 
-        if configuration:
+        # (10): If the configuration flag is True....
+        if self.configuration_mode:
             
+            # (10.1): ... verbose mode says it received it.
             if self.verbose:
                 print("> [VERBOSE]: Configuration dictionary received!")
 
+            # (10.2): ... debugging mode will PRINT IT OUT:
             if self.debugging:
-                print("> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
+                print(f"> [DEBUGGING]:Configuration dictionary received:\n{configuration}")
 
+            # (10.3): Attempt to run initialization of the class using the dictionary:
             try:
-
+                
+                # (10.3.1): If we are in debugging mode...
                 if self.debugging:
+
+                    # (10.3.1.1): Inform the user that we are now trying to initialize the configuration:
                     print("> [DEBUGGING]: Trying to initialize configuration...")
             
-                # (X): Initialize the class from the dictionary:
+                # (10.3.2): Initialize the class from the dictionary:
                 self._initialize_from_config(configuration)
 
+                # (10.3.3): If the line above succeeds and we are in debugging mode...
                 if self.debugging:
+
+                    # (10.3.3.1): ... inform the user that the configuration passed!
                     print("> [DEBUGGING]: Configuration passed!")
 
+            # (10.4): If an issue occurs during the initialization of the class from the dictionary...
             except:
+
+                # (10.4.1): ... raise a super general exception (for now):
                 raise Exception("> Unable to initialize configuration!")
             
+            # (10.5): If the try/except block passed, then we *now* can inform the class itself
+            # | that configuration has passed!
             self._passed_configuration = True
 
+            # (10.6): If we are in verbose output...
             if self.verbose:
+
+                # (10.6.1): ... inform the user that the configuration passed!
                 print("> [VERBOSE]: Configuration succeeded!")
 
+            # (10.7): If we are in debugging output...
             if self.debugging:
-                print(f"> [DEBUGGING]: Configuration succeeded! Now set internal attribute: {self._passed_configuration}")
+
+                # (10.7.1): ... PRINT OUT the internal variable state...
+                print(f"> [DEBUGGING]: Configuration succeeded! Corresponding internal attribute now set to: {self._passed_configuration}")
 
     @staticmethod
     def _set_plot_style():
         """
         ## Description:
-            We want the plots to look a particular way. So, let's do that.
-            In particular, we check if a LaTeX distribution is installed!
+        We want the plots to look a particular way. So, let's do that. In particular,
+        we check if a LaTeX distribution is installed!
         """
-        
+
         # (X): Call shutil to find a TeX distribution:
         latex_installed = shutil.which("latex") is not None
 
@@ -214,12 +253,16 @@ class DifferentialCrossSection:
         # (X): rcParams dictating that we want ticks along the y-axis on the *left* of the bounding box:
         plt.rcParams['ytick.right'] = True
 
-    def _initialize_from_config(self, configuration_dictionary: dict):
+    def _initialize_from_config(self, configuration_dictionary: dict)-> None:
         """
         ## Description:
         We demand a dictionary type, extract each of its keys and values, and then
         we perform validation on each of the values. These values *cannot* be anything!
         So, this function is responsible for that.
+
+        :param dict configuration_dictionary: 
+            The *required* dictionary for initializing this class. See the class docstring for
+            more information.
         """
 
         # (1): Initialize a try-catch block:
@@ -266,22 +309,38 @@ class DifferentialCrossSection:
         the two different lepton polarizations. Then, we can easily calculate 
         0.5 * (dsigma(+1) + dsigma(-1)), which is an cross-section for an unpolarized beam.
         """
-        # (1): Immediately return a BKMFormalism instance:
-        return BKMFormalism(
-            inputs = self.kinematic_inputs,
-            cff_values = self.cff_inputs,
-            lepton_polarization = lepton_polarization,
-            target_polarization = self.target_polarization,
-            using_ww = self.using_ww,
-            verbose = self.verbose,
-            debugging = self.debugging)
+
+        # (1): Initialize a try-catch block to build the formalism:
+        try:
+
+            # (1.1): Immediately return a BKMFormalism instance:
+            return BKMFormalism(
+                inputs = self.kinematic_inputs,
+                cff_values = self.cff_inputs,
+                lepton_polarization = lepton_polarization,
+                target_polarization = self.target_polarization,
+                using_ww = self.using_ww,
+                verbose = self.verbose,
+                debugging = self.debugging)
+        
+        # (2): If there are errors in initializing a BKMFormalism instance...
+        except Exception as error:
+
+            # (2.1): ... too general, yes, but not sure what we put here yet:
+            raise Exception("> Error occurred during validation...") from error
         
     def compute_prefactor(self) -> float:
         """
         ## Description:
-        Immediately compute the prefactor that multiplies the
-        entire cross section:
+        Immediately compute the prefactor that multiplies the entire cross section.
+
+        ## Detailed Description:
+        This prefactor is separate from the squared amplitude of the whole DVCS process.
+        We compute it separately from the squared amplitudes in accordance with the whole
+        separation-of-concerns thing.
         """
+
+        # (1): Immediately return the prefactor as computed from the `BKMFormalism`:
         return self.formalism_plus.compute_cross_section_prefactor()
         
     def compute_c0_coefficient(self, phi_values):
@@ -289,126 +348,252 @@ class DifferentialCrossSection:
         ## Description:
         We compute the coefficient so-called $c_{0}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_c0_coefficient(phi_values) + self.formalism_minus.compute_c0_coefficient(phi_values))
+        # (X): Compute the c_{0} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_c0_coefficient = self.formalism_plus.compute_c0_coefficient(phi_values)
 
+        # (X): Compute the c_{0} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_c0_coefficient = self.formalism_minus.compute_c0_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_c0_coefficient + 0.5 * minus_polarized_c0_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_c0_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_c0_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_c0_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_c0_coefficient
     
     def compute_c1_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{1}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_c1_coefficient(phi_values) + self.formalism_minus.compute_c1_coefficient(phi_values))
+        # (X): Compute the c_{1} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_c1_coefficient = self.formalism_plus.compute_c1_coefficient(phi_values)
 
+        # (X): Compute the c_{1} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_c1_coefficient = self.formalism_minus.compute_c1_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_c1_coefficient + 0.5 * minus_polarized_c1_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_c1_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_c1_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_c1_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_c1_coefficient
     
     def compute_c2_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{2}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_c2_coefficient(phi_values) + self.formalism_minus.compute_c2_coefficient(phi_values))
+        # (X): Compute the c_{2} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_c2_coefficient = self.formalism_plus.compute_c2_coefficient(phi_values)
 
+        # (X): Compute the c_{2} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_c2_coefficient = self.formalism_minus.compute_c2_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_c2_coefficient + 0.5 * minus_polarized_c2_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_c2_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_c2_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_c2_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_c2_coefficient
     
     def compute_c3_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $c_{3}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_c3_coefficient(phi_values) + self.formalism_minus.compute_c3_coefficient(phi_values))
+        # (X): Compute the c_{3} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_c3_coefficient = self.formalism_plus.compute_c3_coefficient(phi_values)
 
+        # (X): Compute the c_{3} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_c3_coefficient = self.formalism_minus.compute_c3_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_c3_coefficient + 0.5 * minus_polarized_c3_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_c3_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_c3_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_c3_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_c3_coefficient
     
     def compute_s1_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $s_{1}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_s1_coefficient(phi_values) + self.formalism_minus.compute_s1_coefficient(phi_values))
+        # (X): Compute the s_{1} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_s1_coefficient = self.formalism_plus.compute_s1_coefficient(phi_values)
 
+        # (X): Compute the s_{1} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_s1_coefficient = self.formalism_minus.compute_s1_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_s1_coefficient + 0.5 * minus_polarized_s1_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_s1_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_s1_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_s1_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_s1_coefficient
         
     def compute_s2_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $s_{2}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
 
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_s2_coefficient(phi_values) + self.formalism_minus.compute_s2_coefficient(phi_values))
+        # (X): Compute the s_{2} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_s2_coefficient = self.formalism_plus.compute_s2_coefficient(phi_values)
 
+        # (X): Compute the s_{2} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_s2_coefficient = self.formalism_minus.compute_s2_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_s2_coefficient + 0.5 * minus_polarized_s2_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_s2_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_s2_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_s2_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_s2_coefficient
     
     def compute_s3_coefficient(self, phi_values):
         """
         ## Description:
         We compute the coefficient so-called $s_{3}$ in the mode expansion
         as according to the BKM10 formalism.
+
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
         # if not hasattr(self, "formalism"):
         #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
         
-        if self.lepton_polarization == 0.:
-            return 0.5 * (self.formalism_plus.compute_s3_coefficient(phi_values) + self.formalism_minus.compute_s3_coefficient(phi_values))
+        # (X): Compute the s_{3} coefficient according to the (+)-polarized lepton values:
+        plus_polarized_s3_coefficient = self.formalism_plus.compute_s3_coefficient(phi_values)
 
+        # (X): Compute the s_{3} coefficient according to the (-)-polarized lepton values:
+        minus_polarized_s3_coefficient = self.formalism_minus.compute_s3_coefficient(phi_values)
+
+        # (X): If the lepton polarization is 0 i.e. unpolarized...
+        if self.lepton_polarization == 0.:
+
+            # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
+            # | [TODO]: Allow the user to change the two weighting numbers:
+            return (0.5 * plus_polarized_s3_coefficient + 0.5 * minus_polarized_s3_coefficient)
+
+        # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
         elif self.lepton_polarization == 1.0:
-            return self.formalism_plus.compute_s3_coefficient(phi_values)
+
+            # (X): ... return only the "plus formalism" computation:
+            return plus_polarized_s3_coefficient
         
+        # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
         elif self.lepton_polarization == -1.0:
-            return self.formalism_minus.compute_s3_coefficient(phi_values)
+
+            # (X): ... return only the "minus formalism" computation:
+            return minus_polarized_s3_coefficient
 
     def compute_cross_section(self, phi_values):
         """
@@ -416,10 +601,7 @@ class DifferentialCrossSection:
         We compute the four-fold *differential cross-section* as 
         described with the BKM10 Formalism.
 
-        ## Arguments:
-        
-        phi: backend.math.ndarray
-            A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
 
         # (X): If  the user has not filled in the class inputs...
@@ -488,10 +670,7 @@ class DifferentialCrossSection:
         ## Description:
         We compute the BKM-predicted BSA.
 
-        ## Arguments:
-        
-        phi: backend.math.ndarray
-            A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
+        :param backend.math.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
         """
 
         # (X): If  the user has not filled in the class inputs...
@@ -564,7 +743,9 @@ class DifferentialCrossSection:
     def get_coefficient(self, name: str):
         """
         ## Description:
-        An interface to query a given BKM coefficient
+        An interface to query a given BKM coefficient's value.
+        [NOTE]: This function does NOT YET WORK. Do NOT USE IT.
+        [TODO]: Make this function.
         """
 
         # (X): ...
@@ -583,7 +764,7 @@ class DifferentialCrossSection:
         except Exception as exception:
 
             # (X): Raise an error:
-            raise NotImplementedError(f"> Something bad happened...: {exception}")
+            raise NotImplementedError(f"> We haven't written this function yet. See exception here: {exception}")
         
     def plot_cross_section(
             self,
@@ -600,21 +781,36 @@ class DifferentialCrossSection:
 
         # (X): We need to check if the cross-section has been evaluated yet:
         if not self._evaluated:
-
+            
+            # (X): If verbose mode is on...
             if self.verbose:
+
+                # (X): ... tell the user that we did not find "stored" cross-section values:
                 print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
 
+            # (X): If debugging mode is on...
             if self.debugging:
-                print("> [DEBUGGING]: No precomputed cross-section found. Computing now...")
 
-            # (X): If the cross section has NOT been evaluated, then we need to run the entire script to *do* that:
+                # (X): ... SHOW the user the current state of the internal flag.
+                print(f"> [DEBUGGING]: Class has not yet evaluated according to this flag: {self._evaluated}. Computing now...")
+
+            # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
             self.cross_section_values = self.compute_cross_section(phi_values)
 
-        # (X): If the user has previously evaluated the cross-section:
+        # (X): Otherwise, we can go ahead and use the pre-computed values:
         else:
 
+            # (X): If the user wants to see where we are in the code...
             if self.verbose:
-                print("> [VERBOSE]: Found cross-section data... Now constructing plots.")
+
+                # (X): ... inform them that we *have* x-section data, so we can immediately make plots:
+                print("> [VERBOSE]: Found BSA/cross-section data... Now constructing plots.")
+
+            # (X): If debugging mode is on...
+            if self.debugging:
+
+                # (X): ... SHOW the user the current state of the internal flag:
+                print(f"> [DEBUGGING]: Internal evaluation flag was {self._evaluated}: Proceeding with plot construction...")
 
         # (X): Set the plot style using this method:
         self._set_plot_style()
@@ -697,12 +893,18 @@ class DifferentialCrossSection:
 
         # (X): We need to check if the cross-section has been evaluated yet:
         if not self._evaluated:
-
+            
+            # (X): If verbose mode is on...
             if self.verbose:
-                print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
 
+                # (X): ... tell the user that we did not find "stored" cross-section values:
+                print("> [VERBOSE]: No precomputed BSA/cross-section found. Computing now...")
+
+            # (X): If debugging mode is on...
             if self.debugging:
-                print("> [DEBUGGING]: No precomputed cross-section found. Computing now...")
+
+                # (X): ... SHOW the user the current state of the internal flag.
+                print(f"> [DEBUGGING]: Class has not yet evaluated according to this flag: {self._evaluated}. Computing now...")
 
             # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
             self.bsa_values = self.compute_bsa(phi_values)
@@ -710,8 +912,17 @@ class DifferentialCrossSection:
         # (X): Otherwise, we can go ahead and use the pre-computed values:
         else:
 
+            # (X): If the user wants to see where we are in the code...
             if self.verbose:
-                print("> [VERBOSE]: Found cross-section data... Now constructing plots.")
+
+                # (X): ... inform them that we *have* x-section data, so we can immediately make plots:
+                print("> [VERBOSE]: Found BSA/cross-section data... Now constructing plots.")
+
+            # (X): If debugging mode is on...
+            if self.debugging:
+
+                # (X): ... SHOW the user the current state of the internal flag:
+                print(f"> [DEBUGGING]: Internal evaluation flag was {self._evaluated}: Proceeding with plot construction...")
 
         # (X): Set the plot style using our customziation method:
         self._set_plot_style()

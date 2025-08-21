@@ -88,10 +88,13 @@ cross_section_values = example_1_cross_section.compute_cross_section(phi_array)
 print(len(cross_section_values) == len(phi_array))
 
 # (X): Cross-section values:
-print(cross_section_values)
+print(f"> Obtained cross-section values for {len(phi_array)} values of phi:\n{cross_section_values}")
 
 # (X): `compute_bsa` computes the beam-spin asymmetry with length = len(phi_array):
 bsa_values = example_1_cross_section.compute_bsa(phi_array)
 
 # (X): This will return True:
 print(len(bsa_values) == len(phi_array))
+
+# (X): BSA values:
+print(f"> Obtained BSA values for {len(phi_array)} values of phi:\n{bsa_values}")
