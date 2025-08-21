@@ -12,7 +12,7 @@ import shutil
 # (2): Import native libraries | warnings:
 import warnings
 
-# (3)6 Import third-party libraries | Matplotlib:
+# (3): Import third-party libraries | Matplotlib:
 import matplotlib.pyplot as plt
 
 # (4): Import current library's tool | backend

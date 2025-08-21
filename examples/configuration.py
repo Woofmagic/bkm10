@@ -30,23 +30,46 @@ from bkm10_lib.inputs import BKM10Inputs
 # Internal Package | CFFInputs
 from bkm10_lib.cff_inputs import CFFInputs
 
+# (X): Specify a value for k (the beam energy):
+TEST_BEAM_ENERGY = 5.5
+
+# (X): Specify a Q^{2} value:
+TEST_Q_SQUARED = 1.00
+
+# (X): Specify an x_{B} value:
+TEST_X_BJORKEN = 0.200
+
+# (X): Specify a t value.
+# | [NOTE]: This number is usually negative:
+TEST_T_VALUE = -.1
+
+# (X): Specify a starting value for azimuthal phi:
+STARTING_PHI_VALUE_IN_DEGREES = 0
+
+# (X): Specify a final value for azimuthal phi:
+ENDING_PHI_VALUE_IN_DEGREES = 360
+
+# (X): Specify *how many* values of phi you want to evaluate the cross-section
+# | at. [NOTE]: This determines the *length* of the array:
+NUMBER_OF_PHI_POINTS = 15
+
 # (X): For all of these, we want phi to range from 0 to 360 degrees:
 phi_array = np.linspace(
-    start = 0,
-    stop = 360,
-    num = 15)
+    start = STARTING_PHI_VALUE_IN_DEGREES,
+    stop = ENDING_PHI_VALUE_IN_DEGREES,
+    num = NUMBER_OF_PHI_POINTS)
 
 # Example (1):
 # | We want to obtain a NumPy array for the value of the
 # | differential cross-section using standard plug-and-chug.
 example_1_kinematic_inputs = BKM10Inputs(
-    lab_kinematics_k = 5.5,
-    squared_Q_momentum_transfer = 1.00,
-    x_Bjorken = 0.200,
-    squared_hadronic_momentum_transfer_t = -.1)
+    lab_kinematics_k = TEST_BEAM_ENERGY,
+    squared_Q_momentum_transfer = TEST_Q_SQUARED,
+    x_Bjorken = TEST_X_BJORKEN,
+    squared_hadronic_momentum_transfer_t = TEST_T_VALUE)
 
 # (X): Make sure to specify the CFF inputs:
-# | Note: these CFF values come DIRECTLY from the KM15
+# | [NOTE]: These CFF values come DIRECTLY from the KM15
 # | CFF/GPD models. Two of them are ZERO, and that is how
 # | you should know that they come from KM15.
 example_1_cff_inputs = CFFInputs(
@@ -78,14 +101,14 @@ example_1_config_dictionary = {
 # (X): Instantiate the class for the cross-section:
 example_1_cross_section = DifferentialCrossSection(
     configuration = example_1_config_dictionary,
-    verbose = True,
+    verbose = False,
     debugging = False)
 
 # (X): `compute_cross_section` returns an array of cross-section values:
 cross_section_values = example_1_cross_section.compute_cross_section(phi_array)
 
 # (X): This will return True:
-print(len(cross_section_values) == len(phi_array))
+print(f"> The number of cross-sections should be the same as the number of phi points. Is it? {len(cross_section_values) == len(phi_array)}")
 
 # (X): Cross-section values:
 print(f"> Obtained cross-section values for {len(phi_array)} values of phi:\n{cross_section_values}")
@@ -94,7 +117,7 @@ print(f"> Obtained cross-section values for {len(phi_array)} values of phi:\n{cr
 bsa_values = example_1_cross_section.compute_bsa(phi_array)
 
 # (X): This will return True:
-print(len(bsa_values) == len(phi_array))
+print(f"> The number of BSA values should be the same as the number of phi points. Is it? {len(bsa_values) == len(phi_array)}")
 
 # (X): BSA values:
 print(f"> Obtained BSA values for {len(phi_array)} values of phi:\n{bsa_values}")
