@@ -1459,7 +1459,7 @@ class BKMFormalism:
            
            raise NotImplementedError("> Invalid target polarization value!")
        
-        return c_2_bh_coefficient 
+        return c_2_bh_coefficient
     
     def compute_bh_s1_coefficient(self) -> float:
         """
@@ -1469,7 +1469,12 @@ class BKMFormalism:
         2. We still have not implemented the transversely-polarized target case. This
         coefficient is 0 in the unpolarized and longitudinally-polarized target cases.
         """
-        return 0.
+        
+        # (X): s_{0}^{BH} = 0 for unpolarized target.
+        # | [NOTE]: We multiply by K to ensure its shape is
+        # | the same as the other coefficients; i.e. this will return
+        # | a "zeros-like" array:
+        return 0. * self.kinematic_k
 
     def compute_dvcs_c0_coefficient(self) -> float:
         """
