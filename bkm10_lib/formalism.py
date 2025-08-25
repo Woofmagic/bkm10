@@ -1520,8 +1520,8 @@ class BKMFormalism:
 
             # (2): Calculate the Curly C contribution:
             curlyC_lp_contribution = self.calculate_curly_c_longitudinally_polarized_dvcs(
-                effective_cffs = True,
-                effective_conjugate_cffs = True
+                effective_cffs = False,
+                effective_conjugate_cffs = False
             )
 
             # (3): Return the entire thing:
@@ -1531,7 +1531,7 @@ class BKMFormalism:
            
            raise NotImplementedError("> Invalid target polarization value!")
        
-        return c0_dvcs_unpolarized_coefficient 
+        return c0_dvcs_unpolarized_coefficient
     
     def compute_dvcs_c1_coefficient(self) -> float:
         """
@@ -1546,7 +1546,7 @@ class BKMFormalism:
             curlyC_unp_DVCS = self.calculate_curly_c_unpolarized_dvcs(
                 effective_cffs = True,
                 effective_conjugate_cffs = False
-            )
+            ).real
             
             # (3): Calculate the entire coefficient:
             c1_dvcs_unpolarized_coefficient = prefactor * curlyC_unp_DVCS.real
