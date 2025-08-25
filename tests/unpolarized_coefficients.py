@@ -1,6 +1,12 @@
 """
+## Description:
 A testing suite for proving that the functions computing the coefficients for the unpolarized
 target are returning real, finite, and accurate values.
+
+## Notes:
+
+1. 2025/07/24:
+    - All tests pasted with current Mathematica values.
 """
 
 # (X): Native Library | unittest:
@@ -20,7 +26,6 @@ from bkm10_lib.core import DifferentialCrossSection
 
 # (X): Self-Import | BKMFormalism
 from bkm10_lib.formalism import BKMFormalism
-
 
 # (X): Define a class that inherits unittest's TestCase:
 class TestUnpolarizedCoefficients(unittest.TestCase):
