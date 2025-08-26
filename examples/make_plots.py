@@ -101,14 +101,43 @@ example_1_config_dictionary = {
     "using_ww": example_1_ww_setting
 }
 
-# (X): Instantiate the class for the cross-section:
-example_1_cross_section = DifferentialCrossSection(
+# (X): Instantiate the class for the total cross-section:
+total_cross_section = DifferentialCrossSection(configuration = example_1_config_dictionary)
+
+# (X): Make another class for *only* the cross-section due to the BH^{2} term:
+bh_only_cross_section = DifferentialCrossSection(
     configuration = example_1_config_dictionary,
-    verbose = True,
-    debugging = False)
+    dvcs_setting = False,
+    interference_setting = False)
 
-# (X): `plot_cross_section` will *for the time being* just plt.show() the plot:
-example_1_cross_section.plot_cross_section(phi_array, save_plot_name = "cross_section_plot_v1.png")
+# (X): Make another class for *only* the cross-section due to the DVCS^{2} term:
+dvcs_only_cross_section = DifferentialCrossSection(
+    configuration = example_1_config_dictionary,
+    bh_setting = False,
+    interference_setting = False)
 
-# (X): `plot_bsa` will also *for the time being* just plt.show() the plot:
-example_1_cross_section.plot_bsa(phi_array, save_plot_name = "bsa_plot_v1.png")
+# (X): Make another class for *only* the cross-section due to the I(nterference) term:
+interference_only_cross_section = DifferentialCrossSection(
+    configuration = example_1_config_dictionary,
+    bh_setting = False,
+    dvcs_setting = False)
+
+# (X): Save the "total" cross-section plot:
+total_cross_section.plot_cross_section(
+    phi_array,
+    save_plot_name = "bkm_cross_section_v1.png")
+
+# (X): Save the BH cross-section plot:
+bh_only_cross_section.plot_cross_section(
+    phi_array,
+    save_plot_name = "bh_cross_section_v1.png")
+
+# (X): Save the DVCS cross-section plot:
+dvcs_only_cross_section.plot_cross_section(
+    phi_array,
+    save_plot_name = "dvcs_cross_section_v1.png")
+
+# (X): Save the interference plot:
+interference_only_cross_section.plot_cross_section(
+    phi_array,
+    save_plot_name = "interference_cross_section_v1.png")

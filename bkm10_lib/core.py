@@ -41,19 +41,20 @@ class DifferentialCrossSection:
     `DifferentialCrossSection` computes only the "mode expansion" coefficients for the BH, the DVCS, and
     the interference contribution to the total differential cross-section.
 
-    :param dict configuration: A dictionary containing the configuration settings with the following keys:
+    :param dict configuration:
+        A dictionary containing the configuration settings with the following keys:
         
-        - "kinematics" : BKM10Inputs
-            Dataclass containing the required kinematic variables.
+    :param BKM10Inputs kinematics:
+        Dataclass containing the required kinematic variables.
         
-        - "cff_inputs" : Any
-            Object or dictionary containing Compton Form Factor values or parameters.
+    :param CFFInputs cff_inputs:
+        Object or  dictionary containing Compton Form Factor values or parameters.
         
-        - "target_polarization" : float
-            Polarization value for the target (e.g., 0 for unpolarized).
-        
-        - "lepton_beam_polarization" : float
-            Polarization of the lepton beam (e.g., +1 or -1).
+    :param float lepton_polarization:
+            The BKM10 formalism uses +1.0, 0.0, or -1.0. Nothing else!
+
+    :param float target_polarization:
+        The BKM10 formalism uses +0.5, 0.0, or -0.5. Nothing else!
 
     :param bool verbose:
         A boolean flag that will tell the class to print out various messages at
@@ -68,21 +69,35 @@ class DifferentialCrossSection:
 
     def __init__(
             self,
-            configuration = None,
-            verbose = False,
-            debugging = False):
+            configuration: dict,
+            bh_setting: bool = True,
+            dvcs_setting: bool = True,
+            interference_setting: bool = True,
+            verbose: bool = False,
+            debugging:bool = False):
         """
         ## Description:
         Initialize the `DifferentialCrossSection` class.
 
-        :param dict configuration: A dictionary of configuration parameters
+        :param dict configuration:
+            A dictionary of configuration parameters.
+
+        :param bool bh_on:
+            `True` to keep the|BH|^{2} term in the computation; `False` otherwise.
+
+        :param bool dvcs_on:
+            `True` to keep the |DVCS|^{2} term in the computation; `False` otherwise.
+
+        :param bool interference_on:
+            `True` to keep the I(nterference) term in the computation; `False` otherwise.
 
         :param bool verbose:
             Boolean setting to turn on if you want to see 
             frequent print output that shows you "where" the code  
             is in its execution.
 
-         :param bool debugging: Do not turn this on.
+        :param bool debugging:
+            Do not turn this on.
         """
         
         # (1): Obtain a True/False to operate the calculation in.
@@ -90,6 +105,15 @@ class DifferentialCrossSection:
         # | configure the class, and that turns `configuration_mode` to
         # | True!
         self.configuration_mode = configuration is not None
+
+        # (X): Will we compute the BH^{2} part of the BKM10 formalism?
+        self.bh_setting = bh_setting
+
+        # (X): Will we compute the BH^{2} part of the BKM10 formalism?
+        self.dvcs_setting = dvcs_setting
+
+        # (X): Will we compute the BH^{2} part of the BKM10 formalism?
+        self.interference_setting = interference_setting
 
         # (2): Determine verbose mode:
         self.verbose = verbose
@@ -320,6 +344,9 @@ class DifferentialCrossSection:
                 lepton_polarization = lepton_polarization,
                 target_polarization = self.target_polarization,
                 using_ww = self.using_ww,
+                bh_on = self.bh_setting,
+                dvcs_on = self.dvcs_setting,
+                interference_on = self.interference_setting,
                 verbose = self.verbose,
                 debugging = self.debugging)
         
@@ -831,11 +858,49 @@ class DifferentialCrossSection:
         # (X): Set the x-label of the plot:
         cross_section_axis_instance.set_xlabel(r"Azimuthal Angle $\phi$ (degrees)", fontsize = 14)
 
-        # (X): Set the y-label of the plot:
-        cross_section_axis_instance.set_ylabel(r"$\frac{d^4\sigma}{dQ^2 dx_B dt d\phi}$ (nb/GeV$^4$)", fontsize = 14)
+        # (X): Initialize an empty string that *may* be used to specify what *parts* of the cross-section
+        # | are actually being computed.
+        # | [NOTE]: For example, if the BH setting is `False` but the DVCS setting is `True`, then we will
+        # | show d^{4}\sigma^{DVCS} to be super specific. This helps us figure out *what* cross-section
+        # | specifically was calculated and plotted on a plot.
+        cross_section_contribution_label = ""
+
+        # (X): Only if *not all* of the contributions are on do we get pedantic in this if-nest:
+        if not (self.bh_setting and self.dvcs_setting and self.interference_setting):
+
+            # (X): If the BH^{2} setting is on...
+            if self.bh_setting:
+
+                # (X): ... add the "BH" label *with a space!*
+                cross_section_contribution_label += "BH "
+
+            # (X): If the DVCS^{2} setting is on...
+            if self.dvcs_setting:
+
+                # (X): ... add the "DVCS" label *with a space!*
+                cross_section_contribution_label += "DVCS "
+
+            # (X): If the I setting is on...
+            if self.interference_setting:
+
+                # (X): ... add the "I" label *with a space!*
+                cross_section_contribution_label += "I"
+
+            # (X): Set the y-label of the plot:
+            cross_section_axis_instance.set_ylabel(
+                rf"$\frac{{d^4\sigma^{{\text{{{cross_section_contribution_label}}}}}}}{{dQ^2 dx_B dt d\phi}}$ (nb/GeV$^4$)",
+                fontsize = 14)
+
+        # (X): If all the contributions to the cross-section are on...
+        else:
+
+            # (X): ... then we do *not* label the cross-section and immediately set the y-label of the plot:
+            cross_section_axis_instance.set_ylabel(
+                r"$\frac{{d^4\sigma}}{{dQ^2 dx_B dt d\phi}}$ (nb/GeV$^4$)",
+                fontsize = 14)
 
         # (X): Turn the grid on:
-        cross_section_axis_instance.grid(True)
+        cross_section_axis_instance.grid(visible = True)
 
         # (X): Attempt to extract the kinematic inputs:
         try:
@@ -850,8 +915,15 @@ class DifferentialCrossSection:
                 rf"$t = {kinematics.squared_hadronic_momentum_transfer_t:.2f}$ GeV$^2$, "
                 rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV")
             
+            # (X): Obtain the CFF inputs as well to display:
+            cff_string = (
+                rf"$\mathcal{{H}} = {self.cff_inputs.compton_form_factor_h:.3f}$, "
+                rf"$\widetilde{{\mathcal{{H}}}} = {self.cff_inputs.compton_form_factor_h_tilde:.3f}$, "
+                rf"$\mathcal{{E}} = {self.cff_inputs.compton_form_factor_e:.3f}$, "
+                rf"$\widetilde{{\mathcal{{E}}}} = {self.cff_inputs.compton_form_factor_e_tilde:.3f}$")
+            
             # (X): We now use that string to set the plot title:
-            cross_section_axis_instance.set_title(title_string, fontsize = 14)
+            cross_section_axis_instance.set_title(f"{title_string}\n{cff_string}", fontsize = 14)
 
         # (X): If there are errors in extracting the numbers and making the strings...
         except AttributeError:
@@ -866,7 +938,7 @@ class DifferentialCrossSection:
         plt.tight_layout()
 
         # (X): (Using type-coercion!): If the user did not specify this...
-        # | Note: `"" == False` is True:
+        # | [NOTE]: An empty string is falsy: `"" == False` is True:
         if not save_plot_name:
 
             # (X): ... then just show the plot:
