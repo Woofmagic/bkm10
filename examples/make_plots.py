@@ -44,7 +44,7 @@ ENDING_PHI_VALUE_IN_DEGREES = 2 * np.pi
 NUMBER_OF_PHI_POINTS = 360
 
 # (X): Specify the CFF H values:
-CFF_H = complex(-20, 2.421)
+CFF_H = complex(-0.897, 2.421)
 
 # (X): Specify the CFF H-tilde values:
 CFF_H_TILDE = complex(2.444, 1.131)
@@ -111,4 +111,4 @@ example_1_cross_section = DifferentialCrossSection(
 example_1_cross_section.plot_cross_section(phi_array, save_plot_name = "cross_section_plot_v1.png")
 
 # (X): `plot_bsa` will also *for the time being* just plt.show() the plot:
-example_1_cross_section.plot_bsa(phi_array, save_plot_name = "cross_section_plot_v1.png")
+example_1_cross_section.plot_bsa(phi_array, save_plot_name = "bsa_plot_v1.png")

@@ -31,14 +31,25 @@ class BKMFormalism:
     process. At the moment, we are only evaluating the cross-section according to the
     "BKM10" formalism in contrast to the "BKM02" formalism. In the future, we aim
     to implement the option to use the BKM02 formalism through the parameter `formalism_version`.
+
+    ## Detailed Description:
+    Do you need more detail? If so, let the developers know!
     
     ## Notes:
     In order to use this class, one must use the datatypes `BKM10Inputs` and `CFFInputs`. 
     These are "independent variables" that go into (numerical) evaluation of the cross-
     section.
     """
+
     @property
     def math(self):
+        """
+        ## Description:
+        If you intend to use this library with TensorFlow, you cannot use NumPy array operations nicely. Instead,
+        you have to go through the pain of making normal floats like `5.0` entire TensorFlow constants. Thanks, Obama.
+        So, depending on how a user is using the library, we inform the "backend" setting to use either NumPy or
+        TensorFlow.
+        """
         return backend.math
 
     def __init__(
@@ -47,40 +58,52 @@ class BKMFormalism:
             cff_values: CFFInputs,
             lepton_polarization: float,
             target_polarization: float,
-            formalism_version: str = "10",
             using_ww: bool = False,
+            bh_on: bool = True,
+            dvcs_on: bool = True,
+            interference_on: bool = True,
+            formalism_version: str = "10",
             verbose: bool = False,
             debugging: bool = False):
         """
-        # Arguments:
+        ## Description:
+        Initialize the `BKMFormalism` class!
 
-            inputs: BKM10Inputs (datatype)
-                Kinematic inputs.
+        :param BKM10Inputs inputs:
+            Kinematic inputs, usually Q^{2}, x_{B}, and t.
 
-            cff_values: CFFInputs (datatype)
-                Compton Form factor settings.
+        :param CFFInputs cff_values:
+            Compton Form factor setting
 
-            lepton_polarization: float
-                The BKM10 formalism uses +1.0, 0.0, or -1.0. Nothing else!
+        :param float lepton_polarization:
+            The BKM10 formalism uses +1.0, 0.0, or -1.0. Nothing else!
 
-            target_polarization: float
-                The BKM10 formalism uses +0.5, 0.0, or -0.5. Nothing else!
+        :param float target_polarization:
+            The BKM10 formalism uses +0.5, 0.0, or -0.5. Nothing else!
 
-            formalism_version: str
-                Default is "10." Currently, this parameter has NO EFFECT! Read the
-                description of the class to learn why.
+        :param bool using_ww:
+            The "WW" relations are a mathematical approximation that you may choose 
+            to use or not. Make sure you know what this does (physically)!
 
-            using_ww: bool
-                The "WW" relations are a mathematical approximation that you 
-                may choose to use or not. Make sure you know what this does (physically)!
+        :param bool bh_on:
+            `True` to keep the|BH|^{2} term in the computation; `False` otherwise.
 
-            verbose: bool
-                A parameter that enables frequent print statements that show you
-                "where" the code is and some of the outputs.
+        :param bool dvcs_on:
+            `True` to keep the |DVCS|^{2} term in the computation; `False` otherwise.
 
-            debugging: bool
-                A parameter that will print virtually EVERYTHING!
+        :param bool interference_on:
+            `True` to keep the I(nterference) term in the computation; `False` otherwise.
+        
+        :param str formalism_version:
+            Default is "10." Currently, this parameter has NO EFFECT! Read the 
+            description of the class to learn why.
 
+        :param bool verbose:
+            A parameter that enables frequent print statements that show you "where" 
+            the code is and some of the outputs.
+
+        :param bool debugging:
+            A parameter that will print virtually EVERYTHING! Careful!
         """
 
         # (X): Collect the inputs:
@@ -97,6 +120,15 @@ class BKMFormalism:
 
         # (X): Obtain the CFF values:
         self.cff_values = cff_values
+
+        # (X): Do we turn the BH^{2} contribution on?
+        self.bh_on = bh_on
+
+        # (X): Do we turn the DVCS^{2} contribution on?
+        self.dvcs_on = dvcs_on
+
+        # (X): Do we turn the interference contribution on?
+        self.interference_on = interference_on
         
         # (X): Are we using the WW relations for the CFFs?
         self.using_ww = using_ww
@@ -879,7 +911,7 @@ class BKMFormalism:
         """
 
         # (1): We compute the c_{0}^{BH} coefficient:
-        bh_c0_contribution = self.compute_bh_c0_coefficient()
+        bh_c0_contribution = self.compute_bh_c0_coefficient() if self.bh_on else 0.0
 
         # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -894,13 +926,13 @@ class BKMFormalism:
             )
         
         # (3): We compute the c_{0}^{BH} coefficient:
-        dvcs_c0_contribution = self.compute_dvcs_c0_coefficient()
+        dvcs_c0_contribution = self.compute_dvcs_c0_coefficient() if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
 
         # (5): We compute the c_{0}^{I} coefficient:
-        interference_c0_contribution = self.compute_interference_c0_coefficient()
+        interference_c0_contribution = self.compute_interference_c0_coefficient() if self.interference_on else 0.0
 
         # (6): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
@@ -914,7 +946,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        c0_coefficient = bh_prefactor * bh_c0_contribution + dvcs_prefactor * dvcs_c0_contribution + interference_prefactor * interference_c0_contribution
+        c0_coefficient = (
+            bh_prefactor * bh_c0_contribution + 
+            dvcs_prefactor * dvcs_c0_contribution + 
+            interference_prefactor * interference_c0_contribution)
 
         # (6): And return the coefficient:
         return c0_coefficient
@@ -938,7 +973,7 @@ class BKMFormalism:
         """
     
         # (1): We compute the c_{1}^{BH} coefficient:
-        bh_c1_contribution = self.compute_bh_c1_coefficient()
+        bh_c1_contribution = self.compute_bh_c1_coefficient() if self.bh_on else 0.0
 
          # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -953,7 +988,7 @@ class BKMFormalism:
             )
         
         # (2): We compute the c_{1}^{BH} coefficient:
-        dvcs_c1_contribution = self.compute_dvcs_c1_coefficient()
+        dvcs_c1_contribution = self.compute_dvcs_c1_coefficient() if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
@@ -973,7 +1008,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        c1_coefficient = bh_prefactor * bh_c1_contribution + dvcs_prefactor * dvcs_c1_contribution + interference_prefactor * interference_c1_contribution
+        c1_coefficient = (
+            bh_prefactor * bh_c1_contribution + 
+            dvcs_prefactor * dvcs_c1_contribution + 
+            interference_prefactor * interference_c1_contribution)
 
         # (6): And return the coefficient:
         return c1_coefficient
@@ -996,7 +1034,7 @@ class BKMFormalism:
         Later!
         """
         # (1): We compute the c_{2}^{BH} coefficient:
-        bh_c2_contribution = self.compute_bh_c2_coefficient()
+        bh_c2_contribution = self.compute_bh_c2_coefficient() if self.bh_on else 0.0
 
          # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -1011,13 +1049,13 @@ class BKMFormalism:
             )
         
         # (2): We compute the c_{2}^{BH} coefficient:
-        dvcs_c2_contribution = 0.
+        dvcs_c2_contribution = 0. if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
 
         # (3): We compute the c_{2}^{I} coefficient:
-        interference_c2_contribution = self.compute_interference_c2_coefficient()
+        interference_c2_contribution = self.compute_interference_c2_coefficient() if self.interference_on else 0.0
 
         # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
@@ -1031,7 +1069,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        c2_coefficient = bh_prefactor * bh_c2_contribution + dvcs_prefactor * dvcs_c2_contribution + interference_prefactor * interference_c2_contribution
+        c2_coefficient = (
+            bh_prefactor * bh_c2_contribution + 
+            dvcs_prefactor * dvcs_c2_contribution + 
+            interference_prefactor * interference_c2_contribution)
 
         # (6): And return the coefficient:
         return c2_coefficient
@@ -1054,7 +1095,7 @@ class BKMFormalism:
         Later!
         """
         # (1): We compute the c_{3}^{BH} coefficient:
-        bh_c3_contribution = 0.
+        bh_c3_contribution = 0. if self.bh_on else 0.0
 
          # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -1069,13 +1110,13 @@ class BKMFormalism:
             )
         
         # (2): We compute the c_{3}^{BH} coefficient:
-        dvcs_c3_contribution = 0.
+        dvcs_c3_contribution = 0. if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
 
         # (3): We compute the c_{3}^{I} coefficient:
-        interference_c3_contribution = self.compute_interference_c3_coefficient()
+        interference_c3_contribution = self.compute_interference_c3_coefficient() if self.interference_on else 0.0
 
         # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
@@ -1089,7 +1130,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        c3_coefficient = bh_prefactor * bh_c3_contribution + dvcs_prefactor * dvcs_c3_contribution + interference_prefactor * interference_c3_contribution
+        c3_coefficient = (
+            bh_prefactor * bh_c3_contribution + 
+            dvcs_prefactor * dvcs_c3_contribution + 
+            interference_prefactor * interference_c3_contribution)
 
         # (6): And return the coefficient:
         return c3_coefficient
@@ -1112,7 +1156,7 @@ class BKMFormalism:
         Later!
         """
         # (1): We compute the s_{1}^{BH} coefficient:
-        bh_s1_contribution = self.compute_bh_s1_coefficient()
+        bh_s1_contribution = self.compute_bh_s1_coefficient() if self.bh_on else 0.0
 
          # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -1127,13 +1171,13 @@ class BKMFormalism:
             )
         
         # (2): We compute the s_{1}^{BH} coefficient:
-        dvcs_s1_contribution = self.compute_dvcs_s1_coefficient()
+        dvcs_s1_contribution = self.compute_dvcs_s1_coefficient() if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
 
         # (3): We compute the s_{1}^{I} coefficient:
-        interference_s1_contribution = self.compute_interference_s1_coefficient()
+        interference_s1_contribution = self.compute_interference_s1_coefficient() if self.interference_on else 0.0
 
         # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
@@ -1147,7 +1191,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        s1_coefficient = bh_prefactor * bh_s1_contribution + dvcs_prefactor * dvcs_s1_contribution + interference_prefactor * interference_s1_contribution
+        s1_coefficient = (
+            bh_prefactor * bh_s1_contribution + 
+            dvcs_prefactor * dvcs_s1_contribution + 
+            interference_prefactor * interference_s1_contribution)
 
         # (6): And return the coefficient:
         return s1_coefficient
@@ -1170,7 +1217,7 @@ class BKMFormalism:
         Later!
         """
         # (1): We compute the s_{2}^{BH} coefficient:
-        bh_s2_contribution = 0.
+        bh_s2_contribution = 0. if self.bh_on else 0.0
 
          # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -1185,13 +1232,13 @@ class BKMFormalism:
             )
         
         # (2): We compute the s_{2}^{BH} coefficient:
-        dvcs_s2_contribution = 0.
+        dvcs_s2_contribution = 0. if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
 
         # (3): We compute the s_{1}^{I} coefficient:
-        interference_s2_contribution = self.compute_interference_s2_coefficient()
+        interference_s2_contribution = self.compute_interference_s2_coefficient() if self.interference_on else 0.0
 
         # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
@@ -1205,7 +1252,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        s2_coefficient = bh_prefactor * bh_s2_contribution + dvcs_prefactor * dvcs_s2_contribution + interference_prefactor * interference_s2_contribution
+        s2_coefficient = (
+            bh_prefactor * bh_s2_contribution + 
+            dvcs_prefactor * dvcs_s2_contribution + 
+            interference_prefactor * interference_s2_contribution)
 
         # (6): And return the coefficient:
         return s2_coefficient
@@ -1228,7 +1278,7 @@ class BKMFormalism:
         Later!
         """
         # (1): We compute the s_{3}^{BH} coefficient:
-        bh_s3_contribution = 0.
+        bh_s3_contribution = 0. if self.bh_on else 0.0
 
          # (2): Compute the associated prefactor in front of the BH mode expansion:
         bh_prefactor = (
@@ -1243,13 +1293,13 @@ class BKMFormalism:
             )
         
         # (3): We compute the s_{3}^{BH} coefficient:
-        dvcs_s3_contribution = 0.
+        dvcs_s3_contribution = 0. if self.dvcs_on else 0.0
 
         # (4): Compute the associated prefactor in front of the BH mode expansion:
         dvcs_prefactor = (1. / (self.lepton_energy_fraction**2 * self.kinematics.squared_Q_momentum_transfer))
 
         # (3): We compute the s_{3}^{I} coefficient:
-        interference_s3_contribution = self.compute_interference_s3_coefficient()
+        interference_s3_contribution = self.compute_interference_s3_coefficient() if self.interference_on else 0.0
 
         # (4): THIS WILL CHANGE LATER! We compute the interference prefactor:
         interference_prefactor = (
@@ -1263,7 +1313,10 @@ class BKMFormalism:
             )
 
         # (5): Now, we sum together all the contributions:
-        s3_coefficient = bh_prefactor * bh_s3_contribution + dvcs_prefactor * dvcs_s3_contribution + interference_prefactor * interference_s3_contribution
+        s3_coefficient = (
+            bh_prefactor * bh_s3_contribution + 
+            dvcs_prefactor * dvcs_s3_contribution + 
+            interference_prefactor * interference_s3_contribution)
 
         # (6): And return the coefficient:
         return s3_coefficient
