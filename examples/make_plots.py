@@ -122,6 +122,12 @@ interference_only_cross_section = DifferentialCrossSection(
     bh_setting = False,
     dvcs_setting = False)
 
+# (X): Make another class for *only* the cross-section due to the I(nterference) + DVCS term:
+dvcs_and_interference_cross_section = DifferentialCrossSection(
+    configuration = example_1_config_dictionary,
+    bh_setting = False,
+    dvcs_setting = True)
+
 # (X): Save the "total" cross-section plot:
 total_cross_section.plot_cross_section(
     phi_array,
@@ -141,3 +147,8 @@ dvcs_only_cross_section.plot_cross_section(
 interference_only_cross_section.plot_cross_section(
     phi_array,
     save_plot_name = "interference_cross_section_v1.png")
+
+# (X): Save the interference plot:
+dvcs_and_interference_cross_section.plot_cross_section(
+    phi_array,
+    save_plot_name = "dvcs_interference_cross_section_v1.png")
