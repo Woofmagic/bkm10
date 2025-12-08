@@ -44,16 +44,16 @@ ENDING_PHI_VALUE_IN_DEGREES = 2 * np.pi
 NUMBER_OF_PHI_POINTS = 360
 
 # (X): Specify the CFF H values:
-CFF_H = complex(-0.897, 2.421)
+CFF_H = complex(-2.449, 3.482)
 
 # (X): Specify the CFF H-tilde values:
-CFF_H_TILDE = complex(2.444, 1.131)
+CFF_H_TILDE = complex(1.409, 1.577)
 
 # (X): Specify the CFF E values:
-CFF_E = complex(-0.541, 0.903)
+CFF_E = complex(2.217, 0.)
 
 # (X): Specify the CFF E-tilde values:
-CFF_E_TILDE = complex(2.207, 5.383)
+CFF_E_TILDE = complex(144.410, 0.)
 
 # (X): For all of these, we want phi to range from 0 to 360 degrees:
 phi_array = np.linspace(
@@ -133,22 +133,47 @@ total_cross_section.plot_cross_section(
     phi_array,
     save_plot_name = "bkm_cross_section_v1.png")
 
+# (X): Save the "total" BSA plot:
+total_cross_section.plot_bsa(
+    phi_array,
+    save_plot_name = "bkm_bsa_v1.png")
+
 # (X): Save the BH cross-section plot:
 bh_only_cross_section.plot_cross_section(
     phi_array,
     save_plot_name = "bh_cross_section_v1.png")
+
+# (X): Save the BH BSA plot:
+bh_only_cross_section.plot_bsa(
+    phi_array,
+    save_plot_name = "bh_bsa_v1.png")
 
 # (X): Save the DVCS cross-section plot:
 dvcs_only_cross_section.plot_cross_section(
     phi_array,
     save_plot_name = "dvcs_cross_section_v1.png")
 
+# (X): Save the DVCS BSA plot:
+dvcs_only_cross_section.plot_bsa(
+    phi_array,
+    save_plot_name = "dvcs_bsa_v1.png")
+
 # (X): Save the interference plot:
 interference_only_cross_section.plot_cross_section(
     phi_array,
     save_plot_name = "interference_cross_section_v1.png")
 
-# (X): Save the interference plot:
+# (X): Save the interference BSA plot:
+interference_only_cross_section.plot_bsa(
+    phi_array,
+    save_plot_name = "interference_bsa_v1.png")
+
+# (X): Save the DVCS and Interference cross-section plot:
 dvcs_and_interference_cross_section.plot_cross_section(
     phi_array,
     save_plot_name = "dvcs_interference_cross_section_v1.png")
+
+# (X): Save the DVCS and Interference BSA plot:
+dvcs_and_interference_cross_section.plot_bsa(
+    phi_array,
+    save_plot_name = "dvcs_interference_bsa_v1.png")

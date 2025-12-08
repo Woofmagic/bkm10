@@ -31,17 +31,17 @@ from bkm10_lib.inputs import BKM10Inputs
 from bkm10_lib.cff_inputs import CFFInputs
 
 # (X): Specify a value for k (the beam energy):
-TEST_BEAM_ENERGY = 5.5
+TEST_BEAM_ENERGY = 5.75
 
 # (X): Specify a Q^{2} value:
-TEST_Q_SQUARED = 1.00
+TEST_Q_SQUARED = 1.82
 
 # (X): Specify an x_{B} value:
-TEST_X_BJORKEN = 0.200
+TEST_X_BJORKEN = 0.34
 
 # (X): Specify a t value.
 # | [NOTE]: This number is usually negative:
-TEST_T_VALUE = -.1
+TEST_T_VALUE = -0.17
 
 # (X): Specify a starting value for azimuthal phi:
 STARTING_PHI_VALUE_IN_DEGREES = 0
@@ -54,16 +54,16 @@ ENDING_PHI_VALUE_IN_DEGREES = 360
 NUMBER_OF_PHI_POINTS = 15
 
 # (X): Specify the CFF H values:
-CFF_H = complex(-1.9844358866394172, 0.7496811451932895)
+CFF_H = complex(-2.449, 3.482)
 
 # (X): Specify the CFF H-tilde values:
-CFF_H_TILDE = complex(-0.07196088868244656, 0.5885369653510624)
+CFF_H_TILDE = complex(1.409, 1.577)
 
 # (X): Specify the CFF E values:
-CFF_E = complex(0.9693397301223567, 0.0)
+CFF_E = complex(2.217, 0.)
 
 # (X): Specify the CFF E-tilde values:
-CFF_E_TILDE = complex(44.771526441606106, 0.0)
+CFF_E_TILDE = complex(144.410, 0.0)
 
 # (X): For all of these, we want phi to range from 0 to 360 degrees:
 phi_array = np.linspace(

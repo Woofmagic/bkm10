@@ -319,6 +319,12 @@ class DifferentialCrossSection:
             # (1.8): Initialize a BKM formalims with lepton polarization = -1.0:
             self.formalism_minus = self._build_formalism_with_polarization(-1.0)
 
+            # (X): ...
+            self.cross_section_values = []
+
+            # (X): ...
+            self.bsa_values = []
+
         # (2): If there are errors in the initialization above...
         except Exception as error:
 
@@ -807,7 +813,7 @@ class DifferentialCrossSection:
         """
 
         # (X): We need to check if the cross-section has been evaluated yet:
-        if not self._evaluated:
+        if not self._evaluated or not self.cross_section_values:
             
             # (X): If verbose mode is on...
             if self.verbose:
@@ -964,7 +970,7 @@ class DifferentialCrossSection:
         """
 
         # (X): We need to check if the cross-section has been evaluated yet:
-        if not self._evaluated:
+        if not self._evaluated or not self.bsa_values:
             
             # (X): If verbose mode is on...
             if self.verbose:
@@ -1038,9 +1044,16 @@ class DifferentialCrossSection:
                 rf"$t = {kinematics.squared_hadronic_momentum_transfer_t:.2f}$ GeV$^2$, "
                 rf"$k = {kinematics.lab_kinematics_k:.2f}$ GeV")
             
+            # (X): Obtain the CFF inputs as well to display:
+            cff_string = (
+                rf"$\mathcal{{H}} = {self.cff_inputs.compton_form_factor_h:.3f}$, "
+                rf"$\widetilde{{\mathcal{{H}}}} = {self.cff_inputs.compton_form_factor_h_tilde:.3f}$, "
+                rf"$\mathcal{{E}} = {self.cff_inputs.compton_form_factor_e:.3f}$, "
+                rf"$\widetilde{{\mathcal{{E}}}} = {self.cff_inputs.compton_form_factor_e_tilde:.3f}$")
+            
             # (X): We now use that string to set the plot title:
-            bsa_axis_instance.set_title(title_string, fontsize = 14)
-
+            bsa_axis_instance.set_title(f"{title_string}\n{cff_string}", fontsize = 14)
+            
         # (X): If there are errors in extracting the numbers and making the strings...
         except AttributeError:
 
