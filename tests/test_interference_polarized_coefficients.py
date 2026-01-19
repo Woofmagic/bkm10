@@ -29,7 +29,7 @@ from bkm10_lib.formalism import BKMFormalism
 
 
 # (X): Define a class that inherits unittest's TestCase:
-class TestPolarizedCoefficients(unittest.TestCase):
+class TestPolarizedInterferenceCoefficients(unittest.TestCase):
     """
     ## Description:
     We need to verify that all of the coefficients that go into computation of the 

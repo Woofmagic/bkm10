@@ -945,13 +945,13 @@ class BKMFormalism:
                 )
             )
 
-        # (5): Now, we sum together all the contributions:
+        # (7): Now, we sum together all the contributions:
         c0_coefficient = (
-            bh_prefactor * bh_c0_contribution + 
-            dvcs_prefactor * dvcs_c0_contribution + 
+            bh_prefactor * bh_c0_contribution +
+            dvcs_prefactor * dvcs_c0_contribution +
             interference_prefactor * interference_c0_contribution)
 
-        # (6): And return the coefficient:
+        # (8): And return the coefficient:
         return c0_coefficient
     
     def compute_c1_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -2378,7 +2378,10 @@ class BKMFormalism:
 
         return s_3_interference_coefficient
     
-    def calculate_curly_c_unpolarized_dvcs(self, effective_cffs: bool = False, effective_conjugate_cffs: bool = False) -> float:
+    def calculate_curly_c_unpolarized_dvcs(
+            self, 
+            effective_cffs: bool = False, 
+            effective_conjugate_cffs: bool = False) -> float:
         """
         Later!
         """

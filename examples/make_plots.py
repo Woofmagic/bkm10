@@ -34,10 +34,10 @@ TEST_X_BJORKEN = 0.34
 TEST_T_VALUE = -.17
 
 # (X): Specify a starting value for azimuthal phi:
-STARTING_PHI_VALUE_IN_DEGREES = 0
+STARTING_PHI_VALUE_IN_RADIANS = 0. * np.pi
 
 # (X): Specify a final value for azimuthal phi:
-ENDING_PHI_VALUE_IN_DEGREES = 2 * np.pi
+ENDING_PHI_VALUE_IN_RADIANS = 2. * np.pi
 
 # (X): Specify *how many* values of phi you want to evaluate the cross-section
 # | at. [NOTE]: This determines the *length* of the array:
@@ -57,8 +57,8 @@ CFF_E_TILDE = complex(144.410, 0.)
 
 # (X): For all of these, we want phi to range from 0 to 360 degrees:
 phi_array = np.linspace(
-    start = STARTING_PHI_VALUE_IN_DEGREES,
-    stop = ENDING_PHI_VALUE_IN_DEGREES,
+    start = STARTING_PHI_VALUE_IN_RADIANS,
+    stop = ENDING_PHI_VALUE_IN_RADIANS,
     num = NUMBER_OF_PHI_POINTS)
 
 # Example (1):

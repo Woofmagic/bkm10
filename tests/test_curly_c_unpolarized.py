@@ -1,12 +1,11 @@
 """
 ## Description:
-A testing suite for proving that the functions computing the coefficients for the
-longitudinally-polarized target are returning real, finite, and accurate values.
+Testing all of the absolutely incredibly headache coefficients that we call "curly C." These
+show up in the computation of the DVCS and the Interference contributions to the cross-section.
 
 ## Notes:
-
-1. 2025/07/24:
-    - Currently, c_{1}^{DVCS} is *not passing* in 1e-7: Expected 11.308413010854267, got 11.308413178694114
+1. 2026/01/19:
+    - Numbers are close, but still 3/5 can't pass the default tolerance of 1e-7.
 """
 
 # (X): Native Library | unittest:
@@ -27,9 +26,8 @@ from bkm10_lib.core import DifferentialCrossSection
 # (X): Self-Import | BKMFormalism
 from bkm10_lib.formalism import BKMFormalism
 
-
 # (X): Define a class that inherits unittest's TestCase:
-class TestDVCSUnpolarizedCoefficients(unittest.TestCase):
+class TestCurlyCCoefficients(unittest.TestCase):
     """
     ## Description:
     We need to verify that all of the coefficients that go into computation of the 
@@ -183,71 +181,106 @@ class TestDVCSUnpolarizedCoefficients(unittest.TestCase):
         self.assertTrue(
             expr = np.isreal(value).all(),
             msg = "> [ERROR]: Value contains complex components")
-
-    def assert_approximately_equal(self, value, expected, tolerance = 1e-8):
+        
+    def test_curly_c_dvcs_no_eff_cff_no_eff_cff_conjugate(self):
         """
         ## Description:
-        A general test in the suite that determines if a *number* (`value`) is approximately
-        equal to what is expected (`expected`). "Approximately equal" is quantified with the 
-        parameter `tolerance`.
+        Test the function that corresponds to the BKM10 coefficient CurlyC_{DVCS}(F | F*).
         """
-        self.assertTrue(
-            np.allclose(value, expected, rtol = tolerance, atol = tolerance),
-            f"> [ERROR]: Expected {expected}, got {value}")
+        curly_c_dvcs_cff_cff_star = self.bkm_formalism.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = False,
+            effective_conjugate_cffs = False
+        )
+
+        # (X): Verify that CurlyC_{DVCS}(F | F*) is a *finite* number:
+        self.assert_is_finite(curly_c_dvcs_cff_cff_star)
         
-    def test_calculate_dvcs_c0_coefficient(self):
-        """
-        ## Description: Test the function that corresponds to the BKM10 coefficient c_{0}^{DVCS}.
-        """
-        c0dvcs = self.bkm_formalism.compute_dvcs_c0_coefficient()
+        # (X); Verify that CurlyC_{DVCS}(F | F*) is not a NaN:
+        self.assert_no_nans(curly_c_dvcs_cff_cff_star)
 
-        # (X): Verify that c_{0}^{DVCS} is a *finite* number:
-        self.assert_is_finite(c0dvcs)
+        # (X): Verify that CurlyC_{DVCS}(F | F*) is real:
+        self.assert_is_real(curly_c_dvcs_cff_cff_star)
+
+        _MATHEMATICA_RESULT = complex(13.478125253553266, 0.)
+
+        self.assertAlmostEqual(curly_c_dvcs_cff_cff_star, second = _MATHEMATICA_RESULT)
+
+    def test_curly_c_dvcs_eff_cff_eff_cff_conjugate(self):
+        """
+        ## Description:
+        Test the function that corresponds to the BKM10 coefficient CurlyC_{DVCS}(Feff, Feff*).
+        """
+        curly_c_dvcs_eff_cff_eff_cff_star = self.bkm_formalism.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = True
+        )
+
+        # (X): Verify that CurlyC(Feff, Feff*) is a *finite* number:
+        self.assert_is_finite(curly_c_dvcs_eff_cff_eff_cff_star)
         
-        # (X); Verify that c_{0}^{DVCS} is not a NaN:
-        self.assert_no_nans(c0dvcs)
+        # (X); Verify that CurlyC(Feff, Feff*) is not a NaN:
+        self.assert_no_nans(curly_c_dvcs_eff_cff_eff_cff_star)
 
-        # (X): Verify that c_{0}^{DVCS} is real:
-        self.assert_is_real(c0dvcs)
+        # (X): Verify that CurlyC(Feff, Feff*) is real:
+        self.assert_is_real(curly_c_dvcs_eff_cff_eff_cff_star)
 
-        _MATHEMATICA_RESULT = 29.512298473681934
+        _MATHEMATICA_RESULT = complex(37.49784250218004, 0.)
 
-        self.assert_approximately_equal(c0dvcs, expected = _MATHEMATICA_RESULT)
+        self.assertAlmostEqual(curly_c_dvcs_eff_cff_eff_cff_star, second = _MATHEMATICA_RESULT)
 
-    def test_calculate_dvcs_c1_coefficient(self):
+    def test_curly_c_dvcs_eff_cff_no_eff_cff_conjugate(self):
         """
-        ## Description: Test the function that corresponds to the BKM10 coefficient c_{1}^{DVCS}.
+        ## Description:
+        Test the function that corresponds to the BKM10 coefficient CurlyC_{DVCS}(Feff, F*).
         """
-        c1dvcs = self.bkm_formalism.compute_dvcs_c1_coefficient()
+        curly_c_dvcs_eff_cff_cff_star = self.bkm_formalism.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = False
+        )
 
-        # (X): Verify that c_{1}^{DVCS} is a *finite* number:
-        self.assert_is_finite(c1dvcs)
+        # (X): Verify that CurlyC(Feff, F*) is a *finite* number:
+        self.assert_is_finite(curly_c_dvcs_eff_cff_cff_star)
         
-        # (X); Verify that c_{1}^{DVCS} is not a NaN:
-        self.assert_no_nans(c1dvcs)
+        # (X); Verify that CurlyC(Feff, F*) is not a NaN:
+        self.assert_no_nans(curly_c_dvcs_eff_cff_cff_star)
 
-        # (X): Verify that c_{1}^{DVCS} is real:
-        self.assert_is_real(c1dvcs)
+        # (X): Verify that CurlyC(Feff, F*) is real:
+        self.assert_is_real(curly_c_dvcs_eff_cff_cff_star)
 
-        _MATHEMATICA_RESULT = 11.308413010854267
+        _MATHEMATICA_RESULT = complex(22.481116920259893, 5.604782843278753e-16)
 
-        self.assert_approximately_equal(c1dvcs, expected = _MATHEMATICA_RESULT)
+        self.assertAlmostEqual(curly_c_dvcs_eff_cff_cff_star, second = _MATHEMATICA_RESULT)
 
-    def test_calculate_dvcs_s1_coefficient(self):
+    def test_curly_c_interference_no_eff_cff_no_eff_cff_conjugate(self):
         """
-        ## Description: Test the function that corresponds to the BKM10 coefficient s_{1}^{DVCS}.
+        ## Description:
+        Test the function that corresponds to the BKM10 coefficient CurlyC_{I}(F).
         """
-        s1dvcs = self.bkm_formalism.compute_dvcs_s1_coefficient()
+        curly_c_interference_cff_cff_star = self.bkm_formalism.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-        # (X): Verify that s_{1}^{DVCS} is a *finite* number:
-        self.assert_is_finite(s1dvcs)
+        # (X): Verify that CurlyC_{I}(F) is a *finite* number:
+        self.assert_is_finite(curly_c_interference_cff_cff_star)
         
-        # (X); Verify that s_{1}^{DVCS} is not a NaN:
-        self.assert_no_nans(s1dvcs)
+        # (X); Verify that CurlyC_{I}(F) is not a NaN:
+        self.assert_no_nans(curly_c_interference_cff_cff_star)
 
-        # (X): Verify that s_{1}^{DVCS} is real:
-        self.assert_is_real(s1dvcs)
+        _MATHEMATICA_RESULT = complex(0.266711013189341, 2.1847473098840733)
 
-        _MATHEMATICA_RESULT = 3.465495183786358e-18
+        self.assertAlmostEqual(curly_c_interference_cff_cff_star, second = _MATHEMATICA_RESULT)
 
-        self.assert_approximately_equal(s1dvcs, expected = _MATHEMATICA_RESULT)
+    def test_curly_c_interference_eff_cff(self):
+        """
+        ## Description:
+        Test the function that corresponds to the BKM10 coefficient CurlyC_{I}(Feff).
+        """
+        curly_c_interference_eff_cff = self.bkm_formalism.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+
+        # (X): Verify that CurlyC_{I}(Feff) is a *finite* number:
+        self.assert_is_finite(curly_c_interference_eff_cff)
+        
+        # (X); Verify that CurlyC_{I}(Feff) is not a NaN:
+        self.assert_no_nans(curly_c_interference_eff_cff)
+
+        _MATHEMATICA_RESULT = complex(0.44486613372656025, 3.6440943225229856)
+
+        self.assertAlmostEqual(curly_c_interference_eff_cff, second = _MATHEMATICA_RESULT)

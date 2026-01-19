@@ -1,12 +1,15 @@
 """
 ## Description:
-A testing suite for proving that the functions computing the coefficients for the
-longitudinally-polarized target are returning real, finite, and accurate values.
+A testing suite to check if the computation of the form factors, especially
+the effective form factors, are correct.
 
 ## Notes:
-
-1. 2025/07/24:
-    - All BH tests pasted with current Mathematica values. Nice!
+1. 2026/01/19: 
+    - Initialized tests.
+2. 2026/01/19: 
+    - Xi (skewness) test passes, but CFF tests cannot clear within 1e-8 tolerance... 
+3. 2026/01/19:
+    - CFF E_{eff} can pass to within 1e-7, but the other three *still* cannot clear that tolerance.
 """
 
 # (X): Native Library | unittest:
@@ -27,9 +30,8 @@ from bkm10_lib.core import DifferentialCrossSection
 # (X): Self-Import | BKMFormalism
 from bkm10_lib.formalism import BKMFormalism
 
-
 # (X): Define a class that inherits unittest's TestCase:
-class TestBHUnpolarizedCoefficients(unittest.TestCase):
+class TestFormFactors(unittest.TestCase):
     """
     ## Description:
     We need to verify that all of the coefficients that go into computation of the 
@@ -132,130 +134,112 @@ class TestBHUnpolarizedCoefficients(unittest.TestCase):
             lepton_polarization = cls.lepton_polarization,
             target_polarization = cls.target_polarization,
             using_ww = True)
+        
+    def test_xi_parameter(self):
+        """
+        ## Description:
+        Since Xi goes into the effective CFF computation, we need to check that it's right first.
+        
+        ## Notes:
+        1. We initialized the `BKMFormalism` class with the WW setting *ON*.
+        """
+
+        # (X): Verify the Xi parameter is correct:
+        xi_parameter = self.bkm_formalism.skewness_parameter
+
+        # (X): The Mathematica-computed value for Xi:
+        _MATHEMATICA_RESULT_XI = 0.19906188837146524
+
+        # (X): This one tests H:
+        self.assertAlmostEqual(
+            first = xi_parameter,
+            second = _MATHEMATICA_RESULT_XI,
+            places = 8)
     
-    def assert_is_finite(self, value):
+    def test_effective_cff_h(self):
         """
         ## Description:
-        A general test in the suite that verifies that all the
-        numbers in an array are *finite* (as opposed to Inf.-type or NaN)
+        Tests to see if the effective CFF H matches what we got using the Mathematica
+        code.
 
         ## Notes:
-        "NaN" means "not a number." Having NaN values in an array causes problems in
-        functions that are designed to perform arithmetic.
+        1. We initialized the `BKMFormalism` class with the WW setting *ON*.
         """
-        self.assertTrue(
-            expr = np.isfinite(value).all(),
-            msg = "Value contains NaNs or infinities/Inf.")
 
-    def assert_no_nans(self, value):
+        # (X): Compute the effective CFFs:
+        effective_cffs = self.bkm_formalism.compute_cff_effective(self.test_cff_inputs)
+
+        # (X): We need to match this value for H (computed from Mathematica):
+        _MATHEMATICA_RESULT_H_WW = complex(-1.4961696451186222, 4.038156868263304)
+
+        # (X): This one tests H:
+        self.assertAlmostEqual(
+            first = effective_cffs.compton_form_factor_h,
+            second = _MATHEMATICA_RESULT_H_WW,
+            places = 7)
+    
+    def test_effective_cff_e(self):
         """
         ## Description:
-        A general test in the suite that determines if an array has NaNs.
-        
-        ## Notes:
-        "NaN" means "not a number." Having NaN values in an array causes problems in
-        functions that are designed to perform arithmetic.
-        """
-        self.assertFalse(
-            expr = np.isnan(value).any(),
-            msg = "> [ERROR]: Value contains NaNs")
-
-    def assert_no_negatives(self, value):
-        """
-        ## Description:
-        A general test in the suite that determines if an array has negative values
-        in it.
+        Tests to see if the effective CFF E matches what we got using the Mathematica
+        code.
 
         ## Notes:
-        There *are* important negative quantities, and several coefficients are indeed
-        negative. But cross-sections, for example, should be positive.
+        1. We initialized the `BKMFormalism` class with the WW setting *ON*.
         """
-        self.assertTrue(
-            expr = (value >= 0).all(),
-            msg = "> [ERROR]: Value contains negative values")
 
-    def assert_is_real(self, value):
+        # (X): Compute the effective CFFs:
+        effective_cffs = self.bkm_formalism.compute_cff_effective(self.test_cff_inputs)
+
+        # (X): We need to match this value for E (computed from Mathematica):
+        _MATHEMATICA_RESULT_E_WW = complex(-0.9023721048039851, 1.5061774688317902)
+        
+        # (X): This one tests E:
+        self.assertAlmostEqual(
+            first = effective_cffs.compton_form_factor_e,
+            second = _MATHEMATICA_RESULT_E_WW,
+            places = 7)
+        
+    def test_effective_cff_h_tilde(self):
         """
         ## Description:
-        A general test in the suite that determines that an array has
-        all real values.
+        Tests to see if the effective CFF HT matches what we got using the Mathematica
+        code.
+
+        ## Notes:
+        1. We initialized the `BKMFormalism` class with the WW setting *ON*.
         """
-        self.assertTrue(
-            expr = np.isreal(value).all(),
-            msg = "> [ERROR]: Value contains complex components")
+
+        # (X): Compute the effective CFFs:
+        effective_cffs = self.bkm_formalism.compute_cff_effective(self.test_cff_inputs)
+
+        # (X): We need to match this value for HT (computed from Mathematica):
+        _MATHEMATICA_RESULT_HT_WW = complex(4.0765201924971155, 1.8864747699321758)
         
-    def test_calculate_bh_c0_coefficient(self):
-        """
-        ## Description: Test the function that corresponds to the BKM10 coefficient c_{0}^{BH}.
-        """
-        c0bh = self.bkm_formalism.compute_bh_c0_coefficient()
-
-        # (X): Verify that c_{0}^{BH} is a *finite* number:
-        self.assert_is_finite(c0bh)
+        # (X): This one tests E:
+        self.assertAlmostEqual(
+            first = effective_cffs.compton_form_factor_h_tilde,
+            second = _MATHEMATICA_RESULT_HT_WW,
+            places = 7)
         
-        # (X); Verify that c_{0}^{BH} is not a NaN:
-        self.assert_no_nans(c0bh)
-
-        # (X): Verify that c_{0}^{BH} is real:
-        self.assert_is_real(c0bh)
-
-        _MATHEMATICA_RESULT = 4.196441097163937
-
-        self.assertAlmostEqual(c0bh, second = _MATHEMATICA_RESULT)
-
-    def test_calculate_bh_c1_coefficient(self):
+    def test_effective_cff_e_tilde(self):
         """
-        ## Description: Test the function that corresponds to the BKM10 coefficient c_{1}^{BH}.
-        """
-        c1bh = self.bkm_formalism.compute_bh_c1_coefficient()
+        ## Description:
+        Tests to see if the effective CFF ET matches what we got using the Mathematica
+        code.
 
-        # (X): Verify that c_{1}^{BH} is a *finite* number:
-        self.assert_is_finite(c1bh)
+        ## Notes:
+        1. We initialized the `BKMFormalism` class with the WW setting *ON*.
+        """
+
+        # (X): Compute the effective CFFs:
+        effective_cffs = self.bkm_formalism.compute_cff_effective(self.test_cff_inputs)
+
+        # (X): We need to match this value for ET (computed from Mathematica):
+        _MATHEMATICA_RESULT_ET_WW = complex(3.6812111558269773, 8.978685841330593)
         
-        # (X); Verify that c_{1}^{BH} is not a NaN:
-        self.assert_no_nans(c1bh)
-
-        # (X): Verify that c_{1}^{BH} is real:
-        self.assert_is_real(c1bh)
-
-        _MATHEMATICA_RESULT = -1.0718559129262486
-
-        self.assertAlmostEqual(c1bh, second = _MATHEMATICA_RESULT)
-
-    def test_calculate_bh_c2_coefficient(self):
-        """
-        ## Description: Test the function that corresponds to the BKM10 coefficient c_{2}^{BH}.
-        """
-        c2bh = self.bkm_formalism.compute_bh_c2_coefficient()
-
-        # (X): Verify that c_{2}^{BH} is a *finite* number:
-        self.assert_is_finite(c2bh)
-        
-        # (X); Verify that c_{2}^{BH} is not a NaN:
-        self.assert_no_nans(c2bh)
-
-        # (X): Verify that c_{2}^{BH} is real:
-        self.assert_is_real(c2bh)
-
-        _MATHEMATICA_RESULT = -0.03281299774352729
-
-        self.assertAlmostEqual(c2bh, second = _MATHEMATICA_RESULT)
-
-    def test_calculate_bh_s1_coefficient(self):
-        """
-        ## Description: Test the function that corresponds to the BKM10 coefficient s_{1}^{BH}.
-        """
-        s1bh = self.bkm_formalism.compute_bh_s1_coefficient()
-
-        # (X): Verify that c_{2}^{BH} is a *finite* number:
-        self.assert_is_finite(s1bh)
-        
-        # (X); Verify that c_{2}^{BH} is not a NaN:
-        self.assert_no_nans(s1bh)
-
-        # (X): Verify that c_{2}^{BH} is real:
-        self.assert_is_real(s1bh)
-
-        _MATHEMATICA_RESULT = 0.0
-
-        self.assertAlmostEqual(s1bh, second = _MATHEMATICA_RESULT)
+        # (X): This one tests ET:
+        self.assertAlmostEqual(
+            first = effective_cffs.compton_form_factor_e_tilde,
+            second = _MATHEMATICA_RESULT_ET_WW,
+            places = 7)

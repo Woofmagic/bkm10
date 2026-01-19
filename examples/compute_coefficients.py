@@ -24,7 +24,7 @@ from bkm10_lib.cff_inputs import CFFInputs
 
 from bkm10_lib import backend
 
-# (X): For all of these, we want phi to range from 0 to 360 degrees:
+# (X): For all of these, we want phi to range from 0 to 2pi radians:
 phi_array = np.linspace(0, 2 * np.pi, 360)
 
 # (X): Define the BKM10 inputs:

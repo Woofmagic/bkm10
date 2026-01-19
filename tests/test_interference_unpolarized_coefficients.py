@@ -28,7 +28,7 @@ from bkm10_lib.core import DifferentialCrossSection
 from bkm10_lib.formalism import BKMFormalism
 
 # (X): Define a class that inherits unittest's TestCase:
-class TestUnpolarizedCoefficients(unittest.TestCase):
+class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
     """
     ## Description:
     We need to verify that all of the coefficients that go into computation of the 
