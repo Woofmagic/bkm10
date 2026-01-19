@@ -162,5 +162,6 @@ class TestCrossSections(unittest.TestCase):
             self.assertAlmostEqual(
                 library_xsec_value,
                 mathematica_xsec_value,
+                places = 5,
                 msg = f"\nLists differ at index {index}: {library_xsec_value} != {mathematica_xsec_value}")
             

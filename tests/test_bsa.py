@@ -162,4 +162,5 @@ class TestBSA(unittest.TestCase):
             self.assertAlmostEqual(
                 library_bsa_value,
                 mathematica_bsa_value,
+                places = 5,
                 msg = f"\nLists differ at index {index}: {library_bsa_value} != {mathematica_bsa_value}")

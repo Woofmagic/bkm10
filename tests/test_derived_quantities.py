@@ -5,6 +5,8 @@ Testing various constants/special numbers in the program.
 ## Notes:
 1. 2026/01/15:
     - Prefactor test passed.
+2. 2026/01/19:
+    - All derived quantities added and passed tests.
 """
 
 # (X): Native Library | unittest:
@@ -27,7 +29,7 @@ from bkm10_lib.formalism import BKMFormalism
 
 
 # (X): Define a class that inherits unittest's TestCase:
-class TestSpecialNumbers(unittest.TestCase):
+class TestDerivedQuantities(unittest.TestCase):
     """
     ## Description:
     We need to verify that all of the coefficients that go into computation of the 
@@ -130,6 +132,144 @@ class TestSpecialNumbers(unittest.TestCase):
             lepton_polarization = cls.lepton_polarization,
             target_polarization = cls.target_polarization,
             using_ww = True)
+        
+    def test_kinematics_epsilon(self):
+        """
+        ## Description:
+        Test the calculation of epsilon.
+
+        ## Notes:
+        """
+        # (X): Extract the value for epsilon:
+        epsilon = self.bkm_formalism.epsilon
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = 0.47293561004973345
+
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = epsilon,
+            second = _MATHEMATICA_RESULT)
+        
+    def test_lepton_energy_fraction(self):
+        """
+        ## Description:
+        Test the calculation of y, lepton energy fraction.
+
+        ## Notes:
+        """
+
+        # (X): Compute the y value:
+        y = self.bkm_formalism.lepton_energy_fraction
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = 0.49609612355928445
+
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = y,
+            second = _MATHEMATICA_RESULT)
+    
+    def test_skewness(self):
+        """
+        ## Description:
+        Test the calculation of xi, the skewness.
+
+        ## Notes:
+        """
+
+        # (X): Extract the Xi value:
+        xi = self.bkm_formalism.skewness_parameter
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = 0.19906188837146524
+        
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = xi,
+            second = _MATHEMATICA_RESULT)
+        
+    def test_t_minimum(self):
+        """
+        ## Description:
+        Test the calculation of t_min.
+
+        ## Notes:
+        1. 2026/01/19:
+            - Units are technically GeV^{2}.
+        """
+
+        # (X): Extract the Xi value:
+        t_min = self.bkm_formalism.t_minimum
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = -0.13551824472915253
+        
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = t_min,
+            second = _MATHEMATICA_RESULT)
+        
+    def test_t_prime(self):
+        """
+        ## Description:
+        Test the calculation of t'.
+
+        ## Notes:
+        1. 2026/01/19:
+            - Units are technically GeV^{2}.
+        """
+
+        # (X): Extract the value for t':
+        t_prime = self.bkm_formalism.t_prime
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = -0.034481755270847486
+        
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = t_prime,
+            second = _MATHEMATICA_RESULT)
+        
+    def test_k_tilde(self):
+        """
+        ## Description:
+        Test the calculation of Ktilde.
+
+        ## Notes:
+        1. 2026/01/19:
+            - Units are technically GeV^{1}.
+        """
+
+        # (X): Extract the value for Ktilde:
+        k_tilde = self.bkm_formalism.k_tilde
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = 0.1592415651944438
+        
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = k_tilde,
+            second = _MATHEMATICA_RESULT)
+        
+    def test_k_shorthand(self):
+        """
+        ## Description:
+        Test the calculation of K (capital K, not lowercase k).
+
+        ## Notes:
+        """
+
+        # (X): Extract the value for Ktilde:
+        kinematic_k = self.bkm_formalism.kinematic_k
+
+        # (X): Type out the Mathematica result:
+        _MATHEMATICA_RESULT = 0.08492693191323883
+        
+        # (X): Do the test:
+        self.assertAlmostEqual(
+            first = kinematic_k,
+            second = _MATHEMATICA_RESULT)
 
     def test_bkm10_prefactor(self):
         """
@@ -138,8 +278,10 @@ class TestSpecialNumbers(unittest.TestCase):
         # (X): Compute the BSA values:
         prefactor = self.cross_section.compute_prefactor()
 
+        # (X): Type out the Mathematica result:
         _MATHEMATICA_RESULT = 3.5309544777485675e-10
 
+        # (X): Do the test:
         self.assertAlmostEqual(
             first = prefactor,
             second = _MATHEMATICA_RESULT)
