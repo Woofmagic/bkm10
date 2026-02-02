@@ -1,5 +1,16 @@
 """
 Entry point for the `BKM10Formalism`.
+
+## Notes:
+    1. 2026/01/27
+        - Officially scrapped all `promote_scalar_to_dtype` because it was found to
+    alter the precision of standard Python mathematical operations such that
+    unittests did not pass.
+    2. 2026/02/02
+        - Now, every coefficient of the form c_{i}^{X} is computed *without* if/else 
+        switches on the target polarization; if Lambda = 0., then it it will be handled
+        automatically by the mathematics of the formalism (e.g LP coefficients go with
+        Lambda).
 """
 
 # 3rd Party Library | NumPy:
@@ -200,7 +211,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate self.epsilon right away:
-            epsilon = (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_IN_GEV) / self.math.sqrt(self.kinematics.squared_Q_momentum_transfer)
+            epsilon = (2. * self.kinematics.x_Bjorken * _MASS_OF_PROTON_IN_GEV) / np.sqrt(self.kinematics.squared_Q_momentum_transfer)
 
             # (1.1): If verbose, print the result:
             if self.verbose:
@@ -237,7 +248,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the y right away:
-            lepton_energy_fraction = self.math.sqrt(self.kinematics.squared_Q_momentum_transfer) / (self.epsilon * self.kinematics.lab_kinematics_k)
+            lepton_energy_fraction = np.sqrt(self.kinematics.squared_Q_momentum_transfer) / (self.epsilon * self.kinematics.lab_kinematics_k)
 
             # (1.1): If verbose output, then print the result:
             if self.verbose:
@@ -312,7 +323,7 @@ class BKMFormalism:
             one_minus_xb = 1. - self.kinematics.x_Bjorken
 
             # (2): Calculate the numerator:
-            numerator = (2. * one_minus_xb * (1. - self.math.sqrt(1. + self.epsilon**2))) + self.epsilon**2
+            numerator = (2. * one_minus_xb * (1. - np.sqrt(1. + self.epsilon**2))) + self.epsilon**2
 
             # (3): Calculate the denominator:
             denominator = (4. * self.kinematics.x_Bjorken * one_minus_xb) + self.epsilon**2
@@ -401,10 +412,10 @@ class BKMFormalism:
             one_minus_xb = 1. - self.kinematics.x_Bjorken
 
             # (3): Calculate the crazy root quantity:
-            second_root_quantity = (one_minus_xb * self.math.sqrt((1. + self.epsilon**2))) + ((tmin_minus_t * (self.epsilon**2 + (4. * one_minus_xb * self.kinematics.x_Bjorken))) / (4. * self.kinematics.squared_Q_momentum_transfer))
+            second_root_quantity = (one_minus_xb * np.sqrt((1. + self.epsilon**2))) + ((tmin_minus_t * (self.epsilon**2 + (4. * one_minus_xb * self.kinematics.x_Bjorken))) / (4. * self.kinematics.squared_Q_momentum_transfer))
             
             # (6): Calculate K_tilde
-            k_tilde = self.math.sqrt(tmin_minus_t) * self.math.sqrt(second_root_quantity)
+            k_tilde = np.sqrt(tmin_minus_t) * np.sqrt(second_root_quantity)
 
             # (6.1): Print the result of the calculation:
             if self.verbose:
@@ -426,7 +437,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the amazing prefactor:
-            prefactor = self.math.sqrt((1. - self.lepton_energy_fraction + (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) / self.kinematics.squared_Q_momentum_transfer)
+            prefactor = np.sqrt((1. - self.lepton_energy_fraction + (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) / self.kinematics.squared_Q_momentum_transfer)
 
             # (2): Calculate the remaining part of the term:
             kinematic_k = prefactor * self.k_tilde
@@ -659,13 +670,13 @@ class BKMFormalism:
             """
 
             # (X): Determine the right datatype representaton to use for the float `1.0`:
-            scalar_one = self.math.promote_scalar_to_dtype(1.0, cff)
+            scalar_one = 1.0
 
             # (X): Determine the right datatype representaton to use for the float `2.0`:
-            scalar_two = self.math.promote_scalar_to_dtype(2.0, cff)
+            scalar_two = 2.0
 
             # (X): Determine the right datatype representaton to use for the thing called `cff`:
-            skewness = self.math.promote_scalar_to_dtype(self.skewness_parameter, cff)
+            skewness = self.skewness_parameter
 
             # (X): Due to the structure of the prefactor, we require computation of the nice/unambiguous datatypes first:
             denominator = scalar_one + skewness
@@ -686,8 +697,8 @@ class BKMFormalism:
 
             # (X): We now require *recasting* the effective CFFs into the CFFInputs dataclass:
             effective_cffs = CFFInputs(
-                compton_form_factor_h       = effective_cff_factor(compton_form_factor.compton_form_factor_h),
-                compton_form_factor_e       = effective_cff_factor(compton_form_factor.compton_form_factor_e),
+                compton_form_factor_h = effective_cff_factor(compton_form_factor.compton_form_factor_h),
+                compton_form_factor_e = effective_cff_factor(compton_form_factor.compton_form_factor_e),
                 compton_form_factor_h_tilde = effective_cff_factor(compton_form_factor.compton_form_factor_h_tilde),
                 compton_form_factor_e_tilde = effective_cff_factor(compton_form_factor.compton_form_factor_e_tilde)
             )
@@ -715,7 +726,7 @@ class BKMFormalism:
             numerator = _ELECTROMAGNETIC_FINE_STRUCTURE_CONSTANT**3 * self.lepton_energy_fraction**2 * self.kinematics.x_Bjorken
 
             # (2): Calculate the denominator of the prefactor:
-            denominator = 8. * self.math.pi * self.kinematics.squared_Q_momentum_transfer**2 * self.math.sqrt(1. + self.epsilon**2)
+            denominator = 8. * np.pi * self.kinematics.squared_Q_momentum_transfer**2 * np.sqrt(1. + self.epsilon**2)
 
             # (3): Construct the prefactor:
             prefactor = numerator / denominator
@@ -773,8 +784,8 @@ class BKMFormalism:
             # (1): The prefactor: \frac{Q^{2}}{2 y (1 + \varself.epsilon^{2})}
             prefactor = self.kinematics.squared_Q_momentum_transfer / (2. * self.lepton_energy_fraction * (1. + self.epsilon**2))
 
-            # (2): Second term in parentheses: Phi-Dependent Term: 2 K self.math.cos(\phi)
-            phi_dependence = 2. * self.kinematic_k * self.math.cos(phi_values)
+            # (2): Second term in parentheses: Phi-Dependent Term: 2 K np.cos(\phi)
+            phi_dependence = 2. * self.kinematic_k * np.cos(phi_values)
             
             # (3): Prefactor of third term in parentheses: \frac{t}{Q^{2}}
             ratio_delta_to_q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -971,6 +982,8 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
+
+        print(f"c1 stuff: lambda = {self.lepton_polarization}, Lambda = {self.target_polarization}")
     
         # (1): We compute the c_{1}^{BH} coefficient:
         bh_c1_contribution = self.compute_bh_c1_coefficient() if self.bh_on else 0.0
@@ -1006,12 +1019,17 @@ class BKMFormalism:
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
+    
+        print(bh_c1_contribution)
+        print(dvcs_c1_contribution)
+        print(interference_c1_contribution)
 
         # (5): Now, we sum together all the contributions:
         c1_coefficient = (
-            bh_prefactor * bh_c1_contribution + 
-            dvcs_prefactor * dvcs_c1_contribution + 
+            bh_prefactor * bh_c1_contribution +
+            dvcs_prefactor * dvcs_c1_contribution +
             interference_prefactor * interference_c1_contribution)
+        
 
         # (6): And return the coefficient:
         return c1_coefficient
@@ -1334,82 +1352,88 @@ class BKMFormalism:
         2. We still have not implemented the transversely-polarized target case.
         """
 
-        if self.target_polarization == 0.:
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (1): Calculate the common appearance of F1 + F2:
-            addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
+        # (1): Calculate the common appearance of F1 + F2:
+        addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
 
-            # (2): Calculate the common appearance of a weighted sum of F1 and F2:
-            weighted_combination_of_form_factors = self.dirac_form_factor**2 - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor**2 / (4. * _MASS_OF_PROTON_IN_GEV**2))
+        # (2): Calculate the common appearance of a weighted sum of F1 and F2:
+        weighted_combination_of_form_factors = self.dirac_form_factor**2 - (self.kinematics.squared_hadronic_momentum_transfer_t * self.pauli_form_factor**2 / (4. * _MASS_OF_PROTON_IN_GEV**2))
 
-            # (3): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
-            t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
-            
-            # (4):  The first line that contributes to c^{(0)}_{BH}:
-            first_line = 8. * self.kinematic_k**2 * (((2. + 3. * self.epsilon**2) * weighted_combination_of_form_factors / t_over_Q_squared) + (2. * self.kinematics.x_Bjorken**2 * addition_of_form_factors_squared))
+        # (3): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
+        t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
+        
+        # (4):  The first line that contributes to c^{(0)}_{BH}:
+        first_line = 8. * self.kinematic_k**2 * (((2. + 3. * self.epsilon**2) * weighted_combination_of_form_factors / t_over_Q_squared) + (2. * self.kinematics.x_Bjorken**2 * addition_of_form_factors_squared))
 
-            # (5): The first part of the second line:
-            second_line_first_part = (2. + self.epsilon**2) * ((4. * self.kinematics.x_Bjorken**2 * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) * (1. + t_over_Q_squared)**2 + 4. * (1 - self.kinematics.x_Bjorken) * (1. + (self.kinematics.x_Bjorken * t_over_Q_squared))) * weighted_combination_of_form_factors
-            
-            # (6): The second part of the second line:
-            second_line_second_part = 4. * self.kinematics.x_Bjorken**2 * (self.kinematics.x_Bjorken + (1. - self.kinematics.x_Bjorken + (self.epsilon**2 / 2.)) * (1 - t_over_Q_squared)**2 - self.kinematics.x_Bjorken * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared**2) * addition_of_form_factors_squared
+        # (5): The first part of the second line:
+        second_line_first_part = (2. + self.epsilon**2) * ((4. * self.kinematics.x_Bjorken**2 * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) * (1. + t_over_Q_squared)**2 + 4. * (1 - self.kinematics.x_Bjorken) * (1. + (self.kinematics.x_Bjorken * t_over_Q_squared))) * weighted_combination_of_form_factors
+        
+        # (6): The second part of the second line:
+        second_line_second_part = 4. * self.kinematics.x_Bjorken**2 * (self.kinematics.x_Bjorken + (1. - self.kinematics.x_Bjorken + (self.epsilon**2 / 2.)) * (1 - t_over_Q_squared)**2 - self.kinematics.x_Bjorken * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared**2) * addition_of_form_factors_squared
 
-            # (7): The second line in its entirety, which is just a prefactor times the addition of the two parts calculated earlier:
-            second_line = (2. - self.lepton_energy_fraction)**2 * (second_line_first_part + second_line_second_part)
+        # (7): The second line in its entirety, which is just a prefactor times the addition of the two parts calculated earlier:
+        second_line = (2. - self.lepton_energy_fraction)**2 * (second_line_first_part + second_line_second_part)
 
-            # (8): The third line:
-            third_line = 8. * (1. + self.epsilon**2) * (1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) * (2. * self.epsilon**2 * (1 - (self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2))) * weighted_combination_of_form_factors - self.kinematics.x_Bjorken**2 * (1 - t_over_Q_squared)**2 * addition_of_form_factors_squared)
+        # (8): The third line:
+        third_line = 8. * (1. + self.epsilon**2) * (1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)) * (2. * self.epsilon**2 * (1 - (self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2))) * weighted_combination_of_form_factors - self.kinematics.x_Bjorken**2 * (1 - t_over_Q_squared)**2 * addition_of_form_factors_squared)
 
-            # (9): Add everything up to obtain the first coefficient:
-            c_0_bh_coefficient = first_line + second_line + third_line
+        # (9): Add everything up to obtain the first coefficient:
+        c0_bh_unp = first_line + second_line + third_line
 
-        elif self.target_polarization == 0.5:
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (1): Calculate the common appearance of F1 + F2:
-            sum_of_form_factors = (self.dirac_form_factor + self.pauli_form_factor)
+        # (1): Calculate the common appearance of F1 + F2:
+        sum_of_form_factors = (self.dirac_form_factor + self.pauli_form_factor)
 
-            # (2): Calculate the frequent appearance of t/4mp
-            t_over_four_mp_squared = self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
+        # (2): Calculate the frequent appearance of t/4mp
+        t_over_four_mp_squared = self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
 
-            # (3): Calculate the weighted sum of the F1 and F2:
-            weighted_sum_of_form_factors = self.dirac_form_factor + t_over_four_mp_squared * self.pauli_form_factor
+        # (3): Calculate the weighted sum of the F1 and F2:
+        weighted_sum_of_form_factors = self.dirac_form_factor + t_over_four_mp_squared * self.pauli_form_factor
 
-            # (4): Calculate the recurrent appearance of 1 - xb:
-            one_minus_xb = 1. - self.kinematics.x_Bjorken
+        # (4): Calculate the recurrent appearance of 1 - xb:
+        one_minus_xb = 1. - self.kinematics.x_Bjorken
 
-            # (5): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
-            t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
+        # (5): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
+        t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
-            # (6): Calculate the derived quantity 1 - t/Q^{2}:
-            one_minus_t_over_Q_squared = 1. - t_over_Q_squared
+        # (6): Calculate the derived quantity 1 - t/Q^{2}:
+        one_minus_t_over_Q_squared = 1. - t_over_Q_squared
 
-            # (7): Calculate the first term's first bracketed term:
-            first_term_first_bracket = 0.5 * self.kinematics.x_Bjorken * (one_minus_t_over_Q_squared) - t_over_four_mp_squared
+        # (7): Calculate the first term's first bracketed term:
+        first_term_first_bracket = 0.5 * self.kinematics.x_Bjorken * (one_minus_t_over_Q_squared) - t_over_four_mp_squared
 
-            # (8): Calculate the first term's second bracketed term:
-            first_term_second_bracket = 2. - self.kinematics.x_Bjorken - (2. * (one_minus_xb)**2 * t_over_Q_squared) + (self.epsilon**2 * one_minus_t_over_Q_squared) - (self.kinematics.x_Bjorken * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared**2)
+        # (8): Calculate the first term's second bracketed term:
+        first_term_second_bracket = 2. - self.kinematics.x_Bjorken - (2. * (one_minus_xb)**2 * t_over_Q_squared) + (self.epsilon**2 * one_minus_t_over_Q_squared) - (self.kinematics.x_Bjorken * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared**2)
 
-            # (9): Calculate the first term (includes prefactor)
-            first_term = 0.5 * sum_of_form_factors * first_term_first_bracket * first_term_second_bracket
+        # (9): Calculate the first term (includes prefactor)
+        first_term = 0.5 * sum_of_form_factors * first_term_first_bracket * first_term_second_bracket
 
-            # (10): Calculate the first bracketed term in the second term:
-            second_term_first_bracket = self.kinematics.x_Bjorken**2 * (1. + t_over_Q_squared)**2 / (4. * t_over_four_mp_squared) + ((1. - self.kinematics.x_Bjorken) * (1. + self.kinematics.x_Bjorken * t_over_Q_squared))
+        # (10): Calculate the first bracketed term in the second term:
+        second_term_first_bracket = self.kinematics.x_Bjorken**2 * (1. + t_over_Q_squared)**2 / (4. * t_over_four_mp_squared) + ((1. - self.kinematics.x_Bjorken) * (1. + self.kinematics.x_Bjorken * t_over_Q_squared))
 
-            # (11): Calculate the second term (including prefactor):
-            second_term = (1. - (1. - self.kinematics.x_Bjorken) * t_over_Q_squared) * weighted_sum_of_form_factors * second_term_first_bracket
+        # (11): Calculate the second term (including prefactor):
+        second_term = (1. - (1. - self.kinematics.x_Bjorken) * t_over_Q_squared) * weighted_sum_of_form_factors * second_term_first_bracket
 
-            # (12): Calculate the overall prefactor:
-            prefactor = 8. * self.lepton_polarization * self.target_polarization * self.kinematics.x_Bjorken * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * np.sqrt(1. + self.epsilon**2) * sum_of_form_factors / (1. - t_over_four_mp_squared)
+        # (12): Calculate the overall prefactor:
+        prefactor = 8. * self.lepton_polarization * self.target_polarization * self.kinematics.x_Bjorken * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * np.sqrt(1. + self.epsilon**2) * sum_of_form_factors / (1. - t_over_four_mp_squared)
 
-            # (13): Calculate the entire coefficient:
-            c_0_bh_coefficient = prefactor * (first_term + second_term)
+        # (13): Calculate the entire coefficient:
+        c0_bh_lp = prefactor * (first_term + second_term)
 
-        else:
-
-            raise NotImplementedError("> Invalid target polarization value.")
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        # [TODO]: @Woofmagic: code up the TP contribution
+        c0_bh_tp = 0.0
 
         # (X): Return the coefficient:
-        return c_0_bh_coefficient
+        return c0_bh_unp + c0_bh_lp + c0_bh_tp
     
     def compute_bh_c1_coefficient(self) -> float:
         """
@@ -1424,57 +1448,62 @@ class BKMFormalism:
         2. We still have not implemented the transversely-polarized target case.
         """
         
-        if self.target_polarization == 0.0:
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
            
-           # (1): Calculate the common appearance of F1 + F2:
-            addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
+        # (1): Calculate the common appearance of F1 + F2:
+        addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
 
-            # (2): Calculate the common appearance of a weighted sum of F1 and F2:
-            weighted_combination_of_form_factors = self.dirac_form_factor**2 - ((self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.pauli_form_factor**2)
-            
-            # (3):  The first part of the first line:
-            first_line_first_part = ((4. * self.kinematics.x_Bjorken**2 * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) - 2. * self.kinematics.x_Bjorken - self.epsilon**2) * weighted_combination_of_form_factors
-            
-            # (4): The first part of the second line:
-            first_line_second_part = 2. * self.kinematics.x_Bjorken**2 * (1. - (1. - 2. * self.kinematics.x_Bjorken) * (self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)) * addition_of_form_factors_squared
+        # (2): Calculate the common appearance of a weighted sum of F1 and F2:
+        weighted_combination_of_form_factors = self.dirac_form_factor**2 - ((self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.pauli_form_factor**2)
+        
+        # (3):  The first part of the first line:
+        first_line_first_part = ((4. * self.kinematics.x_Bjorken**2 * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) - 2. * self.kinematics.x_Bjorken - self.epsilon**2) * weighted_combination_of_form_factors
+        
+        # (4): The first part of the second line:
+        first_line_second_part = 2. * self.kinematics.x_Bjorken**2 * (1. - (1. - 2. * self.kinematics.x_Bjorken) * (self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)) * addition_of_form_factors_squared
 
-            # (5): Multiply by the prefactor to obtain c^{(1)}_{BH}
-            c_1_bh_coefficient = 8. * self.kinematic_k * (2. - self.lepton_energy_fraction) * (first_line_first_part + first_line_second_part)
+        # (5): Multiply by the prefactor to obtain c^{(1)}_{BH}
+        c1_bh_unp = 8. * self.kinematic_k * (2. - self.lepton_energy_fraction) * (first_line_first_part + first_line_second_part)
            
-        elif self.target_polarization == 0.5:
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
+
+        # (1): Calculate the common appearance of F1 + F2:
+        sum_of_form_factors = (self.dirac_form_factor + self.pauli_form_factor)
+
+        # (2): Calculate the frequent appearance of t/4mp
+        t_over_four_mp_squared = self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
+
+        # (3): Calculate the weighted sum of the F1 and F2:
+        weighted_sum_of_form_factors = self.dirac_form_factor + t_over_four_mp_squared * self.pauli_form_factor
+
+        # (4): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
+        t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
+
+        # (5): Calculate the first term straight away:
+        first_term = ((2. * t_over_four_mp_squared) - (self.kinematics.x_Bjorken * (1. - t_over_Q_squared))) * ((1. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * t_over_Q_squared))) * sum_of_form_factors
+
+        # (6): Calculate the second term's bracketed quantity:
+        second_term_bracket_term = 1. + self.kinematics.x_Bjorken - ((3. - 2. * self.kinematics.x_Bjorken) * (1. + self.kinematics.x_Bjorken * t_over_Q_squared)) - (self.kinematics.x_Bjorken**2 * (1. + t_over_Q_squared**2) / t_over_four_mp_squared)
+        
+        # (7): Calculate the second term in entirety:
+        second_term = weighted_sum_of_form_factors * second_term_bracket_term
+        
+        # (8): Calculate the overall prefactor:
+        prefactor = -8. * self.lepton_polarization * self.target_polarization * self.kinematics.x_Bjorken * self.lepton_energy_fraction * self.kinematic_k * np.sqrt(1. + self.epsilon**2) * sum_of_form_factors / (1. - t_over_four_mp_squared)
+
+        # (13): Calculate the entire coefficient:
+        c1_bh_lp = prefactor * (first_term + second_term)
            
-           # (1): Calculate the common appearance of F1 + F2:
-            sum_of_form_factors = (self.dirac_form_factor + self.pauli_form_factor)
-
-            # (2): Calculate the frequent appearance of t/4mp
-            t_over_four_mp_squared = self.kinematics.squared_hadronic_momentum_transfer_t / (4. * _MASS_OF_PROTON_IN_GEV**2)
-
-            # (3): Calculate the weighted sum of the F1 and F2:
-            weighted_sum_of_form_factors = self.dirac_form_factor + t_over_four_mp_squared * self.pauli_form_factor
-
-            # (4): Calculate the common appearance of delta^{2} / Q^{2} = t / Q^{2}
-            t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
-
-            # (5): Calculate the first term straight away:
-            first_term = ((2. * t_over_four_mp_squared) - (self.kinematics.x_Bjorken * (1. - t_over_Q_squared))) * ((1. - self.kinematics.x_Bjorken + (self.kinematics.x_Bjorken * t_over_Q_squared))) * sum_of_form_factors
-
-            # (6): Calculate the second term's bracketed quantity:
-            second_term_bracket_term = 1. + self.kinematics.x_Bjorken - ((3. - 2. * self.kinematics.x_Bjorken) * (1. + self.kinematics.x_Bjorken * t_over_Q_squared)) - (self.kinematics.x_Bjorken**2 * (1. + t_over_Q_squared**2) / t_over_four_mp_squared)
-            
-            # (7): Calculate the second term in entirety:
-            second_term = weighted_sum_of_form_factors * second_term_bracket_term
-            
-            # (8): Calculate the overall prefactor:
-            prefactor = -8. * self.lepton_polarization * self.target_polarization * self.kinematics.x_Bjorken * self.lepton_energy_fraction * self.kinematic_k * np.sqrt(1. + self.epsilon**2) * sum_of_form_factors / (1. - t_over_four_mp_squared)
-
-            # (13): Calculate the entire coefficient:
-            c_1_bh_coefficient = prefactor * (first_term + second_term)
-           
-        else:
-           
-           raise NotImplementedError("> Invalid target polarization value!")
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c1_bh_tp = 0.0
        
-        return c_1_bh_coefficient
+        return c1_bh_unp + c1_bh_lp + c1_bh_tp
     
     def compute_bh_c2_coefficient(self) -> float:
         """
@@ -1489,45 +1518,67 @@ class BKMFormalism:
         2. We still have not implemented the transversely-polarized target case.
         """
 
-        if self.target_polarization == 0.0:
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
            
-           # (1): Calculate the common appearance of F1 + F2:
-            addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
+        # (1): Calculate the common appearance of F1 + F2:
+        addition_of_form_factors_squared = (self.dirac_form_factor + self.pauli_form_factor)**2
 
-            # (2): Calculate the common appearance of a weighted sum of F1 and F2:
-            weighted_combination_of_form_factors = self.dirac_form_factor**2 - ((self.kinematics.squared_hadronic_momentum_transfer_t/ (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.pauli_form_factor**2)
-            
-            # (3): A quick scaling of the weighted sum of F1 and F2:
-            first_part_of_contribution = (4. * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) * weighted_combination_of_form_factors
-            
-            # (4):  Multiply by the prefactor to obtain the coefficient.
-            c_2_bh_coefficient = 8. * self.kinematics.x_Bjorken**2 * self.kinematic_k**2 * (first_part_of_contribution + 2. * addition_of_form_factors_squared)
+        # (2): Calculate the common appearance of a weighted sum of F1 and F2:
+        weighted_combination_of_form_factors = self.dirac_form_factor**2 - ((self.kinematics.squared_hadronic_momentum_transfer_t/ (4. * _MASS_OF_PROTON_IN_GEV**2)) * self.pauli_form_factor**2)
+        
+        # (3): A quick scaling of the weighted sum of F1 and F2:
+        first_part_of_contribution = (4. * _MASS_OF_PROTON_IN_GEV**2 / self.kinematics.squared_hadronic_momentum_transfer_t) * weighted_combination_of_form_factors
+        
+        # (4):  Multiply by the prefactor to obtain the coefficient.
+        c2_bh_unp = 8. * self.kinematics.x_Bjorken**2 * self.kinematic_k**2 * (first_part_of_contribution + 2. * addition_of_form_factors_squared)
            
-        elif self.target_polarization == 0.5:
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
            
-            # (X): Make sure you understand this! https://arxiv.org/pdf/hep-ph/0112108
-            c_2_bh_coefficient = 0.
+        # (X): Make sure you understand this! https://arxiv.org/pdf/hep-ph/0112108
+        # (X): s_{0}^{BH} = 0 for unpolarized target.
+        # | [NOTE]: We multiply by K to ensure its shape is
+        # | the same as the other coefficients; i.e. this will return
+        # | a "zeros-like" array:
+        c2_bh_lp = 0. * self.kinematic_k
            
-        else:
-           
-           raise NotImplementedError("> Invalid target polarization value!")
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c2_bh_tp = 0.0
        
-        return c_2_bh_coefficient
+        return c2_bh_unp + c2_bh_lp + c2_bh_tp
     
     def compute_bh_s1_coefficient(self) -> float:
         """
         ## Notes:
         1. Source for this function: https://arxiv.org/pdf/hep-ph/0112108
 
-        2. We still have not implemented the transversely-polarized target case. This
-        coefficient is 0 in the unpolarized and longitudinally-polarized target cases.
+        2. We still have not implemented the transversely-polarized target case.
+        
+        3. This coefficient is 0 in the unpolarized and longitudinally-polarized target
+        cases.
         """
         
-        # (X): s_{0}^{BH} = 0 for unpolarized target.
-        # | [NOTE]: We multiply by K to ensure its shape is
-        # | the same as the other coefficients; i.e. this will return
-        # | a "zeros-like" array:
-        return 0. * self.kinematic_k
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
+        s1_bh_unp = 0.0
+
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        s1_bh_unp = 0.0
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c2_bh_tp = 0.0
+    
+        return s1_bh_unp + s1_bh_unp + c2_bh_tp
 
     def compute_dvcs_c0_coefficient(self) -> float:
         """
@@ -1543,844 +1594,1069 @@ class BKMFormalism:
         formalism version of this coefficient has not yet been implemented.
         """
         
-        if self.target_polarization == 0.0:
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
            
-           # (1): Calculate the first term's prefactor:
-            first_term_prefactor = 2. * ( 2. - 2. * self.lepton_energy_fraction + self.lepton_energy_fraction**2 + (self.epsilon**2 * self.lepton_energy_fraction**2 / 2.)) / (1. + self.epsilon**2)
+        # (1): Calculate the first term's prefactor:
+        first_term_prefactor = 2. * ( 2. - 2. * self.lepton_energy_fraction + self.lepton_energy_fraction**2 + (self.epsilon**2 * self.lepton_energy_fraction**2 / 2.)) / (1. + self.epsilon**2)
 
-            # (2): Calcualte the second term's prefactor:
-            second_term_prefactor = 16. * self.kinematic_k**2 / ((2. - self.kinematics.x_Bjorken)**2 * (1. + self.epsilon**2))
+        # (2): Calcualte the second term's prefactor:
+        second_term_prefactor = 16. * self.kinematic_k**2 / ((2. - self.kinematics.x_Bjorken)**2 * (1. + self.epsilon**2))
 
-            # (3): Calculate the first term's Curly C contribution:
-            first_term_curlyC_unp_DVCS = self.calculate_curly_c_unpolarized_dvcs(
-                effective_cffs = False,
-                effective_conjugate_cffs = False
-            )
-            
-            # (4): Calculate the second terms' Curly C contribution:
-            second_term_curlyC_unp_DVCS_effective_cffs = self.calculate_curly_c_unpolarized_dvcs(
-                effective_cffs = True,
-                effective_conjugate_cffs = True
-            )
+        # (3): Calculate the first term's Curly C contribution:
+        first_term_curlyC_unp_DVCS = self.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = False,
+            effective_conjugate_cffs = False
+        )
+        
+        # (4): Calculate the second terms' Curly C contribution:
+        second_term_curlyC_unp_DVCS_effective_cffs = self.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = True
+        )
 
-            # (5): Calculate the entire coefficient:
-            c0_dvcs_unpolarized_coefficient = first_term_prefactor * first_term_curlyC_unp_DVCS + second_term_prefactor * second_term_curlyC_unp_DVCS_effective_cffs
+        # (5): Calculate the entire coefficient:
+        c0_dvcs_unp = first_term_prefactor * first_term_curlyC_unp_DVCS + second_term_prefactor * second_term_curlyC_unp_DVCS_effective_cffs
            
-        elif self.target_polarization == 0.5:
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
            
-            # (1): Calculate the prefactor
-            prefactor = 2. * self.lepton_polarization * self.target_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) / np.sqrt(1. + self.epsilon**2)
+        # (1): Calculate the prefactor
+        prefactor = 2. * self.lepton_polarization * self.target_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) / np.sqrt(1. + self.epsilon**2)
 
-            # (2): Calculate the Curly C contribution:
-            curlyC_lp_contribution = self.calculate_curly_c_longitudinally_polarized_dvcs(
-                effective_cffs = False,
-                effective_conjugate_cffs = False
-            )
+        # (2): Calculate the Curly C contribution:
+        curlyC_lp_contribution = self.calculate_curly_c_longitudinally_polarized_dvcs(
+            effective_cffs = False,
+            effective_conjugate_cffs = False
+        )
 
-            # (3): Return the entire thing:
-            c0_dvcs_unpolarized_coefficient = prefactor * curlyC_lp_contribution
+        # (3): Return the entire thing:
+        c0_dvcs_lp = prefactor * curlyC_lp_contribution
            
-        else:
-           
-           raise NotImplementedError("> Invalid target polarization value!")
-       
-        return c0_dvcs_unpolarized_coefficient
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c0_dvcs_tp = 0.0
+
+        return c0_dvcs_unp + c0_dvcs_lp + c0_dvcs_tp
     
     def compute_dvcs_c1_coefficient(self) -> float:
         """
         Later!
         """
-        if self.target_polarization == 0.0:
+        
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
            
-           # (1): Calculate the first term's prefactor:
-            prefactor = 8. * self.kinematic_k * (2. - self.lepton_energy_fraction) / ((2. - self.kinematics.x_Bjorken) * (1. + self.epsilon**2))
+        # (1): Calculate the first term's prefactor:
+        prefactor = 8. * self.kinematic_k * (2. - self.lepton_energy_fraction) / ((2. - self.kinematics.x_Bjorken) * (1. + self.epsilon**2))
 
-            # (2): Calculate the second terms' Curly C contribution:
-            curlyC_unp_DVCS = self.calculate_curly_c_unpolarized_dvcs(
-                effective_cffs = True,
-                effective_conjugate_cffs = False
-            ).real
-            
-            # (3): Calculate the entire coefficient:
-            c1_dvcs_unpolarized_coefficient = prefactor * curlyC_unp_DVCS.real
+        # (2): Calculate the second terms' Curly C contribution:
+        curlyC_unp_DVCS = self.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = False
+        ).real
+        
+        # (3): Calculate the entire coefficient:
+        c1_dvcs_unp = prefactor * curlyC_unp_DVCS.real
            
-        elif self.target_polarization == 0.5:
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
            
-            # (1): Calculate the prefactor
-            prefactor = 8. * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (np.sqrt(1. + self.epsilon**2) * (2. - self.kinematics.x_Bjorken))
+        # (1): Calculate the prefactor
+        prefactor = 8. * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (np.sqrt(1. + self.epsilon**2) * (2. - self.kinematics.x_Bjorken))
 
-            # (2): Return the entire thing:
-            c1_dvcs_unpolarized_coefficient = prefactor * self.calculate_curly_c_longitudinally_polarized_dvcs(
-                effective_cffs = True,
-                effective_conjugate_cffs = False
-            ).real
+        # (2): Return the entire thing:
+        c1_dvcs_lp = prefactor * self.calculate_curly_c_longitudinally_polarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = False
+        ).real
            
-        else:
-           
-           raise NotImplementedError("> Invalid target polarization value!")
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c1_dvcs_tp = 0.0
        
-        return c1_dvcs_unpolarized_coefficient
+        return c1_dvcs_unp + c1_dvcs_lp + c1_dvcs_tp
 
     def compute_dvcs_s1_coefficient(self) -> float:
         """
         Later!
         """
-        if self.target_polarization == 0.0:
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
            
-           # (1): Calculate the first term's prefactor:
-            prefactor = -8. * self.kinematic_k * self.lepton_polarization * self.lepton_energy_fraction * np.sqrt(1. + self.epsilon**2) / ((2. - self.kinematics.x_Bjorken) * (1. + self.epsilon**2))
+        # (1): Calculate the first term's prefactor:
+        prefactor = -8. * self.kinematic_k * self.lepton_polarization * self.lepton_energy_fraction * np.sqrt(1. + self.epsilon**2) / ((2. - self.kinematics.x_Bjorken) * (1. + self.epsilon**2))
 
-            # (2): Calculate the second terms' Curly C contribution:
-            s1_dvcs_unpolarized_coefficient = prefactor * self.calculate_curly_c_unpolarized_dvcs(
-                effective_cffs = True,
-                effective_conjugate_cffs = False
-            ).real
+        # (2): Calculate the second terms' Curly C contribution:
+        s1_dvcs_unp = prefactor * self.calculate_curly_c_unpolarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = False
+        ).imag
            
-        elif self.target_polarization == 0.5:
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
            
-            # (1): Calculate the prefactor
-            prefactor = -8. * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction) / ((2. - self.kinematics.x_Bjorken) * (1. + self.epsilon**2))
-            
-            # (3): Return the entire thing:
-            s1_dvcs_unpolarized_coefficient = prefactor * self.calculate_curly_c_longitudinally_polarized_dvcs(
-                effective_cffs = True,
-                effective_conjugate_cffs = False 
-            ).imag
+        # (1): Calculate the prefactor
+        prefactor = -8. * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction) / ((2. - self.kinematics.x_Bjorken) * (1. + self.epsilon**2))
+        
+        # (2): Return the entire thing:
+        s1_dvcs_lp = prefactor * self.calculate_curly_c_longitudinally_polarized_dvcs(
+            effective_cffs = True,
+            effective_conjugate_cffs = False
+        ).imag
            
-        else:
-           
-           raise NotImplementedError("> Invalid target polarization value!")
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        s1_dvcs_tp = 0.0
        
-        return s1_dvcs_unpolarized_coefficient 
+        return s1_dvcs_unp + s1_dvcs_lp + s1_dvcs_tp
     
     def compute_interference_c0_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate C_{++}(n = 0) using the *unpolarized* prescription:
-            c0_plus_plus = self.calculate_c_0_plus_plus_unpolarized()
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 0) using the *unpolarized* prescription:
-            c0v_plus_plus = self.calculate_c_0_plus_plus_unpolarized_v()
-            
-            # (X): Calculate C_{++}^{A}(n = 0) using the *unpolarized* prescription:
-            c0a_plus_plus = self.calculate_c_0_plus_plus_unpolarized_a()
+        # (X): Calculate C_{++}(n = 0) using the *unpolarized* prescription:
+        c0_plus_plus_unp = self.calculate_c_0_plus_plus_unpolarized()
 
-            # (X): Calculate C_{0+}^{V}(n = 0) using the *unpolarized* prescription:
-            c0_zero_plus = self.calculate_c_0_zero_plus_unpolarized()
+        # (X): Calculate C_{++}^{V}(n = 0) using the *unpolarized* prescription:
+        c0v_plus_plus_unp = self.calculate_c_0_plus_plus_unpolarized_v()
+        
+        # (X): Calculate C_{++}^{A}(n = 0) using the *unpolarized* prescription:
+        c0a_plus_plus_unp = self.calculate_c_0_plus_plus_unpolarized_a()
 
-            # (X): Calculate C_{0+}^{V}(n = 0) using the *unpolarized* prescription:
-            c0v_zero_plus = self.calculate_c_0_zero_plus_unpolarized_v()
+        # (X): Calculate C_{0+}^{V}(n = 0) using the *unpolarized* prescription:
+        c0_zero_plus_unp = self.calculate_c_0_zero_plus_unpolarized()
 
-            # (X): Calculate C_{0+}^{A}(n = 0) using the *unpolarized* prescription:
-            c0a_zero_plus = self.calculate_c_0_zero_plus_unpolarized_a()
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate C_{0+}^{V}(n = 0) using the *unpolarized* prescription:
+        c0v_zero_plus_unp = self.calculate_c_0_zero_plus_unpolarized_v()
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
-
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
-
-            # (X): Calculate C_{++}(n = 0) using the *longitudinally-polarized* prescription:
-            c0_plus_plus = self.calculate_c_0_plus_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{++}^{V}(n = 0) using the *longitudinally-polarized* prescription:
-            c0v_plus_plus = self.calculate_c_0_plus_plus_longitudinally_polarized_v()
-            
-            # (X): Calculate C_{++}^{A}(n = 0) using the *longitudinally-polarized* prescription:
-            c0a_plus_plus = self.calculate_c_0_plus_plus_longitudinally_polarized_a()
-
-            # (X): Calculate C_{0+}^{V}(n = 0) using the *longitudinally-polarized* prescription:
-            c0_zero_plus = self.calculate_c_0_zero_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{0+}^{V}(n = 0) using the *longitudinally-polarized* prescription:
-            c0v_zero_plus = self.calculate_c_0_zero_plus_longitudinally_polarized_v()
-
-            # (X): Calculate C_{0+}^{A}(n = 0) using the *longitudinally-polarized* prescription:
-            c0a_zero_plus = self.calculate_c_0_zero_plus_longitudinally_polarized_a()
-
+        # (X): Calculate C_{0+}^{A}(n = 0) using the *unpolarized* prescription:
+        c0a_zero_plus_unp = self.calculate_c_0_zero_plus_unpolarized_a()
+        
         # (X): Calculate Curly C_{++}(n = 0):
-        curly_c0_plus_plus = (
-            self.math.safe_cast(curly_c_plus_plus, True)
-            + self.math.safe_cast(c0v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c0_plus_plus, True)
-            + self.math.safe_cast(c0a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c0_plus_plus, True)
-        )
-
-        # (X): Safe-cast the prefactor for Curly C_{0+}(n = 0):
-        prefactor = self.math.safe_cast(
-            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
-            promote_to_complex_if_needed = True)
+        curly_c0_plus_plus_unp = (
+            c0_plus_plus_unp*curly_c_plus_plus_unp +
+            c0v_plus_plus_unp*curly_cv_plus_plus_unp +
+            c0a_plus_plus_unp*curly_ca_plus_plus_unp)
 
         # (X): Calculate Curly C_{0+}(n = 0):
-        curly_c0_zero_plus = (prefactor *
-                (
-                self.math.safe_cast(curly_c_zero_plus, True)
-                + self.math.safe_cast(c0v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(c0_zero_plus, True)
-                + self.math.safe_cast(c0a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(c0_zero_plus, True)
-                )
-        )
+        curly_c0_zero_plus_unp = (
+            prefactor*
+                (c0_zero_plus_unp*curly_c_zero_plus_unp +
+                 c0v_zero_plus_unp*curly_cv_zero_plus_unp +
+                 c0a_zero_plus_unp*curly_ca_zero_plus_unp)
+            )
         
         # (X): Compute the c_{0} coefficient with all of its required ingredients!
-        c_0_interference_coefficient  = c0_plus_plus * self.math.real(curly_c0_plus_plus) + c0_zero_plus * self.math.real(curly_c0_zero_plus)
+        c0_i_unp = np.real(curly_c0_plus_plus_unp) + np.real(curly_c0_zero_plus_unp)
+            
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): Calculate C_{++}(n = 0) using the *longitudinally-polarized* prescription:
+        c0_plus_plus_lp = self.calculate_c_0_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{++}^{V}(n = 0) using the *longitudinally-polarized* prescription:
+        c0v_plus_plus_lp = self.calculate_c_0_plus_plus_longitudinally_polarized_v()
+        
+        # (X): Calculate C_{++}^{A}(n = 0) using the *longitudinally-polarized* prescription:
+        c0a_plus_plus_lp = self.calculate_c_0_plus_plus_longitudinally_polarized_a()
+
+        # (X): Calculate C_{0+}^{V}(n = 0) using the *longitudinally-polarized* prescription:
+        c0_zero_plus_lp = self.calculate_c_0_zero_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{0+}^{V}(n = 0) using the *longitudinally-polarized* prescription:
+        c0v_zero_plus_lp = self.calculate_c_0_zero_plus_longitudinally_polarized_v()
+
+        # (X): Calculate C_{0+}^{A}(n = 0) using the *longitudinally-polarized* prescription:
+        c0a_zero_plus_lp = self.calculate_c_0_zero_plus_longitudinally_polarized_a()
+
+        # (X): Calculate Curly C_{++, LP}(n = 0):
+        curly_c0_plus_plus_lp = (
+            c0_plus_plus_lp*curly_c_plus_plus_lp +
+            c0v_plus_plus_lp*curly_cv_plus_plus_lp +
+            c0a_plus_plus_lp*curly_ca_plus_plus_lp)
+
+        # (X): Calculate Curly C_{0+, LP}(n = 0):
+        curly_c0_zero_plus_lp = (
+            prefactor*
+                (c0_zero_plus_lp*curly_c_zero_plus_lp +
+                 c0v_zero_plus_lp*curly_cv_zero_plus_lp +
+                 c0a_zero_plus_lp*curly_ca_zero_plus_lp)
+            )
+        
+        # (X): Compute the c_{0, LP} coefficient with all of its required ingredients!
+        c0_i_lp = np.real(curly_c0_plus_plus_lp) + np.real(curly_c0_zero_plus_lp)
+
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c0_i_tp = 0.0
 
         # (X): Return the coefficient:
-        return c_0_interference_coefficient
+        return c0_i_unp + c0_i_lp + c0_i_tp
     
     def compute_interference_c1_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate C_{++}(n = 1) using the *unpolarized* prescription:
-            c1_plus_plus = self.calculate_c_1_plus_plus_unpolarized()
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 1) using the *unpolarized* prescription:
-            c1v_plus_plus = self.calculate_c_1_plus_plus_unpolarized_v()
+        # (X): Calculate C_{++}(n = 1) using the *unpolarized* prescription:
+        c1_plus_plus_unp = self.calculate_c_1_plus_plus_unpolarized()
 
-            # (X): Calculate C_{++}^{A}(n = 1) using the *unpolarized* prescription:
-            c1a_plus_plus = self.calculate_c_1_plus_plus_unpolarized_a()
+        # (X): Calculate C_{++}^{V}(n = 1) using the *unpolarized* prescription:
+        c1v_plus_plus_unp = self.calculate_c_1_plus_plus_unpolarized_v()
 
-            # (X): Calculate C_{0+}^{V}(n = 1) using the *unpolarized* prescription:
-            c1_zero_plus = self.calculate_c_1_zero_plus_unpolarized()
+        # (X): Calculate C_{++}^{A}(n = 1) using the *unpolarized* prescription:
+        c1a_plus_plus_unp = self.calculate_c_1_plus_plus_unpolarized_a()
 
-            # (X): Calculate C_{0+}^{V}(n = 1) using the *unpolarized* prescription:
-            c1v_zero_plus = self.calculate_c_1_zero_plus_unpolarized_v()
+        # (X): Calculate C_{0+}^{V}(n = 1) using the *unpolarized* prescription:
+        c1_zero_plus_unp = self.calculate_c_1_zero_plus_unpolarized()
 
-            # (X): Calculate C_{0+}^{A}(n = 1) using the *unpolarized* prescription:
-            c1a_zero_plus = self.calculate_c_1_zero_plus_unpolarized_a()
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate C_{0+}^{V}(n = 1) using the *unpolarized* prescription:
+        c1v_zero_plus_unp = self.calculate_c_1_zero_plus_unpolarized_v()
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
-
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
-
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
-
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
-
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
-
-            # (X): Calculate C_{++}(n = 1) using the *longitudinally-polarized* prescription:
-            c1_plus_plus = self.calculate_c_1_plus_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{++}^{V}(n = 1) using the *longitudinally-polarized* prescription:
-            c1v_plus_plus = self.calculate_c_1_plus_plus_longitudinally_polarized_v()
-
-            # (X): Calculate C_{++}^{A}(n = 1) using the *longitudinally-polarized* prescription:
-            c1a_plus_plus = self.calculate_c_1_plus_plus_longitudinally_polarized_a()
-
-            # (X): Calculate C_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
-            c1_zero_plus = self.calculate_c_1_zero_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
-            c1v_zero_plus = self.calculate_c_1_zero_plus_longitudinally_polarized_v()
-
-            # (X): C_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
-            c1a_zero_plus = 0.
+        # (X): Calculate C_{0+}^{A}(n = 1) using the *unpolarized* prescription:
+        c1a_zero_plus_unp = self.calculate_c_1_zero_plus_unpolarized_a()
 
         # (X): Calculate Curly C_{++}(n = 1):
-        curly_c1_plus_plus = (
-            self.math.safe_cast(curly_c_plus_plus, True)
-            + self.math.safe_cast(c1v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c1_plus_plus, True)
-            + self.math.safe_cast(c1a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c1_plus_plus, True)
-        )
-
-        # (X): Safe-cast the prefactor for Curly C_{0+}(n = 1):
-        prefactor = self.math.safe_cast(
-            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
-            promote_to_complex_if_needed = True)
+        curly_c1_plus_plus_unp = (
+            c1_plus_plus_unp*curly_c_plus_plus_unp +
+            c1v_plus_plus_unp*curly_cv_plus_plus_unp +
+            c1a_plus_plus_unp*curly_ca_plus_plus_unp
+            )
 
         # (X): Calculate Curly C_{0+}(n = 1):
-        curly_c1_zero_plus = (prefactor *
-                (
-                self.math.safe_cast(curly_c_zero_plus, True)
-                + self.math.safe_cast(c1v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(c1_zero_plus, True)
-                + self.math.safe_cast(c1a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(c1_zero_plus, True)
-                )
-        )
+        curly_c1_zero_plus_unp = (
+            prefactor*
+            (c1_zero_plus_unp*curly_c_zero_plus_unp +
+             c1v_zero_plus_unp*curly_cv_zero_plus_unp +
+             c1a_zero_plus_unp*curly_ca_zero_plus_unp)
+            )
         
         # (X): Compute the c_{1} coefficient with all of its required ingredients!
-        c_1_interference_coefficient  = c1_plus_plus * self.math.real(curly_c1_plus_plus) + c1_zero_plus * self.math.real(curly_c1_zero_plus)
+        c1_i_unp = np.real(curly_c1_plus_plus_unp) + np.real(curly_c1_zero_plus_unp)
+            
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
 
-        return c_1_interference_coefficient
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): Calculate C_{++}(n = 1) using the *longitudinally-polarized* prescription:
+        c1_plus_plus_lp = self.calculate_c_1_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{++}^{V}(n = 1) using the *longitudinally-polarized* prescription:
+        c1v_plus_plus_lp = self.calculate_c_1_plus_plus_longitudinally_polarized_v()
+
+        # (X): Calculate C_{++}^{A}(n = 1) using the *longitudinally-polarized* prescription:
+        c1a_plus_plus_lp = self.calculate_c_1_plus_plus_longitudinally_polarized_a()
+
+        # (X): Calculate C_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
+        c1_zero_plus_lp = self.calculate_c_1_zero_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
+        c1v_zero_plus_lp = self.calculate_c_1_zero_plus_longitudinally_polarized_v()
+
+        # (X): C_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
+        c1a_zero_plus_lp = 0.
+
+        # (X): Calculate Curly C_{++}(n = 1):
+        curly_c1_plus_plus_lp = (
+            c1_plus_plus_lp*curly_c_plus_plus_lp +
+            c1v_plus_plus_lp*curly_cv_plus_plus_lp +
+            c1a_plus_plus_lp*curly_ca_plus_plus_lp
+            )
+
+        # (X): Calculate Curly C_{0+}(n = 1):
+        curly_c1_zero_plus_lp = (
+            prefactor*
+            (c1_zero_plus_lp*curly_c_zero_plus_lp +
+             c1v_zero_plus_lp*curly_cv_zero_plus_lp +
+             c1a_zero_plus_lp*curly_ca_zero_plus_lp)
+            )
+        
+        # (X): Compute the c_{1, LP} coefficient with all of its required ingredients!
+        c1_i_lp = np.real(curly_c1_plus_plus_lp) + np.real(curly_c1_zero_plus_lp)
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c1_i_tp = 0.0
+
+        return c1_i_unp + c1_i_lp + c1_i_tp
     
     def compute_interference_c2_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
-            c2_plus_plus = self.calculate_c_2_plus_plus_unpolarized()
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
-            c2v_plus_plus = self.calculate_c_2_plus_plus_unpolarized_v()
+        # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
+        c2_plus_plus_unp = self.calculate_c_2_plus_plus_unpolarized()
 
-            # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
-            c2a_plus_plus = self.calculate_c_2_plus_plus_unpolarized_a()
+        # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
+        c2v_plus_plus_unp = self.calculate_c_2_plus_plus_unpolarized_v()
 
-            # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
-            c2_zero_plus = self.calculate_c_2_zero_plus_unpolarized()
+        # (X): Calculate C_{++}^{V}(n = 2) using the *unpolarized* prescription:
+        c2a_plus_plus_unp = self.calculate_c_2_plus_plus_unpolarized_a()
 
-            # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
-            c2v_zero_plus = self.calculate_c_2_zero_plus_unpolarized_v()
+        # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
+        c2_zero_plus_unp = self.calculate_c_2_zero_plus_unpolarized()
 
-            # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
-            c2a_zero_plus = self.calculate_c_2_zero_plus_unpolarized_a()
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
+        c2v_zero_plus_unp = self.calculate_c_2_zero_plus_unpolarized_v()
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized()
+        # (X): Calculate C_{0+}^{V}(n = 2) using the *unpolarized* prescription:
+        c2a_zero_plus_unp = self.calculate_c_2_zero_plus_unpolarized_a()
 
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v()
-
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a()
-
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized()
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v()
-
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a()
-
-            # (X): Calculate C_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            c2_plus_plus = self.calculate_c_2_plus_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            c2v_plus_plus = self.calculate_c_2_plus_plus_longitudinally_polarized_v()
-
-            # (X): Calculate C_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            c2a_plus_plus = self.calculate_c_2_plus_plus_longitudinally_polarized_a()
-
-            # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            c2_zero_plus = self.calculate_c_2_zero_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            c2v_zero_plus = self.calculate_c_2_zero_plus_longitudinally_polarized_v()
-
-            # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            c2a_zero_plus = self.calculate_c_2_zero_plus_longitudinally_polarized_a()
-        
-        # (X): Calculate Curly C_{++}(n = 0):
-        curly_c2_plus_plus = (
-            self.math.safe_cast(curly_c_plus_plus, True)
-            + self.math.safe_cast(c2v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c2_plus_plus, True)
-            + self.math.safe_cast(c2a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c2_plus_plus, True)
-        )
-        
-        # (X): Safe-cast the prefactor for Curly C_{0+}(n = 2):
-        prefactor = self.math.safe_cast(
-            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
-            promote_to_complex_if_needed = True)
+        # (X): Calculate Curly C_{++}(n = 2):
+        curly_c2_plus_plus_unp = (
+            c2_plus_plus_unp*curly_c_plus_plus_unp +
+            c2v_plus_plus_unp*curly_cv_plus_plus_unp +
+            c2a_plus_plus_unp*curly_ca_plus_plus_unp
+            )
 
         # (X): Calculate Curly C_{0+}(n = 2):
-        curly_c2_zero_plus = (prefactor *
-                (
-                self.math.safe_cast(curly_c_zero_plus, True)
-                + self.math.safe_cast(c2v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(c2_zero_plus, True)
-                + self.math.safe_cast(c2a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(c2_zero_plus, True)
-                )
-        )
+        curly_c2_zero_plus_unp = (
+            prefactor*
+                (c2_zero_plus_unp*curly_c_zero_plus_unp +
+                 c2v_zero_plus_unp*curly_cv_zero_plus_unp +
+                 c2a_zero_plus_unp*curly_ca_zero_plus_unp)
+            )
         
         # (X): Compute the c_{2} coefficient with all of its required ingredients!
-        c_2_interference_coefficient  = c2_plus_plus * self.math.real(curly_c2_plus_plus) + c2_zero_plus * self.math.real(curly_c2_zero_plus)
+        c2_i_unp = np.real(curly_c2_plus_plus_unp) + np.real(curly_c2_zero_plus_unp)
+        
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
 
-        return c_2_interference_coefficient
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): Calculate C_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        c2_plus_plus_lp = self.calculate_c_2_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        c2v_plus_plus_lp = self.calculate_c_2_plus_plus_longitudinally_polarized_v()
+
+        # (X): Calculate C_{++}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        c2a_plus_plus_lp = self.calculate_c_2_plus_plus_longitudinally_polarized_a()
+
+        # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        c2_zero_plus_lp = self.calculate_c_2_zero_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        c2v_zero_plus_lp = self.calculate_c_2_zero_plus_longitudinally_polarized_v()
+
+        # (X): Calculate C_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        c2a_zero_plus_lp = self.calculate_c_2_zero_plus_longitudinally_polarized_a()
+        
+        # (X): Calculate Curly C_{++}(n = 2):
+        curly_c2_plus_plus_lp = (
+            c2_plus_plus_lp*curly_c_plus_plus_lp +
+            c2v_plus_plus_lp*curly_cv_plus_plus_lp +
+            c2a_plus_plus_lp*curly_ca_plus_plus_lp
+            )
+
+        # (X): Calculate Curly C_{0+}(n = 2):
+        curly_c2_zero_plus_lp = (
+            prefactor*
+                (c2_zero_plus_lp*curly_c_zero_plus_lp +
+                 c2v_zero_plus_lp*curly_cv_zero_plus_lp +
+                 c2a_zero_plus_lp*curly_ca_zero_plus_lp)
+            )
+        
+        # (X): Compute the c_{2} coefficient with all of its required ingredients!
+        c2_i_lp = np.real(curly_c2_plus_plus_lp) + np.real(curly_c2_zero_plus_lp)
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c2_i_tp = 0.0
+
+        return c2_i_unp + c2_i_lp + c2_i_tp
     
     def compute_interference_c3_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
-            c3_plus_plus = self.calculate_c_3_plus_plus_unpolarized()
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
-            c3v_plus_plus = self.calculate_c_3_plus_plus_unpolarized_v()
+        # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
+        c3_plus_plus_unp = self.calculate_c_3_plus_plus_unpolarized()
 
-            # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
-            c3a_plus_plus = self.calculate_c_3_plus_plus_unpolarized_a()
+        # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
+        c3v_plus_plus_unp = self.calculate_c_3_plus_plus_unpolarized_v()
 
-            # (X): Calculate C_{0+}^{V}(n = 3) is 0 in the *unpolarized* prescription:
-            c3_zero_plus = 0.
+        # (X): Calculate C_{++}^{V}(n = 3) using the *unpolarized* prescription:
+        c3a_plus_plus_unp = self.calculate_c_3_plus_plus_unpolarized_a()
 
-            # (X): Calculate C_{0+}^{V}(n = 3) is 0 in the *unpolarized* prescription:
-            c3v_zero_plus = 0.
+        # (X): Calculate C_{0+}^{V}(n = 3) is 0 in the *unpolarized* prescription:
+        c3_zero_plus_unp = 0.
 
-            # (X): Calculate C_{0+}^{V}(n = 3) is 0 in the *unpolarized* prescription:
-            c3a_zero_plus = 0.
+        # (X): Calculate C_{0+}^{V}(n = 3) is 0 in the *unpolarized* prescription:
+        c3v_zero_plus_unp = 0.
 
-            # (X): Calculate Curly C_{++}(n = 3):
-            curly_c3_plus_plus = (
-                self.math.safe_cast(curly_c_plus_plus, True)
-                + self.math.safe_cast(c3v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(c3_plus_plus, True)
-                + self.math.safe_cast(c3a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(c3_plus_plus, True)
-            )
-            
-            # (X): Calculate Curly C_{0+}(n = 3):
-            curly_c3_zero_plus = 0.
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate C_{0+}^{V}(n = 3) is 0 in the *unpolarized* prescription:
+        c3a_zero_plus_unp = 0.
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
-
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
-
-            # (X): C_{++}^{V}(n = 3) is not given in the paper, which means it's 0:
-            c3_plus_plus = 0.
-
-            # (X): C_{++}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
-            c3v_plus_plus = 0.
-
-            # (X): C_{++}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
-            c3a_plus_plus = 0.
-
-            # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
-            c3_zero_plus = 0.
-
-            # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
-            c3v_zero_plus = 0.
-
-            # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
-            c3a_zero_plus = 0.
-
-            # (X): Curly C_{++}(n = 3) is 0 because all of its components are 0:
-            curly_c3_plus_plus = 0.
-            
-            # (X): Curly C_{0+}(n = 3) is 0 for the same reason:
-            curly_c3_zero_plus = 0.
+        # (X): Calculate Curly C_{++}(n = 3):
+        curly_c3_plus_plus_unp = (
+            c3_plus_plus_unp*curly_c_plus_plus_unp +
+            c3v_plus_plus_unp*curly_cv_plus_plus_unp +
+            c3a_plus_plus_unp*curly_ca_plus_plus_unp)
         
-        c_3_interference_coefficient  = c3_plus_plus * self.math.real(curly_c3_plus_plus) + c3_zero_plus * self.math.real(curly_c3_zero_plus)
+        # (X): Calculate Curly C_{0+}(n = 3):
+        curly_c3_zero_plus_unp = (
+            prefactor*
+                (c3_zero_plus_unp*curly_c_zero_plus_unp +
+                 c3v_zero_plus_unp*curly_cv_zero_plus_unp +
+                 c3a_zero_plus_unp*curly_ca_zero_plus_unp)
+            )
+        
+        c3_i_unp = np.real(curly_c3_plus_plus_unp) + np.real(curly_c3_zero_plus_unp)
+            
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
 
-        return c_3_interference_coefficient
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): C_{++}^{V}(n = 3) is not given in the paper, which means it's 0:
+        c3_plus_plus_lp = 0.
+
+        # (X): C_{++}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+        c3v_plus_plus_lp = 0.
+
+        # (X): C_{++}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+        c3a_plus_plus_lp = 0.
+
+        # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+        c3_zero_plus_lp = 0.
+
+        # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+        c3v_zero_plus_lp = 0.
+
+        # (X): C_{0+}^{V}(n = 3) is 0 (we are putting this here for completeness/consistency):
+        c3a_zero_plus_lp = 0.
+
+        # (X): Curly C_{++}(n = 3) is 0 because all of its components are 0:
+        curly_c3_plus_plus_lp = 0.
+        
+        # (X): Curly C_{0+}(n = 3) is 0 for the same reason:
+        curly_c3_zero_plus_lp = 0.
+
+        # (X): Calculate Curly C_{++}(n = 3):
+        curly_c3_plus_plus_lp = (
+            c3_plus_plus_lp*curly_c_plus_plus_lp +
+            c3v_plus_plus_lp*curly_cv_plus_plus_lp +
+            c3a_plus_plus_lp*curly_ca_plus_plus_lp)
+        
+        # (X): Calculate Curly C_{0+}(n = 3):
+        curly_c3_zero_plus_lp = (
+            prefactor*
+                (c3_zero_plus_lp*curly_c_zero_plus_lp +
+                 c3v_zero_plus_lp*curly_cv_zero_plus_lp +
+                 c3a_zero_plus_lp*curly_ca_zero_plus_lp)
+            )
+        
+        c3_i_lp = np.real(curly_c3_plus_plus_lp) + np.real(curly_c3_zero_plus_lp)
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        c3_i_tp = 0.0
+
+        return c3_i_unp + c3_i_lp + c3_i_tp
     
     def compute_interference_s1_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate S_{++}(n = 1) using the *unpolarized* prescription:
-            s1_plus_plus = self.calculate_s_1_plus_plus_unpolarized()
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate S_{++}^{V}(n = 1) using the *unpolarized* prescription:
-            s1v_plus_plus = self.calculate_s_1_plus_plus_unpolarized_v()
+        # (X): Calculate S_{++}(n = 1) using the *unpolarized* prescription:
+        s1_plus_plus_unp = self.calculate_s_1_plus_plus_unpolarized()
 
-            # (X): Calculate S_{++}^{A}(n = 1) using the *unpolarized* prescription:
-            s1a_plus_plus = self.calculate_s_1_plus_plus_unpolarized_a()
+        # (X): Calculate S_{++}^{V}(n = 1) using the *unpolarized* prescription:
+        s1v_plus_plus_unp = self.calculate_s_1_plus_plus_unpolarized_v()
 
-            # (X): Calculate S_{0+}^{V}(n = 1) using the *unpolarized* prescription:
-            s1_zero_plus = self.calculate_s_1_zero_plus_unpolarized()
+        # (X): Calculate S_{++}^{A}(n = 1) using the *unpolarized* prescription:
+        s1a_plus_plus_unp = self.calculate_s_1_plus_plus_unpolarized_a()
 
-            # (X): Calculate S_{0+}^{V}(n = 1) using the *unpolarized* prescription:
-            s1v_zero_plus = self.calculate_s_1_zero_plus_unpolarized_v()
+        # (X): Calculate S_{0+}^{V}(n = 1) using the *unpolarized* prescription:
+        s1_zero_plus_unp = self.calculate_s_1_zero_plus_unpolarized()
 
-            # (X): Calculate S_{0+}^{A}(n = 1) using the *unpolarized* prescription:
-            s1a_zero_plus = self.calculate_s_1_zero_plus_unpolarized_a()
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate S_{0+}^{V}(n = 1) using the *unpolarized* prescription:
+        s1v_zero_plus_unp = self.calculate_s_1_zero_plus_unpolarized_v()
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
-
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
-
-            # (X): Calculate S_{++}(n = 1) using the *longitudinally-polarized* prescription:
-            s1_plus_plus = self.calculate_s_1_plus_plus_longitudinally_polarized()
-
-            # (X): Calculate S_{++}^{V}(n = 1) using the *longitudinally-polarized* prescription:
-            s1v_plus_plus = self.calculate_s_1_plus_plus_longitudinally_polarized_v()
-
-            # (X): Calculate S_{++}^{A}(n = 1) using the *longitudinally-polarized* prescription:
-            s1a_plus_plus = self.calculate_s_1_plus_plus_longitudinally_polarized_a()
-
-            # (X): Calculate S_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
-            s1_zero_plus = self.calculate_s_1_zero_plus_longitudinally_polarized()
-
-            # (X): Calculate S_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
-            s1v_zero_plus = self.calculate_s_1_zero_plus_longitudinally_polarized_v()
-
-            # (X): S_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
-            s1a_zero_plus = self.calculate_s_1_plus_plus_longitudinally_polarized()
+        # (X): Calculate S_{0+}^{A}(n = 1) using the *unpolarized* prescription:
+        s1a_zero_plus_unp = self.calculate_s_1_zero_plus_unpolarized_a()
 
         # (X): Calculate Curly S_{++}(n = 1):
-        curly_s1_plus_plus = (
-            self.math.safe_cast(curly_c_plus_plus, True)
-            + self.math.safe_cast(s1v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(s1_plus_plus, True)
-            + self.math.safe_cast(s1a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(s1_plus_plus, True)
-        )
-
-        # (X): Safe-cast the prefactor for Curly S_{0+}(n = 1):
-        prefactor = self.math.safe_cast(
-            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
-            promote_to_complex_if_needed = True)
+        curly_s1_plus_plus_unp = (
+            s1_plus_plus_unp*curly_c_plus_plus_unp +
+            s1v_plus_plus_unp*curly_cv_plus_plus_unp +
+            s1a_plus_plus_unp*curly_ca_plus_plus_unp)
 
         # (X): Calculate Curly S_{0+}(n = 1):
-        curly_s1_zero_plus = (prefactor *
-                (
-                self.math.safe_cast(curly_c_zero_plus, True)
-                + self.math.safe_cast(s1v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(s1_zero_plus, True)
-                + self.math.safe_cast(s1a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(s1_zero_plus, True)
-                )
-        )
+        curly_s1_zero_plus_unp = (
+            prefactor*
+                (s1_zero_plus_unp*curly_c_zero_plus_unp +
+                s1v_zero_plus_unp*curly_cv_zero_plus_unp +
+                s1a_zero_plus_unp*curly_ca_zero_plus_unp)
+            )
         
         # (X): Compute the s_{1} coefficient with all of its required ingredients!
-        s_1_interference_coefficient  = s1_plus_plus * self.math.imag(curly_s1_plus_plus) + s1_zero_plus * self.math.imag(curly_s1_zero_plus)
+        s1_i_unp  = np.imag(curly_s1_plus_plus_unp) + np.imag(curly_s1_zero_plus_unp)
+            
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
 
-        return s_1_interference_coefficient
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): Calculate S_{++}(n = 1) using the *longitudinally-polarized* prescription:
+        s1_plus_plus_lp = self.calculate_s_1_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate S_{++}^{V}(n = 1) using the *longitudinally-polarized* prescription:
+        s1v_plus_plus_lp = self.calculate_s_1_plus_plus_longitudinally_polarized_v()
+
+        # (X): Calculate S_{++}^{A}(n = 1) using the *longitudinally-polarized* prescription:
+        s1a_plus_plus_lp = self.calculate_s_1_plus_plus_longitudinally_polarized_a()
+
+        # (X): Calculate S_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
+        s1_zero_plus_lp = self.calculate_s_1_zero_plus_longitudinally_polarized()
+
+        # (X): Calculate S_{0+}^{V}(n = 1) using the *longitudinally-polarized* prescription:
+        s1v_zero_plus_lp = self.calculate_s_1_zero_plus_longitudinally_polarized_v()
+
+        # (X): S_{0+}^{A}(n = 1) is 0 in the *longitudinally-polarized* prescription:
+        s1a_zero_plus_lp = self.calculate_s_1_zero_plus_longitudinally_polarized_a()
+        
+        # (X): Calculate Curly S_{++}(n = 1):
+        curly_s1_plus_plus_lp = (
+            s1_plus_plus_lp*curly_c_plus_plus_lp +
+            s1v_plus_plus_lp*curly_cv_plus_plus_lp +
+            s1a_plus_plus_lp*curly_ca_plus_plus_lp
+            )
+
+        # (X): Calculate Curly S_{0+}(n = 1):
+        curly_s1_zero_plus_lp = (
+            prefactor*
+                (s1_zero_plus_lp*curly_c_zero_plus_lp +
+                s1v_zero_plus_lp*curly_cv_zero_plus_lp +
+                s1a_zero_plus_lp*curly_ca_zero_plus_lp
+                )
+            )
+        
+        # (X): Compute the s_{1} coefficient with all of its required ingredients!
+        s1_i_lp  = np.imag(curly_s1_plus_plus_lp) + np.imag(curly_s1_zero_plus_lp)
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        s1_i_tp = 0.0
+
+        return s1_i_unp + s1_i_lp + s1_i_tp
     
     def compute_interference_s2_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate S_{++}^{V}(n = 2) using the *unpolarized* prescription:
-            s2_plus_plus = self.calculate_s_2_plus_plus_unpolarized()
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate S_{++}^{V}(n = 2) using the *unpolarized* prescription:
-            s2v_plus_plus = self.calculate_s_2_plus_plus_unpolarized_v()
+        # (X): Calculate S_{++}(n = 2) using the *unpolarized* prescription:
+        s2_plus_plus_unp = self.calculate_s_2_plus_plus_unpolarized()
 
-            # (X): Calculate S_{++}^{V}(n = 2) using the *unpolarized* prescription:
-            s2a_plus_plus = self.calculate_s_2_plus_plus_unpolarized_a()
+        # (X): Calculate S_{++}^{V}(n = 2) using the *unpolarized* prescription:
+        s2v_plus_plus_unp = self.calculate_s_2_plus_plus_unpolarized_v()
 
-            # (X): Calculate S_{0+}^{V}(n = 2) using the *unpolarized* prescription:
-            s2_zero_plus = self.calculate_s_2_zero_plus_unpolarized()
+        # (X): Calculate S_{++}^{A}(n = 2) using the *unpolarized* prescription:
+        s2a_plus_plus_unp = self.calculate_s_2_plus_plus_unpolarized_a()
 
-            # (X): Calculate S_{0+}^{V}(n = 2) using the *unpolarized* prescription:
-            s2v_zero_plus = self.calculate_s_2_zero_plus_unpolarized_v()
+        # (X): Calculate S_{0+}(n = 2) using the *unpolarized* prescription:
+        s2_zero_plus_unp = self.calculate_s_2_zero_plus_unpolarized()
 
-            # (X): Calculate S_{0+}^{V}(n = 2) using the *unpolarized* prescription:
-            s2a_zero_plus = self.calculate_s_2_zero_plus_unpolarized_a()
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate S_{0+}^{V}(n = 2) using the *unpolarized* prescription:
+        s2v_zero_plus_unp = self.calculate_s_2_zero_plus_unpolarized_v()
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+        # (X): Calculate S_{0+}^{A}(n = 2) using the *unpolarized* prescription:
+        s2a_zero_plus_unp = self.calculate_s_2_zero_plus_unpolarized_a()
 
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
-
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
-
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
-
-            # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            s2_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized()
-
-            # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            s2v_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized_v()
-
-            # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
-            s2a_zero_plus = self.calculate_s_2_zero_plus_longitudinally_polarized_a()
-        
         # (X): Calculate Curly S_{++}(n = 2):
-        curly_s2_plus_plus = (
-            self.math.safe_cast(curly_c_plus_plus, True)
-            + self.math.safe_cast(s2v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(s2_plus_plus, True)
-            + self.math.safe_cast(s2a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(s2_plus_plus, True)
-        )
-        
-        # (X): Safe-cast the prefactor for Curly S_{0+}(n = 2):
-        prefactor = self.math.safe_cast(
-            self.k_tilde * self.math.sqrt(2. / self.kinematics.squared_Q_momentum_transfer) / (2. - self.kinematics.x_Bjorken),
-            promote_to_complex_if_needed = True)
+        curly_s2_plus_plus_unp = (
+            s2_plus_plus_unp*curly_c_plus_plus_unp +
+            s2v_plus_plus_unp*curly_cv_plus_plus_unp +
+            s2a_plus_plus_unp*curly_ca_plus_plus_unp
+            )
 
         # (X): Calculate Curly S_{0+}(n = 2):
-        curly_s2_zero_plus = (prefactor *
+        curly_s2_zero_plus_unp = (
+            prefactor *
                 (
-                self.math.safe_cast(curly_c_zero_plus, True)
-                + self.math.safe_cast(s2v_zero_plus, True) * self.math.safe_cast(curly_cv_zero_plus, True) / self.math.safe_cast(s2_zero_plus, True)
-                + self.math.safe_cast(s2a_zero_plus, True) * self.math.safe_cast(curly_ca_zero_plus, True) / self.math.safe_cast(s2_zero_plus, True)
+                    s2_zero_plus_unp*curly_c_zero_plus_unp +
+                    s2v_zero_plus_unp*curly_cv_zero_plus_unp +
+                    s2a_zero_plus_unp*curly_ca_zero_plus_unp
                 )
-        )
+            )
         
-        s_2_interference_coefficient = s2_plus_plus * self.math.imag(curly_s2_plus_plus) + s2_zero_plus * self.math.imag(curly_s2_zero_plus)
+        s2_unp = np.imag(curly_s2_plus_plus_unp) + np.imag(curly_s2_zero_plus_unp)
+            
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
 
-        return s_2_interference_coefficient
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): Calculate S_{++}(n = 2) using the *unpolarized* prescription:
+        s2_plus_plus_lp = self.calculate_s_2_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate S_{++}^{V}(n = 2) using the *unpolarized* prescription:
+        s2v_plus_plus_lp = self.calculate_s_2_plus_plus_longitudinally_polarized_v()
+
+        # (X): Calculate S_{++}^{A}(n = 2) using the *unpolarized* prescription:
+        s2a_plus_plus_lp = self.calculate_s_2_plus_plus_longitudinally_polarized_a()
+
+        # (X): Calculate S_{0+}(n = 2) using the *longitudinally-polarized* prescription:
+        s2_zero_plus_lp = self.calculate_s_2_zero_plus_longitudinally_polarized()
+
+        # (X): Calculate S_{0+}^{V}(n = 2) using the *longitudinally-polarized* prescription:
+        s2v_zero_plus_lp = self.calculate_s_2_zero_plus_longitudinally_polarized_v()
+
+        # (X): Calculate S_{0+}^{A}(n = 2) using the *longitudinally-polarized* prescription:
+        s2a_zero_plus_lp = self.calculate_s_2_zero_plus_longitudinally_polarized_a()
+
+        # (X): Calculate Curly S_{++}(n = 2):
+        curly_s2_plus_plus_lp = (
+            s2_plus_plus_lp*curly_c_plus_plus_lp +
+            s2v_plus_plus_lp*curly_cv_plus_plus_lp +
+            s2a_plus_plus_lp*curly_ca_plus_plus_lp
+            )
+
+        # (X): Calculate Curly S_{0+}(n = 2):
+        curly_s2_zero_plus_lp = (
+            prefactor *
+                (
+                    s2_zero_plus_lp*curly_c_zero_plus_lp +
+                    s2v_zero_plus_lp*curly_cv_zero_plus_lp +
+                    s2a_zero_plus_lp*curly_ca_zero_plus_lp
+                )
+            )
+        
+        s2_i_lp = np.imag(curly_s2_plus_plus_lp) + np.imag(curly_s2_zero_plus_lp)
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        s2_i_tp = 0.0
+
+        return s2_i_unp + s2_i_lp + s2_i_tp
     
     def compute_interference_s3_coefficient(self) -> float:
         """
         Later!
         """
 
-        if self.target_polarization == 0.:
+        # (X): This prefactor is shared across the unp, LP, and TP curly-C coefficient:
+        prefactor = self.k_tilde*np.sqrt(2./self.kinematics.squared_Q_momentum_transfer)/(2.-self.kinematics.x_Bjorken)
 
-            # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
+        #################################################
+        # UNPOLARIZED TARGET COEFFICIENT
+        #################################################
 
-            # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
+        # (X): Calculate Curly C_{++} using the *unpolarized* prescription:
+        curly_c_plus_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = False)
 
-            # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
+        # (X): Calculate Curly C_{++}^{V} using the *unpolarized* prescription:
+        curly_cv_plus_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
+        # (X): Calculate Curly C_{++}^{A} using the *unpolarized* prescription:
+        curly_ca_plus_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = False)
 
-            # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
+        # (X): Calculate Curly C_{0+} using the *unpolarized* prescription:
+        curly_c_zero_plus_unp = self.calculate_curly_c_unpolarized_interference(effective_cffs = True)
 
-            # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
+        # (X): Calculate Curly C_{0+}^{V} using the *unpolarized* prescription:
+        curly_cv_zero_plus_unp = self.calculate_curly_c_unpolarized_v(effective_cffs = True)
 
-            # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
-            s3_plus_plus = 0.
+        # (X): Calculate Curly C_{0+}^{A} using the *unpolarized* prescription:
+        curly_ca_zero_plus_unp = self.calculate_curly_c_unpolarized_a(effective_cffs = True)
 
-            # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
-            s3v_plus_plus = 0.
+        # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
+        s3_plus_plus_unp = 0.
 
-            # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
-            s3a_plus_plus = 0.
+        # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
+        s3v_plus_plus_unp = 0.
 
-            # (X): Calculate S_{0+}^{V}(n = 3) using the *unpolarized* prescription:
-            s3_zero_plus = 0.
+        # (X): Calculate S_{++}^{V}(n = 3) using the *unpolarized* prescription:
+        s3a_plus_plus_unp = 0.
 
-            # (X): Calculate S_{0+}^{V}(n = 3) using the *unpolarized* prescription:
-            s3v_zero_plus = 0.
+        # (X): Calculate S_{0+}^{V}(n = 3) using the *unpolarized* prescription:
+        s3_zero_plus_unp = 0.
 
-            # (X): Calculate S_{0+}^{V}(n = 3) using the *unpolarized* prescription:
-            s3a_zero_plus = 0.
+        # (X): Calculate S_{0+}^{V}(n = 3) using the *unpolarized* prescription:
+        s3v_zero_plus_unp = 0.
 
-            # (X): Calculate Curly S_{++}(n = 3):
-            curly_s3_plus_plus = 0.
+        # (X): Calculate S_{0+}^{V}(n = 3) using the *unpolarized* prescription:
+        s3a_zero_plus_unp = 0.
 
-            # (X): Calculate Curly S_{0+}(n = 3):
-            curly_s3_zero_plus = 0.
-            
-        elif self.target_polarization == 0.5:
+        # (X): Calculate Curly S_{++}(n = 3):
+        curly_s3_plus_plus_unp = 0.
 
-            # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
-            curly_c_plus_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+        # (X): Calculate Curly S_{0+}(n = 3):
+        curly_s3_zero_plus_unp = 0.
 
-            # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_plus_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+        # (X): Calculate Curly S_{++}(n = 3):
+        curly_s3_plus_plus_unp = 0.
 
-            # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_plus_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+        # (X): Calculate Curly S_{0+}(n = 3):
+        curly_s3_zero_plus_unp = 0.
 
-            # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
-            curly_c_zero_plus = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
-            curly_cv_zero_plus = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
-
-            # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
-            curly_ca_zero_plus = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
-
-            # (X): Calculate S{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            s3_plus_plus = self.calculate_s_3_plus_plus_longitudinally_polarized()
-
-            # (X): Calculate C_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            s3v_plus_plus = self.calculate_s_3_plus_plus_longitudinally_polarized_v()
-
-            # (X): Calculate S_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            s3a_plus_plus = self.calculate_s_3_plus_plus_longitudinally_polarized_a()
-
-            # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            s3_zero_plus = 0.
-
-            # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            s3v_zero_plus = 0.
-
-            # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
-            s3a_zero_plus = 0.
-
-            # (X): Calculate Curly S_{++}(n = 3):
-            curly_s3_plus_plus = (
-                self.math.safe_cast(curly_c_plus_plus, True)
-                + self.math.safe_cast(s3v_plus_plus, True) * self.math.safe_cast(curly_cv_plus_plus, True) / self.math.safe_cast(s3_plus_plus, True)
-                + self.math.safe_cast(s3a_plus_plus, True) * self.math.safe_cast(curly_ca_plus_plus, True) / self.math.safe_cast(s3_plus_plus, True)
+        # (X): Calculate Curly S_{++}(n = 3):
+        curly_s3_plus_plus_unp = (
+            s3_plus_plus_unp*curly_c_plus_plus_unp +
+            s3v_plus_plus_unp*curly_cv_plus_plus_unp +
+            s3a_plus_plus_unp*curly_ca_plus_plus_unp
             )
-            
-            # (X): Calculate Curly S_{0+}(n = 3):
-            curly_s3_zero_plus = 0.
-        
-        s_3_interference_coefficient  = s3_plus_plus * self.math.imag(curly_s3_plus_plus) + s3_zero_plus * self.math.imag(curly_s3_zero_plus)
 
-        return s_3_interference_coefficient
-    
+        # (X): Calculate Curly S_{0+}(n = 3):
+        curly_s3_zero_plus_unp = (
+            prefactor *
+                (
+                    s3_zero_plus_unp*curly_c_zero_plus_unp +
+                    s3v_zero_plus_unp*curly_cv_zero_plus_unp +
+                    s3a_zero_plus_unp*curly_ca_zero_plus_unp
+                )
+        )
+        
+        s3_i_unp = np.imag(curly_s3_plus_plus_unp) + np.imag(curly_s3_zero_plus_unp)
+            
+        #################################################
+        # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
+        #################################################
+
+        # (X): Calculate Curly C_{++} using the *longitudinally-polarized* prescription:
+        curly_c_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = False)
+
+        # (X): Calculate Curly C_{++}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_plus_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = False)
+
+        # (X): Calculate Curly C_{0+} using the *longitudinally-polarized* prescription:
+        curly_c_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{V} using the *longitudinally-polarized* prescription:
+        curly_cv_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_v(effective_cffs = True)
+
+        # (X): Calculate Curly C_{0+}^{A} using the *longitudinally-polarized* prescription:
+        curly_ca_zero_plus_lp = self.calculate_curly_c_longitudinally_polarized_a(effective_cffs = True)
+
+        # (X): Calculate S{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+        s3_plus_plus_lp = self.calculate_s_3_plus_plus_longitudinally_polarized()
+
+        # (X): Calculate C_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+        s3v_plus_plus_lp = self.calculate_s_3_plus_plus_longitudinally_polarized_v()
+
+        # (X): Calculate S_{++}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+        s3a_plus_plus_lp = self.calculate_s_3_plus_plus_longitudinally_polarized_a()
+
+        # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+        s3_zero_plus_lp = 0.
+
+        # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+        s3v_zero_plus_lp = 0.
+
+        # (X): Calculate S_{0+}^{V}(n = 3) using the *longitudinally-polarized* prescription:
+        s3a_zero_plus_lp = 0.
+
+        # (X): Calculate Curly S_{++}(n = 3):
+        curly_s3_plus_plus_lp = (
+            s3_plus_plus_lp*curly_c_plus_plus_lp +
+            s3v_plus_plus_lp*curly_cv_plus_plus_lp +
+            s3a_plus_plus_lp*curly_ca_plus_plus_lp
+            )
+
+        # (X): Calculate Curly S_{0+}(n = 3):
+        curly_s3_zero_plus_lp = (
+            prefactor *
+                (
+                    s3_zero_plus_lp*curly_c_zero_plus_lp +
+                    s3v_zero_plus_lp*curly_cv_zero_plus_lp +
+                    s3a_zero_plus_lp*curly_ca_zero_plus_lp
+                )
+        )
+        
+        s3_i_lp = np.imag(curly_s3_plus_plus_lp) + np.imag(curly_s3_zero_plus_lp)
+
+        #################################################
+        # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
+        #################################################
+        s3_i_tp = 0.0
+
+        return s3_i_unp + s3_i_lp + s3_i_tp
+
     def calculate_curly_c_unpolarized_dvcs(
-            self, 
-            effective_cffs: bool = False, 
+            self,
+            effective_cffs: bool = False,
             effective_conjugate_cffs: bool = False) -> float:
         """
         Later!
@@ -2772,7 +3048,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2799,7 +3075,7 @@ class BKMFormalism:
             second_term_in_brackets_second_part =  1. + second_term_in_brackets_second_part_numerator / (two_minus_xb * one_plus_root_epsilon_stuff)
             
             # (10): Calculate the prefactor:
-            prefactor = -4. * two_minus_y * one_plus_root_epsilon_stuff / self.math.power(root_one_plus_epsilon_squared, 4)
+            prefactor = -4. * two_minus_y * one_plus_root_epsilon_stuff / np.power(root_one_plus_epsilon_squared, 4)
 
             # (11): Calculate the coefficient
             c_0_plus_plus_unp = prefactor * (first_term_in_brackets + second_term_in_brackets_first_part * second_term_in_brackets_second_part)
@@ -2829,7 +3105,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2886,7 +3162,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -2946,7 +3222,7 @@ class BKMFormalism:
             bracket_quantity = self.epsilon**2 + self.kinematics.squared_hadronic_momentum_transfer_t * (2. - 6.* self.kinematics.x_Bjorken - self.epsilon**2) / (3. * self.kinematics.squared_Q_momentum_transfer)
             
             # (2): Calculate part of the prefactor:
-            prefactor = 12. * self.math.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4)) / self.math.power(1. + self.epsilon**2, 2.5)
+            prefactor = 12. * np.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4)) / np.power(1. + self.epsilon**2, 2.5)
             
             # (3): Calculate the coefficient:
             c_0_zero_plus_unp = prefactor * bracket_quantity
@@ -2982,7 +3258,7 @@ class BKMFormalism:
             main_part = self.kinematics.x_Bjorken * t_over_Q_squared * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
 
             # (3): Calculate the prefactor:
-            prefactor = 24. * self.math.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / (1. + self.epsilon**2)**2.5
+            prefactor = 24. * np.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / (1. + self.epsilon**2)**2.5
 
             # (4): Stitch together the coefficient:
             c_0_zero_plus_V_unp = prefactor * main_part
@@ -3021,7 +3297,7 @@ class BKMFormalism:
             brackets_term = 1. - t_over_Q_squared * (2. - 12. * self.kinematics.x_Bjorken * (1. - self.kinematics.x_Bjorken) - self.epsilon**2) / fancy_xb_epsilon_term
 
             # (4): Calculate the prefactor:
-            prefactor = 4. * self.math.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / self.math.power(1. + self.epsilon**2, 2.5)
+            prefactor = 4. * np.sqrt(2.) * self.kinematic_k * (2. - self.lepton_energy_fraction) * np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.)) / np.power(1. + self.epsilon**2, 2.5)
 
             # (5): Stitch together the coefficient:
             c_0_zero_plus_A_unp = prefactor * t_over_Q_squared * fancy_xb_epsilon_term * brackets_term
@@ -3051,7 +3327,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3105,7 +3381,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3120,7 +3396,7 @@ class BKMFormalism:
             second_bracket_term_second_part = 0.5 * (1. + root_one_plus_epsilon_squared - 2. * self.kinematics.x_Bjorken) * self.t_prime / self.kinematics.squared_Q_momentum_transfer
 
             # (6): The prefactor in front of the brackets:
-            coefficient_prefactor = 16. * self.kinematic_k * self.kinematics.x_Bjorken * t_over_Q_squared / self.math.power(root_one_plus_epsilon_squared, 5)
+            coefficient_prefactor = 16. * self.kinematic_k * self.kinematics.x_Bjorken * t_over_Q_squared / np.power(root_one_plus_epsilon_squared, 5)
 
             # (7): The entire thing:
             c_1_plus_plus_V_unp = coefficient_prefactor * (first_bracket_term + second_bracket_term_first_part * second_bracket_term_second_part)
@@ -3150,7 +3426,7 @@ class BKMFormalism:
         try:
     
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3204,7 +3480,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3225,7 +3501,7 @@ class BKMFormalism:
             second_bracket_term = y_quantity * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared) * (self.epsilon**2 - 2. * (1. + (self.epsilon**2 / (2. * self.kinematics.x_Bjorken))) * self.kinematics.x_Bjorken * t_over_Q_squared) / root_one_plus_epsilon_squared
             
             # (8): Calculate part of the prefactor:
-            prefactor = 8. * self.math.sqrt(2. * y_quantity) / root_one_plus_epsilon_squared**4
+            prefactor = 8. * np.sqrt(2. * y_quantity) / root_one_plus_epsilon_squared**4
             
             # (9): Calculate the coefficient:
             c_1_zero_plus_unp = prefactor * (first_bracket_term + second_bracket_term)
@@ -3264,7 +3540,7 @@ class BKMFormalism:
             major_part = (2 - self.lepton_energy_fraction)**2 * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer + (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)**2 * y_quantity
 
             # (4): Calculate the prefactor:
-            prefactor = 16. * self.math.sqrt(2. * y_quantity) * self.kinematics.x_Bjorken * t_over_Q_squared / (1. + self.epsilon**2)**2.5
+            prefactor = 16. * np.sqrt(2. * y_quantity) * self.kinematics.x_Bjorken * t_over_Q_squared / (1. + self.epsilon**2)**2.5
 
             # (5): Stitch together the coefficient:
             c_1_zero_plus_V_unp = prefactor * major_part
@@ -3294,7 +3570,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3315,7 +3591,7 @@ class BKMFormalism:
             first_term = self.k_tilde**2 * one_minus_2xb * (2. - self.lepton_energy_fraction)**2 / self.kinematics.squared_Q_momentum_transfer
             
             # (8): Calculate part of the prefactor:
-            prefactor = 8. * self.math.sqrt(2. * y_quantity) * t_over_Q_squared / root_one_plus_epsilon_squared**5
+            prefactor = 8. * np.sqrt(2. * y_quantity) * t_over_Q_squared / root_one_plus_epsilon_squared**5
             
             # (9): Calculate the coefficient:
             c_1_zero_plus_unp_A = prefactor * (first_term + second_term_first_part * second_term_second_part)
@@ -3345,7 +3621,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3387,7 +3663,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3429,7 +3705,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3474,7 +3750,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity self.epsilon^2/2:
             self.epsilon_squared_over_2 = self.epsilon**2 / 2.
@@ -3486,7 +3762,7 @@ class BKMFormalism:
             bracket_term = 1. + ((1. + self.epsilon_squared_over_2 / self.kinematics.x_Bjorken) / (1. + self.epsilon_squared_over_2)) * self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (5): Calculate the prefactor:
-            prefactor = -8. * self.math.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) / root_one_plus_epsilon_squared**5
+            prefactor = -8. * np.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) / root_one_plus_epsilon_squared**5
             
             # (6): Calculate the coefficient:
             c_2_zero_plus_unp = prefactor * (1. + self.epsilon_squared_over_2) * bracket_term
@@ -3516,16 +3792,16 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (3): Calculate the annoying y quantity:
-            y_quantity = self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
+            y_quantity = np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
 
             # (4): Calculate the prefactor:
-            prefactor = 8. * self.math.sqrt(2.) * y_quantity * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**5
+            prefactor = 8. * np.sqrt(2.) * y_quantity * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**5
             
             # (5): Calculate the coefficient:
             c_2_zero_plus_unp_V = prefactor * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
@@ -3555,7 +3831,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3573,7 +3849,7 @@ class BKMFormalism:
             bracket_term = one_minus_xb + 0.5 * t_prime_over_Q_squared * (4. * self.kinematics.x_Bjorken * one_minus_xb + self.epsilon**2) / root_one_plus_epsilon_squared
             
             # (7): Calculate part of the prefactor:
-            prefactor = 8. * self.math.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) * t_over_Q_squared / root_one_plus_epsilon_squared**4
+            prefactor = 8. * np.sqrt(2. * y_quantity) * self.kinematic_k * (2. - self.lepton_energy_fraction) * t_over_Q_squared / root_one_plus_epsilon_squared**4
             
             # (8): Calculate the coefficient:
             c_2_zero_plus_unp_A = prefactor * bracket_term
@@ -3603,7 +3879,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3645,7 +3921,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3717,7 +3993,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t'/Q^{2}:
             tPrime_over_Q_squared = self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -3756,7 +4032,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3795,7 +4071,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -3843,10 +4119,10 @@ class BKMFormalism:
             root_one_plus_epsilon_squared = (1. + self.epsilon**2)**2
 
             # (2): Calculate the huge y quantity:
-            y_quantity = self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
+            y_quantity = np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
 
             # (3): Calculate the coefficient
-            s_1_zero_plus_unp = 8. * self.lepton_polarization * self.math.sqrt(2.) * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * y_quantity * self.k_tilde**2 / (root_one_plus_epsilon_squared * self.kinematics.squared_Q_momentum_transfer)
+            s_1_zero_plus_unp = 8. * self.lepton_polarization * np.sqrt(2.) * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction * y_quantity * self.k_tilde**2 / (root_one_plus_epsilon_squared * self.kinematics.squared_Q_momentum_transfer)
             
             # (5): If verbose, log that the calculation finished!
             if self.verbose:
@@ -3885,7 +4161,7 @@ class BKMFormalism:
             bracket_term = 4. * (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared * (1. + self.kinematics.x_Bjorken * t_over_Q_squared) + self.epsilon**2 * (1. + t_over_Q_squared)**2
 
             # (5): Calculate the prefactor:
-            prefactor = 4. * self.math.sqrt(2. * fancy_y_stuff) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / one_plus_epsilon_squared_squared
+            prefactor = 4. * np.sqrt(2. * fancy_y_stuff) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / one_plus_epsilon_squared_squared
 
             # (6): Calculate the coefficient
             s_1_zero_plus_unp_V = prefactor * bracket_term
@@ -3918,10 +4194,10 @@ class BKMFormalism:
             one_plus_epsilon_squared_squared = (1. + self.epsilon**2)**2
 
             # (2): Calculate a fancy, annoying quantity:
-            fancy_y_stuff = self.math.sqrt(1. - self.lepton_energy_fraction - self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)
+            fancy_y_stuff = np.sqrt(1. - self.lepton_energy_fraction - self.epsilon**2 * self.lepton_energy_fraction**2 / 4.)
 
             # (3): Calculate the prefactor:
-            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * (1. - 2. * self.kinematics.x_Bjorken) / one_plus_epsilon_squared_squared
+            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) * (1. - 2. * self.kinematics.x_Bjorken) / one_plus_epsilon_squared_squared
 
             # (4): Calculate the coefficient
             s_1_zero_plus_unp_A = prefactor * fancy_y_stuff * self.kinematics.squared_hadronic_momentum_transfer_t * self.kinematic_k**2 / self.kinematics.squared_Q_momentum_transfer
@@ -3951,7 +4227,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t'/Q^{2}:
             tPrime_over_Q_squared = self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -3996,7 +4272,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4044,7 +4320,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4092,7 +4368,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity self.epsilon^2/2:
             self.epsilon_squared_over_2 = self.epsilon**2 / 2.
@@ -4104,7 +4380,7 @@ class BKMFormalism:
             bracket_term = 1. + ((1. + self.epsilon_squared_over_2 / self.kinematics.x_Bjorken) / (1. + self.epsilon_squared_over_2)) * self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (5): Calculate the prefactor:
-            prefactor = 8. * self.lepton_polarization * self.math.sqrt(2. * y_quantity) * self.kinematic_k * self.lepton_energy_fraction / root_one_plus_epsilon_squared**4
+            prefactor = 8. * self.lepton_polarization * np.sqrt(2. * y_quantity) * self.kinematic_k * self.lepton_energy_fraction / root_one_plus_epsilon_squared**4
             
             # (6): Calculate the coefficient:
             s_2_zero_plus_unp = prefactor * (1. + self.epsilon_squared_over_2) * bracket_term
@@ -4134,16 +4410,16 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
 
             # (3): Calculate the annoying y quantity:
-            y_quantity = self.math.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
+            y_quantity = np.sqrt(1. - self.lepton_energy_fraction - (self.epsilon**2 * self.lepton_energy_fraction**2 / 4.))
 
             # (4): Calculate the prefactor:
-            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * y_quantity * self.kinematic_k * self.lepton_energy_fraction * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**4
+            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * y_quantity * self.kinematic_k * self.lepton_energy_fraction * self.kinematics.x_Bjorken * t_over_Q_squared / root_one_plus_epsilon_squared**4
             
             # (5): Calculate the coefficient:
             s_2_zero_plus_unp_V = prefactor * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
@@ -4173,7 +4449,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4188,7 +4464,7 @@ class BKMFormalism:
             main_term = 4. * one_minus_xb + 2. * self.epsilon**2 + 4. * t_over_Q_squared * (4. * self.kinematics.x_Bjorken * one_minus_xb + self.epsilon**2)
             
             # (6): Calculate part of the prefactor:
-            prefactor = -2. * self.math.sqrt(2. * y_quantity) * self.lepton_polarization * self.kinematic_k * self.lepton_energy_fraction * t_over_Q_squared / root_one_plus_epsilon_squared**4
+            prefactor = -2. * np.sqrt(2. * y_quantity) * self.lepton_polarization * self.kinematic_k * self.lepton_energy_fraction * t_over_Q_squared / root_one_plus_epsilon_squared**4
             
             # (7): Calculate the coefficient:
             c_2_zero_plus_unp_A = prefactor * main_term
@@ -4218,7 +4494,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4269,7 +4545,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4326,7 +4602,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4397,10 +4673,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.kinematics.x_Bjorken) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.kinematics.x_Bjorken) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_0_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4463,10 +4739,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate t/Q^2:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4499,7 +4775,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity 1 + sqrt(1 + self.epsilon^2):
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -4541,7 +4817,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity 1 - x_{B}
             one_minus_xb = 1. - self.kinematics.x_Bjorken
@@ -4595,7 +4871,7 @@ class BKMFormalism:
             major_factor = self.kinematics.x_Bjorken * t_over_Q_squared * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
 
             # (3): Calculate the prefactor:
-            prefactor = 16. * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) / self.math.sqrt(1. + self.epsilon**2)**5
+            prefactor = 16. * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction * (2. - self.lepton_energy_fraction) / np.sqrt(1. + self.epsilon**2)**5
 
             # (4): Calculate the entire thing:
             c_1_plus_plus_A_LP = prefactor * major_factor
@@ -4625,10 +4901,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * (1. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_1_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer
@@ -4658,10 +4934,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization  * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization  * (2. - self.lepton_energy_fraction) * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_1_zero_plus_V_LP = prefactor * root_combination_of_y_and_epsilon * self.kinematics.squared_hadronic_momentum_transfer_t * self.k_tilde**2 / self.kinematics.squared_Q_momentum_transfer**2
@@ -4691,7 +4967,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4736,7 +5012,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4784,7 +5060,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4829,10 +5105,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = -8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = -8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_2_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * (1. + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
@@ -4862,10 +5138,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate everything:
             c_2_zero_plus_V_LP = prefactor * root_combination_of_y_and_epsilon * (1. - self.kinematics.x_Bjorken ) * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4895,10 +5171,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 2)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate the "prefactor":
-            prefactor = 8. * self.math.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
+            prefactor = 8. * np.sqrt(2.) * self.lepton_polarization * self.target_polarization * self.kinematic_k * self.lepton_energy_fraction / (1. + self.epsilon**2)**2
 
             # (3): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -4931,7 +5207,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate 1 + sqrt(1 + self.epsilon^2):
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -4988,7 +5264,7 @@ class BKMFormalism:
             ep_squared = self.epsilon**2
 
             # (2): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + ep_squared)
+            root_one_plus_epsilon_squared = np.sqrt(1. + ep_squared)
 
             # (3): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -5051,7 +5327,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the recurrent quantity t/Q^{2}
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
@@ -5120,7 +5396,7 @@ class BKMFormalism:
             second_bracket_term = (1. + t_over_Q_squared) * combination_of_y_and_epsilon * (2. * self.kinematics.x_Bjorken * t_over_Q_squared - (self.epsilon**2 * (1. - t_over_Q_squared)))
             
             # (5): Calculate the prefactor:
-            prefactor = 8. * self.math.sqrt(2.) * self.target_polarization  * self.math.sqrt(combination_of_y_and_epsilon) / self.math.sqrt((1. + self.epsilon**2)**5)
+            prefactor = 8. * np.sqrt(2.) * self.target_polarization  * np.sqrt(combination_of_y_and_epsilon) / np.sqrt((1. + self.epsilon**2)**5)
 
             # (6): Calculate everything:
             s_1_zero_plus_LP = prefactor * (first_bracket_term + second_bracket_term)
@@ -5165,7 +5441,7 @@ class BKMFormalism:
             second_bracket_term = (1. + t_over_Q_squared) * combination_of_y_and_epsilon * second_bracket_term_long
             
             # (6): Calculate the prefactor:
-            prefactor = -8. * self.math.sqrt(2.) * self.target_polarization  * self.math.sqrt(combination_of_y_and_epsilon) * t_over_Q_squared / self.math.sqrt((1. + self.epsilon**2)**5)
+            prefactor = -8. * np.sqrt(2.) * self.target_polarization  * np.sqrt(combination_of_y_and_epsilon) * t_over_Q_squared / np.sqrt((1. + self.epsilon**2)**5)
 
             # (7): Calculate everything:
             s_1_zero_plus_V_LP = prefactor * (first_bracket_term + second_bracket_term)
@@ -5195,13 +5471,13 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity (1 - y - y^{2} self.epsilon^{2} / 4)^{3/2}
-            combination_of_y_and_epsilon_to_3_halves = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))**3
+            combination_of_y_and_epsilon_to_3_halves = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))**3
 
             # (2): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
             
             # (3): Calculate the prefactor:
-            prefactor = -16. * self.math.sqrt(2.) * self.target_polarization * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + t_over_Q_squared) / self.math.sqrt((1. + self.epsilon**2)**5)
+            prefactor = -16. * np.sqrt(2.) * self.target_polarization * self.kinematics.x_Bjorken * t_over_Q_squared * (1. + t_over_Q_squared) / np.sqrt((1. + self.epsilon**2)**5)
 
             # (4): Calculate everything:
             s_1_zero_plus_A_LP = prefactor * combination_of_y_and_epsilon_to_3_halves * (1. - (1. - 2. * self.kinematics.x_Bjorken) * t_over_Q_squared)
@@ -5231,7 +5507,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate 1 + sqrt(1 + self.epsilon^2)
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -5270,7 +5546,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the first contribution to the bracket term:
             bracket_term_second_term = (3.  - root_one_plus_epsilon_squared - (2. * self.kinematics.x_Bjorken) + (self.epsilon**2 / self.kinematics.x_Bjorken)) * self.kinematics.x_Bjorken * self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -5312,7 +5588,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the first contribution to the bracket term:
             bracket_term_first_term = (1. + root_one_plus_epsilon_squared - 2. * self.kinematics.x_Bjorken) * (1. - ((1. - 2. * self.kinematics.x_Bjorken) * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer)) * self.t_prime / self.kinematics.squared_Q_momentum_transfer
@@ -5354,10 +5630,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 4)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
             
             # (2): Calculate the prefactor:
-            prefactor = 8. * self.math.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction )/ self.math.sqrt((1. + self.epsilon**2)**5)
+            prefactor = 8. * np.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction )/ np.sqrt((1. + self.epsilon**2)**5)
 
             # (3): Calculate everything:
             s_2_zero_plus_LP = prefactor * root_combination_of_y_and_epsilon * (1. + (self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer))
@@ -5387,10 +5663,10 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 4)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
             
             # (2): Calculate the prefactor:
-            prefactor = -8. * self.math.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.squared_hadronic_momentum_transfer_t / (self.math.sqrt((1. + self.epsilon**2)**5) * self.kinematics.squared_Q_momentum_transfer)
+            prefactor = -8. * np.sqrt(2.) * self.target_polarization * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.squared_hadronic_momentum_transfer_t / (np.sqrt((1. + self.epsilon**2)**5) * self.kinematics.squared_Q_momentum_transfer)
 
             # (3): Calculate everything:
             s_2_zero_plus_V_LP = prefactor * (1. - self.kinematics.x_Bjorken) * root_combination_of_y_and_epsilon
@@ -5420,13 +5696,13 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the annoying quantity sqrt(1 - y - y^{2} self.epsilon^{2} / 4)
-            root_combination_of_y_and_epsilon = self.math.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
+            root_combination_of_y_and_epsilon = np.sqrt(1. - self.lepton_energy_fraction - (self.lepton_energy_fraction**2 * self.epsilon**2 / 4.))
 
             # (2): Calculate t/Q^{2}:
             t_over_Q_squared = self.kinematics.squared_hadronic_momentum_transfer_t / self.kinematics.squared_Q_momentum_transfer
             
             # (3): Calculate the prefactor:
-            prefactor = -8. * self.math.sqrt(2.) * self.target_polarization  * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / self.math.sqrt((1. + self.epsilon**2)**5)
+            prefactor = -8. * np.sqrt(2.) * self.target_polarization  * self.kinematic_k * (2. - self.lepton_energy_fraction) * self.kinematics.x_Bjorken * t_over_Q_squared / np.sqrt((1. + self.epsilon**2)**5)
 
             # (4): Calculate everything:
             s_2_zero_plus_A_LP = prefactor * root_combination_of_y_and_epsilon * (1. + t_over_Q_squared)
@@ -5456,7 +5732,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate 1 + sqrt(1 + self.epsilon^2):
             one_plus_root_epsilon_stuff = 1. + root_one_plus_epsilon_squared
@@ -5492,7 +5768,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the main contribution:
             multiplicative_contribution = self.kinematics.squared_hadronic_momentum_transfer_t * self.t_prime * (4. * (1. - self.kinematics.x_Bjorken) * self.kinematics.x_Bjorken + self.epsilon**2) / self.kinematics.squared_Q_momentum_transfer**2
@@ -5528,7 +5804,7 @@ class BKMFormalism:
         try:
 
             # (1): Calculate the recurrent quantity sqrt(1 + self.epsilon^2):
-            root_one_plus_epsilon_squared = self.math.sqrt(1. + self.epsilon**2)
+            root_one_plus_epsilon_squared = np.sqrt(1. + self.epsilon**2)
 
             # (2): Calculate the main contribution:
             multiplicative_contribution = self.kinematics.x_Bjorken * self.kinematics.squared_hadronic_momentum_transfer_t * self.t_prime * (1. + root_one_plus_epsilon_squared - 2. * self.kinematics.x_Bjorken) / self.kinematics.squared_Q_momentum_transfer**2
