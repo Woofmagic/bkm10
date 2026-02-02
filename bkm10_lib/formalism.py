@@ -2441,7 +2441,7 @@ class BKMFormalism:
                 )
             )
         
-        s2_unp = np.imag(curly_s2_plus_plus_unp) + np.imag(curly_s2_zero_plus_unp)
+        s2_i_unp = np.imag(curly_s2_plus_plus_unp) + np.imag(curly_s2_zero_plus_unp)
             
         #################################################
         # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
