@@ -2,15 +2,17 @@
 Entry point for the `BKM10Formalism`.
 
 ## Notes:
-    1. 2026/01/27
-        - Officially scrapped all `promote_scalar_to_dtype` because it was found to
+1. 2026/01/27
+    - Officially scrapped all `promote_scalar_to_dtype` because it was found to
     alter the precision of standard Python mathematical operations such that
-    unittests did not pass.
-    2. 2026/02/02
-        - Now, every coefficient of the form c_{i}^{X} is computed *without* if/else 
-        switches on the target polarization; if Lambda = 0., then it it will be handled
-        automatically by the mathematics of the formalism (e.g LP coefficients go with
-        Lambda).
+    unittests did not pass. *Major issue!!*
+    - In other words, *TensorFlow* has been completely removed from this stupid
+    code base. Thank God!!
+
+2. 2026/02/02
+    - Now, every coefficient of the form c_{i}^{X} is computed *without* if/else 
+    switches on the target polarization; if Lambda = 0., then it it will be handled
+    automatically by the mathematics of the formalism (e.g LP coefficients go with Lambda).
 """
 
 # 3rd Party Library | NumPy:
@@ -221,7 +223,7 @@ class BKMFormalism:
             return epsilon
         
         except Exception as ERROR:
-            print(f"> Error in computing kinematic self.epsilon:\n> {ERROR}")
+            print(f"> [ERROR]: Error in computing kinematic self.epsilon:\n> {ERROR}")
             return 0.0
         
     def _calculate_lepton_energy_fraction(self) -> float:
@@ -258,7 +260,7 @@ class BKMFormalism:
             return lepton_energy_fraction
         
         except Exception as ERROR:
-            print(f"> Error in computing lepton_energy_fraction:\n> {ERROR}")
+            print(f"> [ERROR]: Error in computing lepton_energy_fraction:\n> {ERROR}")
             return 0.
 
     def _calculate_skewness_parameter(self) -> float:
@@ -298,7 +300,7 @@ class BKMFormalism:
             return skewness_parameter
 
         except Exception as ERROR:
-            print(f"> Error in computing skewness xi:\n> {ERROR}")
+            print(f"> [ERROR]: Error in computing skewness xi:\n> {ERROR}")
             return 0.
         
     def _calculate_t_minimum(self) -> float:
@@ -339,7 +341,7 @@ class BKMFormalism:
             return t_minimum
 
         except Exception as ERROR:
-            print(f"> Error calculating t_minimum:\n> {ERROR}")
+            print(f"> [ERROR]: Error calculating t_minimum:\n> {ERROR}")
             return 0.    
     
     def _calculate_t_prime(self) -> float:
@@ -373,7 +375,7 @@ class BKMFormalism:
             return t_prime
 
         except Exception as ERROR:
-            print(f"> Error calculating t_prime:\n> {ERROR}")
+            print(f"> [ERROR]: Error calculating t_prime:\n> {ERROR}")
             return 0.
         
     def _calculate_k_tilde(self) -> float:
@@ -425,7 +427,7 @@ class BKMFormalism:
             return k_tilde
 
         except Exception as ERROR:
-            print(f"> Error in calculating K_tilde:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating K_tilde:\n> {ERROR}")
             return 0.
         
     def _calculate_k(self) -> float:
@@ -450,7 +452,7 @@ class BKMFormalism:
             return kinematic_k
 
         except Exception as ERROR:
-            print(f"> Error in calculating derived kinematic K:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating derived kinematic K:\n> {ERROR}")
             return 0.
 
     def _calculate_electric_form_factor(self) -> float:
@@ -491,7 +493,7 @@ class BKMFormalism:
             return form_factor_electric
 
         except Exception as ERROR:
-            print(f"> Error in calculating electric form factor:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating electric form factor:\n> {ERROR}")
             self.electric_form_factor = 0.
 
     def _calculate_magnetic_form_factor(self) -> float:
@@ -534,7 +536,7 @@ class BKMFormalism:
             return form_factor_magnetic
 
         except Exception as ERROR:
-            print(f"> Error in calculating magnetic form factor:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating magnetic form factor:\n> {ERROR}")
             return 0.
         
     def _calculate_pauli_form_factor(self) -> float:
@@ -590,7 +592,7 @@ class BKMFormalism:
             return pauli_form_factor
 
         except Exception as ERROR:
-            print(f"> Error in calculating Fermi form factor:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating Fermi form factor:\n> {ERROR}")
             return 0.
 
     def _calculate_dirac_form_factor(self) -> float:
@@ -634,7 +636,7 @@ class BKMFormalism:
             return dirac_form_factor
 
         except Exception as ERROR:
-            print(f"> Error in calculating Dirac form factor:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating Dirac form factor:\n> {ERROR}")
             return 0.
 
     def compute_cff_effective(self, compton_form_factor: CFFInputs) -> CFFInputs:
@@ -713,7 +715,7 @@ class BKMFormalism:
             return effective_cffs
 
         except Exception as ERROR:
-            print(f"> Error in calculating F_effective:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating F_effective:\n> {ERROR}")
             return 0.
     
     def compute_cross_section_prefactor(self) -> float:
@@ -743,7 +745,7 @@ class BKMFormalism:
             return prefactor
 
         except Exception as ERROR:
-            print(f"> Error calculating BKM10 cross section prefactor:\n> {ERROR}")
+            print(f"> [ERROR]: Error calculating BKM10 cross section prefactor:\n> {ERROR}")
             return 0.
         
     def calculate_k_dot_delta(self, phi_values: np.ndarray) -> np.ndarray:
@@ -820,7 +822,7 @@ class BKMFormalism:
             return k_dot_delta_result
         
         except Exception as E:
-            print(f"> Error in calculating k.Delta:\n> {E}")
+            print(f"> [ERROR]: Error in calculating k.Delta:\n> {E}")
             return 0.
     
     def calculate_lepton_propagator_p1(self, phi_values: np.ndarray) -> np.ndarray:
@@ -860,7 +862,7 @@ class BKMFormalism:
             return p1_propagator
         
         except Exception as E:
-            print(f"> Error in computing p1 propagator:\n> {E}")
+            print(f"> [ERROR]: Error in computing p1 propagator:\n> {E}")
             return 0.
         
     def calculate_lepton_propagator_p2(self, phi_values: np.ndarray) -> np.ndarray:
@@ -900,7 +902,7 @@ class BKMFormalism:
             return p2_propagator
         
         except Exception as E:
-            print(f"> Error in computing p2 propagator:\n> {E}")
+            print(f"> [ERROR]: Error in computing p2 propagator:\n> {E}")
             return 0.
     
     def compute_c0_coefficient(self, phi_values: np.ndarray) -> np.ndarray:
@@ -982,8 +984,6 @@ class BKMFormalism:
         ## Examples:
         Later!
         """
-
-        print(f"c1 stuff: lambda = {self.lepton_polarization}, Lambda = {self.target_polarization}")
     
         # (1): We compute the c_{1}^{BH} coefficient:
         bh_c1_contribution = self.compute_bh_c1_coefficient() if self.bh_on else 0.0
@@ -1019,11 +1019,7 @@ class BKMFormalism:
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
-    
-        print(bh_c1_contribution)
-        print(dvcs_c1_contribution)
-        print(interference_c1_contribution)
-
+        
         # (5): Now, we sum together all the contributions:
         c1_coefficient = (
             bh_prefactor * bh_c1_contribution +
@@ -2731,7 +2727,7 @@ class BKMFormalism:
             return curly_C_unpolarized_dvcs
         
         except Exception as ERROR:
-            print(f"> Error in calculating the Curly C DVCS: \n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the Curly C DVCS: \n> {ERROR}")
             return 0.
     
     def calculate_curly_c_longitudinally_polarized_dvcs(
@@ -2807,7 +2803,7 @@ class BKMFormalism:
             return curly_C_longitudinally_polarized_dvcs
         
         except Exception as ERROR:
-            print(f"> Error in calculating curlyCDVCS for DVCS Amplitude Squared:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating curlyCDVCS for DVCS Amplitude Squared:\n> {ERROR}")
             return 0.
     
     def calculate_curly_c_unpolarized_interference(self, effective_cffs: bool = False) -> float:
@@ -2842,7 +2838,7 @@ class BKMFormalism:
             return curly_C_unpolarized_interference
 
         except Exception as ERROR:
-            print(f"> Error in calculating the Curly C interference unpolarized target: \n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the Curly C interference unpolarized target: \n> {ERROR}")
             return 0.
         
     def calculate_curly_c_unpolarized_v(self, effective_cffs: bool = False) -> float:
@@ -2877,7 +2873,7 @@ class BKMFormalism:
             return curly_C_unpolarized_interference_V
 
         except Exception as ERROR:
-            print(f"> Error in calculating the Curly C interference V unpolarized target: \n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the Curly C interference V unpolarized target: \n> {ERROR}")
             return 0.
         
     def calculate_curly_c_unpolarized_a(self, effective_cffs: bool = False) -> float:
@@ -2909,7 +2905,7 @@ class BKMFormalism:
             return curly_C_unpolarized_interference_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating the Curly C interference A unpolarized target: \n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the Curly C interference A unpolarized target: \n> {ERROR}")
             return 0.
         
     def calculate_curly_c_longitudinally_polarized(self, effective_cffs: bool = False) -> float:
@@ -2959,7 +2955,7 @@ class BKMFormalism:
             return curly_C_longitudinally_polarized_interference
 
         except Exception as ERROR:
-            print(f"> Error in calculating the curly C LP contribution amplitude squared\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the curly C LP contribution amplitude squared\n> {ERROR}")
             return 0
         
     def calculate_curly_c_longitudinally_polarized_v(self, effective_cffs: bool = False) -> float:
@@ -2997,7 +2993,7 @@ class BKMFormalism:
             return curly_C_V_longitudinally_polarized_interference
 
         except Exception as ERROR:
-            print(f"> Error in calculating the curly C LP V contribution amplitude squared\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the curly C LP V contribution amplitude squared\n> {ERROR}")
             return 0.
     
     def calculate_curly_c_longitudinally_polarized_a(self, effective_cffs: bool = False) -> float:
@@ -3038,7 +3034,7 @@ class BKMFormalism:
             return curly_C_A_longitudinally_polarized_interference
 
         except Exception as ERROR:
-            print(f"> Error in calculating the curly C LP A contribution amplitude squared\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating the curly C LP A contribution amplitude squared\n> {ERROR}")
             return 0.
 
     def calculate_c_0_plus_plus_unpolarized(self) -> float:
@@ -3095,7 +3091,7 @@ class BKMFormalism:
             return c_0_plus_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_plus_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_plus_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_plus_plus_unpolarized_v(self) -> float:
@@ -3152,7 +3148,7 @@ class BKMFormalism:
             return c_0_plus_plus_V_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_plus_plus_V_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_plus_plus_V_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_plus_plus_unpolarized_a(self) -> float:
@@ -3209,7 +3205,7 @@ class BKMFormalism:
             return c_0_plus_plus_A_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_plus_plus_A_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_plus_plus_A_unp for Interference Term:\n> {ERROR}")
             return 0.
     
     def calculate_c_0_zero_plus_unpolarized(self) -> float:
@@ -3242,7 +3238,7 @@ class BKMFormalism:
             return c_0_zero_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_zero_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_zero_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_zero_plus_unpolarized_v(self) -> float:
@@ -3278,7 +3274,7 @@ class BKMFormalism:
             return c_0_zero_plus_V_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_zero_plus_V_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_zero_plus_V_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_zero_plus_unpolarized_a(self) -> float:
@@ -3317,7 +3313,7 @@ class BKMFormalism:
             return c_0_zero_plus_A_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_zero_plus_A_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_zero_plus_A_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_plus_plus_unpolarized(self) -> float:
@@ -3371,7 +3367,7 @@ class BKMFormalism:
             return c_1_plus_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_plus_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_plus_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_plus_plus_unpolarized_v(self) -> float:
@@ -3416,7 +3412,7 @@ class BKMFormalism:
             return c_1_plus_plus_V_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_plus_plus_V_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_plus_plus_V_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_plus_plus_unpolarized_a(self) -> float:
@@ -3470,7 +3466,7 @@ class BKMFormalism:
             return c_1_plus_plus_A_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_plus_plus_A_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_plus_plus_A_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_zero_plus_unpolarized(self) -> float:
@@ -3521,7 +3517,7 @@ class BKMFormalism:
             return c_1_zero_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_zero_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_zero_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_zero_plus_unpolarized_v(self) -> float:
@@ -3560,7 +3556,7 @@ class BKMFormalism:
             return c_1_zero_plus_V_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_zero_plus_V_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_zero_plus_V_unp for Interference Term:\n> {ERROR}")
             return 0.
     
     def calculate_c_1_zero_plus_unpolarized_a(self) -> float:
@@ -3611,7 +3607,7 @@ class BKMFormalism:
             return c_1_zero_plus_unp_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_zero_plus_unp_A for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_zero_plus_unp_A for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_plus_plus_unpolarized(self) -> float:
@@ -3653,7 +3649,7 @@ class BKMFormalism:
             return c_2_plus_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_plus_plus_unpolarized_v(self) -> float:
@@ -3695,7 +3691,7 @@ class BKMFormalism:
             return c_2_plus_plus_V_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_V_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_V_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_plus_plus_unpolarized_a(self) -> float:
@@ -3740,7 +3736,7 @@ class BKMFormalism:
             return c_2_plus_plus_A_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_A_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_A_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_zero_plus_unpolarized(self) -> float:
@@ -3782,7 +3778,7 @@ class BKMFormalism:
             return c_2_zero_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
             
     def calculate_c_2_zero_plus_unpolarized_v(self) -> float:
@@ -3821,7 +3817,7 @@ class BKMFormalism:
             return c_2_zero_plus_unp_V
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_unp_V for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_unp_V for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_zero_plus_unpolarized_a(self) -> float:
@@ -3869,7 +3865,7 @@ class BKMFormalism:
             return c_2_zero_plus_unp_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_unp_A for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_unp_A for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_3_plus_plus_unpolarized(self) -> float:
@@ -3911,7 +3907,7 @@ class BKMFormalism:
             return c_3_plus_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_3_plus_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_3_plus_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_3_plus_plus_unpolarized_v(self) -> float:
@@ -3950,7 +3946,7 @@ class BKMFormalism:
             return c_3_plus_plus_V_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_3_plus_plus_V_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_3_plus_plus_V_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_3_plus_plus_unpolarized_a(self) -> float:
@@ -3983,7 +3979,7 @@ class BKMFormalism:
             return c_3_plus_plus_A_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_A_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_A_unp for Interference Term:\n> {ERROR}")
             return 0.
     
     def calculate_s_1_plus_plus_unpolarized(self) -> float:
@@ -4022,7 +4018,7 @@ class BKMFormalism:
             return s_1_plus_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_plus_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_plus_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_plus_plus_unpolarized_v(self) -> float:
@@ -4061,7 +4057,7 @@ class BKMFormalism:
             return s_1_plus_plus_unp_V
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_plus_plus_unp_V for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_plus_plus_unp_V for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_plus_plus_unpolarized_a(self) -> float:
@@ -4106,7 +4102,7 @@ class BKMFormalism:
             return s_1_plus_plus_unp_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_plus_plus_unp_A for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_plus_plus_unp_A for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_zero_plus_unpolarized(self) -> float:
@@ -4139,7 +4135,7 @@ class BKMFormalism:
             return s_1_zero_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_zero_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_zero_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_zero_plus_unpolarized_v(self) -> float:
@@ -4181,7 +4177,7 @@ class BKMFormalism:
             return s_1_zero_plus_unp_V
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_zero_plus_unp_V for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_zero_plus_unp_V for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_zero_plus_unpolarized_a(self) -> float:
@@ -4217,7 +4213,7 @@ class BKMFormalism:
             return s_1_zero_plus_unp_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_zero_plus_unp_A for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_zero_plus_unp_A for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_plus_plus_unpolarized(self) -> float:
@@ -4262,7 +4258,7 @@ class BKMFormalism:
             return s_2_plus_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_plus_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_plus_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_plus_plus_unpolarized_v(self) -> float:
@@ -4310,7 +4306,7 @@ class BKMFormalism:
             return s_2_plus_plus_unp_V
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_plus_plus_unp_V for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_plus_plus_unp_V for Interference Term:\n> {ERROR}")
             return
         
     def calculate_s_2_plus_plus_unpolarized_a(self) -> float:
@@ -4358,7 +4354,7 @@ class BKMFormalism:
             return s_2_plus_plus_unp_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_plus_plus_unp_A for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_plus_plus_unp_A for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_zero_plus_unpolarized(self) -> float:
@@ -4400,7 +4396,7 @@ class BKMFormalism:
             return s_2_zero_plus_unp
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_zero_plus_unp for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_zero_plus_unp for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_zero_plus_unpolarized_v(self) -> float:
@@ -4439,7 +4435,7 @@ class BKMFormalism:
             return s_2_zero_plus_unp_V
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_zero_plus_unp_V for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_zero_plus_unp_V for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_zero_plus_unpolarized_a(self) -> float:
@@ -4484,7 +4480,7 @@ class BKMFormalism:
             return c_2_zero_plus_unp_A
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_unp_A for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_unp_A for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_plus_plus_longitudinally_polarized(self) -> float:
@@ -4535,7 +4531,7 @@ class BKMFormalism:
             return c_0_plus_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_plus_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_plus_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_plus_plus_longitudinally_polarized_v(self) -> float:
@@ -4592,7 +4588,7 @@ class BKMFormalism:
             return c_0_plus_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_plus_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_plus_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
 
     def calculate_c_0_plus_plus_longitudinally_polarized_a(self) -> float:
@@ -4646,7 +4642,7 @@ class BKMFormalism:
             return c_0_plus_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_plus_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
 
     def calculate_c_0_zero_plus_longitudinally_polarized(self) -> float:
@@ -4696,7 +4692,7 @@ class BKMFormalism:
             return c_0_zero_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_zero_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_zero_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_0_zero_plus_longitudinally_polarized_v(self) -> float:
@@ -4729,7 +4725,7 @@ class BKMFormalism:
             return c_0_zero_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_zero_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_zero_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
 
     def calculate_c_0_zero_plus_longitudinally_polarized_a(self) -> float:
@@ -4765,7 +4761,7 @@ class BKMFormalism:
             return c_0_zero_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_0_zero_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_0_zero_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_plus_plus_longitudinally_polarized(self) -> float:
@@ -4807,7 +4803,7 @@ class BKMFormalism:
             return c_1_plus_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_plus_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_plus_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_plus_plus_longitudinally_polarized_v(self) -> float:
@@ -4855,7 +4851,7 @@ class BKMFormalism:
             return c_1_plus_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_plus_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_plus_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_plus_plus_longitudinally_polarized_a(self) -> float:
@@ -4891,7 +4887,7 @@ class BKMFormalism:
             return c_1_plus_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_plus_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_zero_plus_longitudinally_polarized(self) -> float:
@@ -4924,7 +4920,7 @@ class BKMFormalism:
             return c_1_zero_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_zero_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_zero_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_1_zero_plus_longitudinally_polarized_v(self) -> float:
@@ -4957,7 +4953,7 @@ class BKMFormalism:
             return c_1_zero_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_1_zero_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_1_zero_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_plus_plus_longitudinally_polarized(self) -> float:
@@ -5002,7 +4998,7 @@ class BKMFormalism:
             return c_2_plus_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_plus_plus_longitudinally_polarized_v(self) -> float:
@@ -5050,7 +5046,7 @@ class BKMFormalism:
             return c_2_plus_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_plus_plus_longitudinally_polarized_a(self) -> float:
@@ -5095,7 +5091,7 @@ class BKMFormalism:
             return c_2_plus_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_plus_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_zero_plus_longitudinally_polarized(self) -> float:
@@ -5128,7 +5124,7 @@ class BKMFormalism:
             return c_2_zero_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_zero_plus_longitudinally_polarized_v(self) -> float:
@@ -5161,7 +5157,7 @@ class BKMFormalism:
             return c_2_zero_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_c_2_zero_plus_longitudinally_polarized_a(self) -> float:
@@ -5197,7 +5193,7 @@ class BKMFormalism:
             return c_2_zero_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating c_2_zero_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating c_2_zero_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_plus_plus_longitudinally_polarized(self) -> float:
@@ -5251,7 +5247,7 @@ class BKMFormalism:
             return s_1_plus_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_plus_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_plus_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_plus_plus_longitudinally_polarized_v(self) -> float:
@@ -5317,7 +5313,7 @@ class BKMFormalism:
             return s_1_plus_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_plus_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_plus_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_plus_plus_longitudinally_polarized_a(self) -> float:
@@ -5374,7 +5370,7 @@ class BKMFormalism:
             return s_1_plus_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_plus_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_zero_plus_longitudinally_polarized(self) -> float:
@@ -5416,7 +5412,7 @@ class BKMFormalism:
             return s_1_zero_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_zero_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_zero_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_zero_plus_longitudinally_polarized_v(self) -> float:
@@ -5461,7 +5457,7 @@ class BKMFormalism:
             return s_1_zero_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_zero_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_zero_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_1_zero_plus_longitudinally_polarized_a(self) -> float:
@@ -5497,7 +5493,7 @@ class BKMFormalism:
             return s_1_zero_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_1_zero_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_1_zero_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_plus_plus_longitudinally_polarized(self) -> float:
@@ -5536,7 +5532,7 @@ class BKMFormalism:
             return s_2_plus_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_plus_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_plus_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_plus_plus_longitudinally_polarized_v(self) -> float:
@@ -5578,7 +5574,7 @@ class BKMFormalism:
             return s_2_plus_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_plus_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_plus_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_plus_plus_longitudinally_polarized_a(self) -> float:
@@ -5620,7 +5616,7 @@ class BKMFormalism:
             return s_2_plus_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_plus_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_zero_plus_longitudinally_polarized(self) -> float:
@@ -5653,7 +5649,7 @@ class BKMFormalism:
             return s_2_zero_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_zero_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_zero_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_zero_plus_longitudinally_polarized_v(self) -> float:
@@ -5686,7 +5682,7 @@ class BKMFormalism:
             return s_2_zero_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_zero_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_zero_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_2_zero_plus_longitudinally_polarized_a(self) -> float:
@@ -5722,7 +5718,7 @@ class BKMFormalism:
             return s_2_zero_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_2_zero_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_2_zero_plus_A_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_3_plus_plus_longitudinally_polarized(self) -> float:
@@ -5758,7 +5754,7 @@ class BKMFormalism:
             return s_3_plus_plus_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_3_plus_plus_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_3_plus_plus_LP for Interference Term:\n> {ERROR}")
             return 0.
         
     def calculate_s_3_plus_plus_longitudinally_polarized_v(self) -> float:
@@ -5794,7 +5790,7 @@ class BKMFormalism:
             return s_3_plus_plus_V_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_3_plus_plus_V_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_3_plus_plus_V_LP for Interference Term:\n> {ERROR}")
             return 0.
     
     def calculate_s_3_plus_plus_longitudinally_polarized_a(self) -> float:
@@ -5830,6 +5826,6 @@ class BKMFormalism:
             return s_3_plus_plus_A_LP
 
         except Exception as ERROR:
-            print(f"> Error in calculating s_3_plus_plus_A_LP for Interference Term:\n> {ERROR}")
+            print(f"> [ERROR]: Error in calculating s_3_plus_plus_A_LP for Interference Term:\n> {ERROR}")
             
             return 0.
