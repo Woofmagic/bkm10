@@ -7,6 +7,16 @@ Testing various constants/special numbers in the program.
     - Prefactor test passed.
 2. 2026/01/19:
     - All derived quantities added and passed tests.
+3. 2026/01/27:
+    - Added KDD and propagator tests, and they passed tests finally.
+    Crucially, these tests need to use the *Trento convention* for 
+    the phi values.
+4. 2026/02/03:
+    - Testing the propagators requires that we iterate over phi for a
+    certain number of points; we chose 15. That is 0 to 2pi divided uniformly,
+    and it gives the points 0 (inclusive), 2pi/15, 2 * 2pi/15, ... So, just
+    so the programmer is aware where those numbers come from.
+    - All derived quantities pass!
 """
 
 # (X): Native Library | unittest:
@@ -68,11 +78,11 @@ class TestDerivedQuantities(unittest.TestCase):
     STARTING_PHI_VALUE_IN_RADIANS = 0
 
     # (X): Specify a final value for azimuthal phi:
-    ENDING_PHI_VALUE_IN_RADIANS = 360
+    ENDING_PHI_VALUE_IN_RADIANS = 2. * np.pi
 
     # (X): Specify *how many* values of phi you want to evaluate the cross-section
     # | at. [NOTE]: This determines the *length* of the array:
-    NUMBER_OF_PHI_POINTS = 15
+    NUMBER_OF_PHI_POINTS = 16
 
     @classmethod
     def setUpClass(cls):
@@ -115,8 +125,8 @@ class TestDerivedQuantities(unittest.TestCase):
             configuration = cls.configuration)
 
         # (X): Initialize an array of phi-values in preparation to evaluate the
-        # | cross-section at.
-        cls.phi_values = np.linspace(
+        # | cross-section at. [NOTE]: TRENTO CONVENTION!
+        cls.phi_values = np.pi - np.linspace(
             start = cls.STARTING_PHI_VALUE_IN_RADIANS,
             stop = cls.ENDING_PHI_VALUE_IN_RADIANS,
             num = cls.NUMBER_OF_PHI_POINTS)
@@ -132,6 +142,68 @@ class TestDerivedQuantities(unittest.TestCase):
             lepton_polarization = cls.lepton_polarization,
             target_polarization = cls.target_polarization,
             using_ww = True)
+        
+    def assert_is_finite(self, value):
+        """
+        ## Description:
+        A general test in the suite that verifies that all the
+        numbers in an array are *finite* (as opposed to Inf.-type or NaN)
+
+        ## Notes:
+        "NaN" means "not a number." Having NaN values in an array causes problems in
+        functions that are designed to perform arithmetic.
+        """
+        self.assertTrue(
+            expr = np.isfinite(value).all(),
+            msg = "Value contains NaNs or infinities/Inf.")
+        
+    def assert_no_nans(self, value):
+        """
+        ## Description:
+        A general test in the suite that determines if an array has NaNs.
+        
+        ## Notes:
+        "NaN" means "not a number." Having NaN values in an array causes problems in
+        functions that are designed to perform arithmetic.
+        """
+        self.assertFalse(
+            expr = np.isnan(value).any(),
+            msg = "> [ERROR]: Value contains NaNs")
+
+    def assert_no_negatives(self, value):
+        """
+        ## Description:
+        A general test in the suite that determines if an array has negative values
+        in it.
+
+        ## Notes:
+        There *are* important negative quantities, and several coefficients are indeed
+        negative. But cross-sections, for example, should be positive.
+        """
+        self.assertTrue(
+            expr = (value >= 0).all(),
+            msg = "> [ERROR]: Value contains negative values")
+
+    def assert_is_real(self, value):
+        """
+        ## Description:
+        A general test in the suite that determines that an array has
+        all real values.
+        """
+        self.assertTrue(
+            expr = np.isreal(value).all(),
+            msg = "> [ERROR]: Value contains complex components")
+
+    def assert_approximately_equal(self, value, expected, tolerance = 1e-8):
+        """
+        ## Description:
+        A general test in the suite that determines if a *number* (`value`) is approximately
+        equal to what is expected (`expected`). "Approximately equal" is quantified with the 
+        parameter `tolerance`.
+        """
+        self.assertTrue(
+            np.allclose(value, expected, rtol = tolerance, atol = tolerance),
+            f"> [ERROR]: Expected {expected}, got {value}")
         
     def test_kinematics_epsilon(self):
         """
@@ -285,3 +357,88 @@ class TestDerivedQuantities(unittest.TestCase):
         self.assertAlmostEqual(
             first = prefactor,
             second = _MATHEMATICA_RESULT)
+        
+    def test_k_dot_delta(self):
+        """
+        ## Description:
+        Test the propagators that comes as prefactor-ish things in the BH and Interference
+        amplitudes.
+        """
+        kdd = self.bkm_formalism.calculate_k_dot_delta(phi_values = self.phi_values)
+
+        # (X): Verify that KDD is a *finite* number:
+        self.assert_is_finite(kdd)
+        
+        # (X); Verify that KDD is not a NaN:
+        self.assert_no_nans(kdd)
+
+        # (X): Verify that KDD is real:
+        self.assert_is_real(kdd)
+
+        _MATHEMATICA_LIST_VALUES = [
+                -1.403777900600661, -1.4257906946445564, -1.488022864706097, -1.5797139032201262, -1.6850095966406338,
+                -1.7857033629938701, -1.864384335303211, -1.9074478586621781, -1.9074478586621781, -1.864384335303211,
+                -1.7857033629938701, -1.6850095966406338, -1.5797139032201262, -1.488022864706097, -1.4257906946445564, -1.403777900600661
+            ]
+            
+        # (X): Check to see if the list lengths are equal --- just an easy thing first:
+        self.assertEqual(
+            len(kdd),
+            len(_MATHEMATICA_LIST_VALUES),
+            "[ASSERT]: List lengths are not equal.")
+        
+        # (X): Perform the test:
+        for index, (library_kdd_values, mathematica_kdd_value) in enumerate(zip(kdd, _MATHEMATICA_LIST_VALUES)):
+
+            # (X.1): Pairwise assert almost equal.
+            self.assertAlmostEqual(
+                library_kdd_values,
+                mathematica_kdd_value,
+                places = 7,
+                msg = f"\nLists differ at index {index}: {library_kdd_values} != {mathematica_kdd_value}")
+            
+    def test_propagators(self):
+        """
+        ## Description:
+        Test the propagators that comes as prefactor-ish things in the BH and Interference
+        amplitudes.
+        """
+        library_propagator_p1 = self.bkm_formalism.calculate_lepton_propagator_p1(phi_values = self.phi_values)
+
+        library_propagator_p2 = self.bkm_formalism.calculate_lepton_propagator_p2(phi_values = self.phi_values)
+        
+        propagator_product = library_propagator_p1 * library_propagator_p2
+
+        # (X): Verify that the propagator is a *finite* number:
+        self.assert_is_finite(propagator_product)
+        
+        # (X); Verify tthat the propagator is not a NaN:
+        self.assert_no_nans(propagator_product)
+
+        # (X): Verify that the propagator is real:
+        self.assert_is_real(propagator_product)
+
+        _MATHEMATICA_LIST_VALUES = [
+                -0.7863583904324856, -0.8351254241802596, -0.9793253176012227,
+                -1.2088282602619738, -1.49743121858906, -1.798468366657066,
+                -2.050738480977298, -2.195141545883421, -2.195141545883421,
+                -2.050738480977298, -1.798468366657066, -1.49743121858906,
+                -1.2088282602619738, -0.9793253176012227, -0.8351254241802596,
+                -0.7863583904324856
+            ]
+            
+        # (X): Check to see if the list lengths are equal --- just an easy thing first:
+        self.assertEqual(
+            len(propagator_product),
+            len(_MATHEMATICA_LIST_VALUES),
+            "[ASSERT]: List lengths are not equal.")
+        
+        # (X): Perform the test:
+        for index, (library_propagator_values, mathematica_propagator_value) in enumerate(zip(propagator_product, _MATHEMATICA_LIST_VALUES)):
+
+            # (X.1): Pairwise assert almost equal.
+            self.assertAlmostEqual(
+                library_propagator_values,
+                mathematica_propagator_value,
+                places = 7,
+                msg = f"\nLists differ at index {index}: {library_propagator_values} != {mathematica_propagator_value}")
