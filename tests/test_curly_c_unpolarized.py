@@ -104,8 +104,6 @@ class TestCurlyCCoefficients(unittest.TestCase):
         cls.configuration = {
             "kinematics": cls.test_kinematics,
             "cff_inputs": cls.test_cff_inputs,
-            "target_polarization": cls.target_polarization,
-            "lepton_beam_polarization": cls.lepton_polarization,
             "using_ww": cls.ww_setting
         }
         
