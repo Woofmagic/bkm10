@@ -57,3 +57,27 @@ class CFFInputs:
             compton_form_factor_e = conjugate_function(self.compton_form_factor_e),
             compton_form_factor_e_tilde = conjugate_function(self.compton_form_factor_e_tilde),
         )
+
+    def real_part(self):
+        """
+        ## Description:
+        Returns only the real part of the CFFs.
+        """
+        return CFFInputs(
+            compton_form_factor_h = self.compton_form_factor_h.real,
+            compton_form_factor_h_tilde = self.compton_form_factor_h_tilde.real,
+            compton_form_factor_e = self.compton_form_factor_e.real,
+            compton_form_factor_e_tilde = self.compton_form_factor_e_tilde.real,
+        )
+    
+    def imaginary_part(self):
+        """
+        ## Description:
+        Returns only the imaginary part of the CFFs.
+        """
+        return CFFInputs(
+            compton_form_factor_h = self.compton_form_factor_h.imag,
+            compton_form_factor_h_tilde = self.compton_form_factor_h_tilde.imag,
+            compton_form_factor_e = self.compton_form_factor_e.imag,
+            compton_form_factor_e_tilde = self.compton_form_factor_e_tilde.imag,
+        ) 
