@@ -10,6 +10,12 @@ the effective form factors, are correct.
     - Xi (skewness) test passes, but CFF tests cannot clear within 1e-8 tolerance... 
 3. 2026/01/19:
     - CFF E_{eff} can pass to within 1e-7, but the other three *still* cannot clear that tolerance.
+4. 2026/01/27
+    - All tests passed after removing TensorFlow's `promote_scalar_to_dtype` function; it was
+    found to alter the precision of standard Python mathematical operations such that
+    unittests did not pass. This behavior is highly not desired.
+5. 2026/02/03
+    - All tests still pass.
 """
 
 # (X): Native Library | unittest:
@@ -106,8 +112,6 @@ class TestFormFactors(unittest.TestCase):
         cls.configuration = {
             "kinematics": cls.test_kinematics,
             "cff_inputs": cls.test_cff_inputs,
-            "target_polarization": cls.target_polarization,
-            "lepton_beam_polarization": cls.lepton_polarization,
             "using_ww": cls.ww_setting
         }
         
