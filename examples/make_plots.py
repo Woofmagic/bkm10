@@ -5,7 +5,10 @@ at a specified kinematic setting.
 ## Notes:
 
 1. 2025/08/19:
-    Initialized program.
+    - Initialized program.
+2. 2026/02/03:
+    - Removed the configuration of lepton helicity and target polarization
+    in accordance with class configuration changes. 
 """
 
 # External Library | NumPy
@@ -80,12 +83,6 @@ example_1_cff_inputs = CFFInputs(
     compton_form_factor_e = CFF_E,
     compton_form_factor_e_tilde = CFF_E_TILDE)
 
-# (X): Specify the target polarization *as a float*:
-example_1_target_polarization = 0.
-
-# (X): Specify the beam polarization *as a float*:
-example_1_lepton_polarization = 0.0
-
 # (X): We are using the WW relations in this computation:
 example_1_ww_setting = True
 
@@ -96,13 +93,12 @@ example_1_ww_setting = True
 example_1_config_dictionary = {
     "kinematics": example_1_kinematic_inputs,
     "cff_inputs": example_1_cff_inputs,
-    "target_polarization": example_1_target_polarization,
-    "lepton_beam_polarization": example_1_lepton_polarization,
     "using_ww": example_1_ww_setting
 }
 
 # (X): Instantiate the class for the total cross-section:
-total_cross_section = DifferentialCrossSection(configuration = example_1_config_dictionary)
+total_cross_section = DifferentialCrossSection(
+    configuration = example_1_config_dictionary)
 
 # (X): Make another class for *only* the cross-section due to the BH^{2} term:
 bh_only_cross_section = DifferentialCrossSection(
@@ -131,49 +127,119 @@ dvcs_and_interference_cross_section = DifferentialCrossSection(
 # (X): Save the "total" cross-section plot:
 total_cross_section.plot_cross_section(
     phi_array,
+    lepton_helicity = 0.0,
+    target_polarization = 0.0,
     save_plot_name = "bkm_cross_section_v1.png")
 
 # (X): Save the "total" BSA plot:
 total_cross_section.plot_bsa(
     phi_array,
+    target_polarization = 0.0,
     save_plot_name = "bkm_bsa_v1.png")
+
+# (X): Save the "total" TSA plot:
+total_cross_section.plot_tsa(
+    phi_array,
+    lepton_helicity = 0.0,
+    save_plot_name = "bkm_tsa_v1.png")
+
+# (X): Save the "total" DSA plot:
+total_cross_section.plot_dsa(
+    phi_array,
+    save_plot_name = "bkm_dsa_v1.png")
 
 # (X): Save the BH cross-section plot:
 bh_only_cross_section.plot_cross_section(
     phi_array,
+    lepton_helicity = 0.0,
+    target_polarization = 0.0,
     save_plot_name = "bh_cross_section_v1.png")
 
 # (X): Save the BH BSA plot:
 bh_only_cross_section.plot_bsa(
     phi_array,
+    target_polarization = 0.0,
     save_plot_name = "bh_bsa_v1.png")
+
+# (X): Save the BH TSA plot:
+bh_only_cross_section.plot_tsa(
+    phi_array,
+    lepton_helicity = 0.0,
+    save_plot_name = "bh_tsa_v1.png")
+
+# (X): Save the BH DSA plot:
+bh_only_cross_section.plot_dsa(
+    phi_array,
+    save_plot_name = "bh_dsa_v1.png")
 
 # (X): Save the DVCS cross-section plot:
 dvcs_only_cross_section.plot_cross_section(
     phi_array,
+    lepton_helicity = 0.0,
+    target_polarization = 0.0,
     save_plot_name = "dvcs_cross_section_v1.png")
 
 # (X): Save the DVCS BSA plot:
 dvcs_only_cross_section.plot_bsa(
     phi_array,
+    target_polarization = 0.0,
     save_plot_name = "dvcs_bsa_v1.png")
+
+# (X): Save the DVCS TSA plot:
+dvcs_only_cross_section.plot_tsa(
+    phi_array,
+    lepton_helicity = 0.0,
+    save_plot_name = "dvcs_tsa_v1.png")
+
+# (X): Save the DVCS DSA plot:
+dvcs_only_cross_section.plot_dsa(
+    phi_array,
+    save_plot_name = "dvcs_dsa_v1.png")
 
 # (X): Save the interference plot:
 interference_only_cross_section.plot_cross_section(
     phi_array,
+    lepton_helicity = 0.0,
+    target_polarization = 0.0,
     save_plot_name = "interference_cross_section_v1.png")
 
 # (X): Save the interference BSA plot:
 interference_only_cross_section.plot_bsa(
     phi_array,
+    target_polarization = 0.0,
     save_plot_name = "interference_bsa_v1.png")
+
+# (X): Save the Interference TSA plot:
+interference_only_cross_section.plot_tsa(
+    phi_array,
+    lepton_helicity = 0.0,
+    save_plot_name = "interference_tsa_v1.png")
+
+# (X): Save the DVCS DSA plot:
+interference_only_cross_section.plot_dsa(
+    phi_array,
+    save_plot_name = "dvcs_dsa_v1.png")
 
 # (X): Save the DVCS and Interference cross-section plot:
 dvcs_and_interference_cross_section.plot_cross_section(
     phi_array,
+    lepton_helicity = 0.0,
+    target_polarization = 0.0,
     save_plot_name = "dvcs_interference_cross_section_v1.png")
 
 # (X): Save the DVCS and Interference BSA plot:
 dvcs_and_interference_cross_section.plot_bsa(
     phi_array,
+    target_polarization = 0.0,
     save_plot_name = "dvcs_interference_bsa_v1.png")
+
+# (X): Save the DVCS and Interference TSA plot:
+dvcs_and_interference_cross_section.plot_tsa(
+    phi_array,
+    lepton_helicity = 0.0,
+    save_plot_name = "dvcs_interference_tsa_v1.png")
+
+# (X): Save the DVCS and Interference DSA plot:
+interference_only_cross_section.plot_dsa(
+    phi_array,
+    save_plot_name = "dvcs_dsa_v1.png")
