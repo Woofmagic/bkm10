@@ -147,9 +147,6 @@ class DifferentialCrossSection:
         # (6): Hidden data that says if configuration passed:
         self._passed_configuration = False
 
-        # (7): Hidden data that tells us if the functions executed correctly:
-        self._evaluated = False
-
         # (8): If the verbose mode flag is True...
         if self.verbose:
 
@@ -306,7 +303,8 @@ class DifferentialCrossSection:
         try:
 
             # (1.1): Pass the whole dictionary into the validation function:
-            validated_configuration_dictionary = validate_configuration(configuration_dictionary, self.verbose)
+            validated_configuration_dictionary = validate_configuration(
+                configuration_dictionary, self.verbose)
 
             # (1.2): If validation is passed, we *set* the kinematic inputs using the `kinematics` key.
             # | Should be of type `BKMInputs`!
@@ -330,18 +328,6 @@ class DifferentialCrossSection:
 
             # (1.14): Initialize a BKM formalism with beam polarization = -1.0 and target polarization = -0.5
             self.formalism_minus_beam_minus_target = self._build_formalism_beam_target(-1.0, -0.5)
-
-            # (X): ...
-            self.cross_section_values = []
-
-            # (X): ...
-            self.bsa_values = []
-
-            # (X): ...
-            self.tsa_values = []
-
-            # (X): ...
-            self.dsa_values = []
 
         # (2): If there are errors in the initialization above...
         except Exception as error:
@@ -480,6 +466,9 @@ class DifferentialCrossSection:
             + self.formalism_minus_beam_minus_target.compute_s2_coefficient(verified_phi_values) * np.sin(2. * verified_phi_values)
             + self.formalism_minus_beam_minus_target.compute_s3_coefficient(verified_phi_values) * np.sin(3. * verified_phi_values)
             )
+        
+        # (X): Initializing this just in case...
+        differential_cross_section = 0.0
     
         if lepton_helicity == 0.0:
             if target_polarization == 0.0:
@@ -557,12 +546,6 @@ class DifferentialCrossSection:
                     )
         else:
             raise NotImplementedError(f"[ERROR]: Unknown setting of lambda = {lepton_helicity} and Lambda = {target_polarization}")
-        
-        # (X): Store cross-section data as class attribute:
-        self.cross_section_values = differential_cross_section
-
-        # (X): The class has now evaluated:
-        self._evaluated = True
 
         # (X): Return the cross section:
         return differential_cross_section
@@ -676,9 +659,6 @@ class DifferentialCrossSection:
 
         # (X): Compute the dfferential cross-section:
         bsa_values = numerator / denominator
-        
-        # (X): Store cross-section data as class attribute:
-        self.bsa_values = bsa_values
 
         # (X): Return the cross section:
         return bsa_values
@@ -806,9 +786,6 @@ class DifferentialCrossSection:
 
         # (X): Compute the dfferential cross-section:
         tsa_values = numerator / denominator
-        
-        # (X): Store cross-section data as class attribute:
-        self.tsa_values = tsa_values
 
         # (X): Return the cross section:
         return tsa_values
@@ -903,9 +880,6 @@ class DifferentialCrossSection:
 
         # (X): Compute the dfferential cross-section:
         dsa_values = numerator / denominator
-        
-        # (X): Store cross-section data as class attribute:
-        self.dsa_values = dsa_values
 
         # (X): Return the cross section:
         return dsa_values
@@ -917,12 +891,6 @@ class DifferentialCrossSection:
         [NOTE]: This function does NOT YET WORK. Do NOT USE IT.
         [TODO]: Make this function.
         """
-
-        # (X): ...
-        if not self._evaluated:
-
-            # (X): ...
-            raise RuntimeError("[ERROR]: Call `evaluate(phi)` first before accessing coefficients.")
         
         # (X): In case there is an issue:
         try:
@@ -951,39 +919,11 @@ class DifferentialCrossSection:
         :param str save_plot_name: If you want to save the plot, provide a non-empty string here.
         """
 
-        # (X): We need to check if the cross-section has been evaluated yet:
-        if not self._evaluated:
-            
-            # (X): If verbose mode is on...
-            if self.verbose:
-
-                # (X): ... tell the user that we did not find "stored" cross-section values:
-                print("> [VERBOSE]: No precomputed cross-section found. Computing now...")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag.
-                print(f"> [DEBUGGING]: Class has not yet evaluated according to this flag: {self._evaluated}. Computing now...")
-
-            # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
-            self.cross_section_values = self.compute_cross_section(
-                phi_values, lepton_helicity, target_polarization)
-
-        # (X): Otherwise, we can go ahead and use the pre-computed values:
-        else:
-
-            # (X): If the user wants to see where we are in the code...
-            if self.verbose:
-
-                # (X): ... inform them that we *have* x-section data, so we can immediately make plots:
-                print("> [VERBOSE]: Found BSA/cross-section data... Now constructing plots.")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag:
-                print(f"> [DEBUGGING]: Internal evaluation flag was {self._evaluated}: Proceeding with plot construction...")
+        # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
+        cross_section_values = self.compute_cross_section(
+                phi_values,
+                lepton_helicity,
+                target_polarization)
 
         # (X): Set the plot style using this method:
         self._set_plot_style()
@@ -998,7 +938,7 @@ class DifferentialCrossSection:
         # (X): Construct the plot:
         cross_section_axis_instance.plot(
             phi_values,
-            self.cross_section_values,
+            cross_section_values,
             color = 'black')
         
         # (X): Set the x-label of the plot:
@@ -1110,38 +1050,8 @@ class DifferentialCrossSection:
         :param str save_plot_name: If you want to save the plot, provide a non-empty string here.):
         """
 
-        # (X): We need to check if the cross-section has been evaluated yet:
-        if not self._evaluated:
-            
-            # (X): If verbose mode is on...
-            if self.verbose:
-
-                # (X): ... tell the user that we did not find "stored" cross-section values:
-                print("> [VERBOSE]: No precomputed BSA/cross-section found. Computing now...")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag.
-                print(f"> [DEBUGGING]: Class has not yet evaluated according to this flag: {self._evaluated}. Computing now...")
-
-            # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
-            self.bsa_values = self.compute_bsa(phi_values, target_polarization)
-
-        # (X): Otherwise, we can go ahead and use the pre-computed values:
-        else:
-
-            # (X): If the user wants to see where we are in the code...
-            if self.verbose:
-
-                # (X): ... inform them that we *have* x-section data, so we can immediately make plots:
-                print("> [VERBOSE]: Found BSA/cross-section data... Now constructing plots.")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag:
-                print(f"> [DEBUGGING]: Internal evaluation flag was {self._evaluated}: Proceeding with plot construction...")
+        # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
+        bsa_values = self.compute_bsa(phi_values, target_polarization)
 
         # (X): Set the plot style using our customziation method:
         self._set_plot_style()
@@ -1156,7 +1066,7 @@ class DifferentialCrossSection:
         # (X): Add the BSA curve on the plot:
         bsa_axis_instance.plot(
             phi_values,
-            self.bsa_values,
+            bsa_values,
             color = 'black')
         
         # (X): Add the x-label of the plot:
@@ -1234,38 +1144,9 @@ class DifferentialCrossSection:
         :param str save_plot_name: If you want to save the plot, provide a non-empty string here.:
         """
 
-        # (X): We need to check if the cross-section has been evaluated yet:
-        if not self._evaluated:
-            
-            # (X): If verbose mode is on...
-            if self.verbose:
 
-                # (X): ... tell the user that we did not find "stored" cross-section values:
-                print("> [VERBOSE]: No precomputed BSA/cross-section found. Computing now...")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag.
-                print(f"> [DEBUGGING]: Class has not yet evaluated according to this flag: {self._evaluated}. Computing now...")
-
-            # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
-            self.tsa_values = self.compute_tsa(phi_values, lepton_helicity)
-
-        # (X): Otherwise, we can go ahead and use the pre-computed values:
-        else:
-
-            # (X): If the user wants to see where we are in the code...
-            if self.verbose:
-
-                # (X): ... inform them that we *have* x-section data, so we can immediately make plots:
-                print("> [VERBOSE]: Found BSA/cross-section data... Now constructing plots.")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag:
-                print(f"> [DEBUGGING]: Internal evaluation flag was {self._evaluated}: Proceeding with plot construction...")
+        # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
+        tsa_values = self.compute_tsa(phi_values, lepton_helicity)
 
         # (X): Set the plot style using our customziation method:
         self._set_plot_style()
@@ -1280,7 +1161,7 @@ class DifferentialCrossSection:
         # (X): Add the BSA curve on the plot:
         tsa_axis_instance.plot(
             phi_values,
-            self.tsa_values,
+            tsa_values,
             color = 'black')
         
         # (X): Add the x-label of the plot:
@@ -1357,38 +1238,9 @@ class DifferentialCrossSection:
         :param str save_plot_name: If you want to save the plot, provide a non-empty string here.:
         """
 
-        # (X): We need to check if the cross-section has been evaluated yet:
-        if not self._evaluated:
-            
-            # (X): If verbose mode is on...
-            if self.verbose:
 
-                # (X): ... tell the user that we did not find "stored" cross-section values:
-                print("> [VERBOSE]: No precomputed BSA/cross-section found. Computing now...")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag.
-                print(f"> [DEBUGGING]: Class has not yet evaluated according to this flag: {self._evaluated}. Computing now...")
-
-            # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
-            self.dsa_values = self.compute_dsa(phi_values)
-
-        # (X): Otherwise, we can go ahead and use the pre-computed values:
-        else:
-
-            # (X): If the user wants to see where we are in the code...
-            if self.verbose:
-
-                # (X): ... inform them that we *have* x-section data, so we can immediately make plots:
-                print("> [VERBOSE]: Found BSA/cross-section data... Now constructing plots.")
-
-            # (X): If debugging mode is on...
-            if self.debugging:
-
-                # (X): ... SHOW the user the current state of the internal flag:
-                print(f"> [DEBUGGING]: Internal evaluation flag was {self._evaluated}: Proceeding with plot construction...")
+        # (X): If it has *NOT* been evaluated, we need to actually COMPUTE it
+        dsa_values = self.compute_dsa(phi_values)
 
         # (X): Set the plot style using our customziation method:
         self._set_plot_style()
@@ -1403,7 +1255,7 @@ class DifferentialCrossSection:
         # (X): Add the BSA curve on the plot:
         dsa_axis_instance.plot(
             phi_values,
-            self.dsa_values,
+            dsa_values,
             color = 'black')
         
         # (X): Add the x-label of the plot:
