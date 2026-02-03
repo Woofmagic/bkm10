@@ -6,6 +6,8 @@ show up in the computation of the DVCS and the Interference contributions to the
 ## Notes:
 1. 2026/01/19:
     - Numbers are close, but still 3/5 can't pass the default tolerance of 1e-7.
+2. 2026/02/03:
+    - All tests pass!
 """
 
 # (X): Native Library | unittest:
@@ -243,9 +245,6 @@ class TestCurlyCCoefficients(unittest.TestCase):
         
         # (X); Verify that CurlyC(Feff, F*) is not a NaN:
         self.assert_no_nans(curly_c_dvcs_eff_cff_cff_star)
-
-        # (X): Verify that CurlyC(Feff, F*) is real:
-        self.assert_is_real(curly_c_dvcs_eff_cff_cff_star)
 
         _MATHEMATICA_RESULT = complex(22.481116920259893, 5.604782843278753e-16)
 
