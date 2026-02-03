@@ -4,6 +4,19 @@ Entry point for `DifferentialCrossSection` class.
 ## Description:
 This class computes *the* BKM10 four-fold differential cross section according to
 the user-provided values of the (i) kinematic settings and (ii) CFFs.
+
+## Notes:
+1. 2026/02/02:
+    - *Commented out* all of the individual coefficient calculations for two reasons:
+    (i) it was jank, (ii) one can show that all you need in the library are four combinations
+    of cross section settings, sigma(l = +1, L = +0.5), sigma(l = +1, L = -0.5), sigma(l = -1, L = +0.5),
+    and sigma(l = -1, L = -0.5). This represents a *major structural refactor*.
+2. 2026/02/03:
+    - All tests in `tests/test_obserables.py` passed, which indicates the desired results --- many of which
+    are exactly what we had before --- are obtained *without* using the method of individual coefficient
+    calculations.
+    - Functions computing observales now *take as arguments* Lambda and lambda; the class `DifferentialCrossSection`
+    *does not take these arguments anymore*. This represents a *major structural refactor*.
 """
 
 # (1): Import native libraries | shutil
@@ -182,7 +195,7 @@ class DifferentialCrossSection:
             except:
 
                 # (10.4.1): ... raise a super general exception (for now):
-                raise Exception("> Unable to initialize configuration!")
+                raise Exception("> [ERROR]: Unable to initialize configuration!")
             
             # (10.5): If the try/except block passed, then we *now* can inform the class itself
             # | that configuration has passed!
@@ -334,7 +347,7 @@ class DifferentialCrossSection:
         except Exception as error:
 
             # (2.1): ... too general, yes, but not sure what we put here yet:
-            raise Exception("> Error occurred during validation...") from error
+            raise Exception("> [ERROR]: Error occurred during validation...") from error
         
     def _build_formalism_beam_target(self, lepton_polarization: float, target_polarization: float) -> BKMFormalism:
         """
@@ -364,7 +377,7 @@ class DifferentialCrossSection:
         except Exception as error:
 
             # (2.1): ... too general, yes, but not sure what we put here yet:
-            raise Exception("> Error occurred during validation...") from error
+            raise Exception("> [ERROR]: Error occurred during validation...") from error
         
     def compute_prefactor(self) -> float:
         """
@@ -381,258 +394,6 @@ class DifferentialCrossSection:
         # | [NOTE]: It *does not matter* what (lambda, Lambda) formalism we call here
         # | because they all go with the same prefactor.
         return self.formalism_plus_beam_plus_target.compute_cross_section_prefactor()
-        
-    # def compute_c0_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $c_{0}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-
-    #     # (X): Compute the c_{0} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_c0_coefficient = self.formalism_plus_beam.compute_c0_coefficient(phi_values)
-
-    #     # (X): Compute the c_{0} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_c0_coefficient = self.formalism_minus_beam.compute_c0_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_c0_coefficient + 0.5 * minus_polarized_c0_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_c0_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_c0_coefficient
-    
-    # def compute_c1_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $c_{1}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-
-    #     # (X): Compute the c_{1} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_c1_coefficient = self.formalism_plus_beam.compute_c1_coefficient(phi_values)
-
-    #     # (X): Compute the c_{1} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_c1_coefficient = self.formalism_minus_beam.compute_c1_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_c1_coefficient + 0.5 * minus_polarized_c1_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_c1_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_c1_coefficient
-    
-    # def compute_c2_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $c_{2}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-
-    #     # (X): Compute the c_{2} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_c2_coefficient = self.formalism_plus_beam.compute_c2_coefficient(phi_values)
-
-    #     # (X): Compute the c_{2} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_c2_coefficient = self.formalism_minus_beam.compute_c2_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_c2_coefficient + 0.5 * minus_polarized_c2_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_c2_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_c2_coefficient
-    
-    # def compute_c3_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $c_{3}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-
-    #     # (X): Compute the c_{3} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_c3_coefficient = self.formalism_plus_beam.compute_c3_coefficient(phi_values)
-
-    #     # (X): Compute the c_{3} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_c3_coefficient = self.formalism_minus_beam.compute_c3_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_c3_coefficient + 0.5 * minus_polarized_c3_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_c3_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_c3_coefficient
-    
-    # def compute_s1_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $s_{1}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-
-    #     # (X): Compute the s_{1} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_s1_coefficient = self.formalism_plus_beam.compute_s1_coefficient(phi_values)
-
-    #     # (X): Compute the s_{1} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_s1_coefficient = self.formalism_minus_beam.compute_s1_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_s1_coefficient + 0.5 * minus_polarized_s1_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_s1_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_s1_coefficient
-        
-    # def compute_s2_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $s_{2}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-
-    #     # (X): Compute the s_{2} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_s2_coefficient = self.formalism_plus_beam.compute_s2_coefficient(phi_values)
-
-    #     # (X): Compute the s_{2} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_s2_coefficient = self.formalism_minus_beam.compute_s2_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_s2_coefficient + 0.5 * minus_polarized_s2_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_s2_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_s2_coefficient
-    
-    # def compute_s3_coefficient(self, phi_values):
-    #     """
-    #     ## Description:
-    #     We compute the coefficient so-called $s_{3}$ in the mode expansion
-    #     as according to the BKM10 formalism.
-
-    #     :param np.ndarray phi: A NumPy array that will be plugged-and-chugged into the BKM10 formalism.
-    #     """
-    #     # if not hasattr(self, "formalism"):
-    #     #     raise RuntimeError("> Formalism not initialized. Make sure configuration is valid.")
-        
-    #     # (X): Compute the s_{3} coefficient according to the (+)-polarized lepton values:
-    #     plus_polarized_s3_coefficient = self.formalism_plus_beam.compute_s3_coefficient(phi_values)
-
-    #     # (X): Compute the s_{3} coefficient according to the (-)-polarized lepton values:
-    #     minus_polarized_s3_coefficient = self.formalism_minus_beam.compute_s3_coefficient(phi_values)
-
-    #     # (X): If the lepton polarization is 0 i.e. unpolarized...
-    #     if self.lepton_polarization == 0.:
-
-    #         # (X): ... we compute a (coherent) average of the (+) and (-) contributions.
-    #         # | [TODO]: Allow the user to change the two weighting numbers:
-    #         return (0.5 * plus_polarized_s3_coefficient + 0.5 * minus_polarized_s3_coefficient)
-
-    #     # (X): If the lepton polarization is 1.0 i.e. positively-polarized...
-    #     elif self.lepton_polarization == 1.0:
-
-    #         # (X): ... return only the "plus formalism" computation:
-    #         return plus_polarized_s3_coefficient
-        
-    #     # (X): If the lepton polarization is -1.0 i.e. negatively-polarized...
-    #     elif self.lepton_polarization == -1.0:
-
-    #         # (X): ... return only the "minus formalism" computation:
-    #         return minus_polarized_s3_coefficient
 
     def compute_cross_section(self, phi_values, lepton_helicity, target_polarization):
         """
@@ -1037,8 +798,6 @@ class DifferentialCrossSection:
             
             raise NotImplementedError("[ERROR]: Acceptable values for lepton_polarization are -1.0, 0.0, and +1.0.")
         
-        print('fuckfuckfuck')
-
         # (X): Compute the numerator of the TSA: sigma(+0.5) - sigma(-0.5):
         numerator = sigma_plus - sigma_minus
 
@@ -1047,8 +806,6 @@ class DifferentialCrossSection:
 
         # (X): Compute the dfferential cross-section:
         tsa_values = numerator / denominator
-
-        print(tsa_values)
         
         # (X): Store cross-section data as class attribute:
         self.tsa_values = tsa_values
