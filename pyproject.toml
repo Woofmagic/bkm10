@@ -12,7 +12,7 @@ name = "bkm10"
 # | MAJOR is sort of about stable versions with *major changes*
 # | MINOR is about new features
 # | PATCH is about fixing bugs and other small issues
-version = "2.0.1"
+version = "3.0.1"
 
 # (X): Add the description:
 description = "A formalism for computing DVCS cross sections using the BKM10 approach."
@@ -44,5 +44,5 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/woofmagic/bkm10_lib"
-documentation = "https://github.com/Woofmagic/bkm10_lib/blob/main/README.md"
+homepage = "https://github.com/woofmagic/bkm10"
+documentation = "https://github.com/Woofmagic/bkm10/blob/main/README.md"
