@@ -7,16 +7,16 @@ from setuptools import setup, find_packages
 
 # (1): Use setup() to... set up the package:
 setup(
-    name = "bkm10_lib",
-    version = "2.0.1",
+    name = "bkm10",
+    version = "3.0.1",
     description = "A Python library to help nuclear physicists use the BKM formalism in predicting cross-section, asymmetries, and comparing GPD models.",
     author = "Woofmagic",
     author_email = "none@none.none",
-    url = "https://github.com/Woofmagic/bkm10_lib",
+    url = "https://github.com/Woofmagic/bkm10",
     project_urls = {
-        "Sources": "https://github.com/Woofmagic/bkm10_lib",
-        "Bug Tracker": "https://github.com/Woofmagic/bkm10_lib/issues",
-        'Changelog': 'https://github.com/Woofmagic/bkm10_lib/CHANGELOG.rst',
+        "Sources": "https://github.com/Woofmagic/bkm10",
+        "Bug Tracker": "https://github.com/Woofmagic/bkm10/issues",
+        'Changelog': 'https://github.com/Woofmagic/bkm10/CHANGELOG.rst',
     },
     packages = find_packages(),
     classifiers = [
