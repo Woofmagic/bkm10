@@ -103,8 +103,6 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         cls.configuration = {
             "kinematics": cls.test_kinematics,
             "cff_inputs": cls.test_cff_inputs,
-            "target_polarization": cls.target_polarization,
-            "lepton_beam_polarization": cls.lepton_polarization,
             "using_ww": cls.ww_setting
         }
         
@@ -122,13 +120,23 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         
         # (X): Initialize a `BKMFormalism` class. This enables us to
         # | fully disentangle each of the coefficients.
-        cls.bkm_formalism = BKMFormalism(
+        cls.bkm_plus_beam_unp_target = BKMFormalism(
             inputs = cls.test_kinematics,
             cff_values = cls.test_cff_inputs,
             
             # (X): [NOTE]: All the S-coeffcicients are sensitive to lambda, so
             # | they will be 0 if you do not make this value 1.0.
             lepton_polarization = 1.0,
+            target_polarization = 0.0,
+            using_ww = True,
+            verbose = True)
+        
+        # (X): Initialize a `BKMFormalism` class. This enables us to
+        # | fully disentangle each of the coefficients.
+        cls.bkm_minus_beam_unp_target = BKMFormalism(
+            inputs = cls.test_kinematics,
+            cff_values = cls.test_cff_inputs,
+            lepton_polarization = -1.0,
             target_polarization = 0.0,
             using_ww = True)
     
@@ -199,7 +207,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 0)$.
         We call it "CunpPP0" for C (series) unp (unpolarized [target]) PP (++) 0 (n = 0).
         """
-        c0pp = self.bkm_formalism.calculate_c_0_plus_plus_unpolarized()
+        c0pp = self.bkm_plus_beam_unp_target.calculate_c_0_plus_plus_unpolarized()
 
         # (X): Verify that C_{++}^{unp}(n = 0) is a *finite* number:
         self.assert_is_finite(c0pp)
@@ -219,7 +227,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 0)$.
         We call it "CunpVPP0" for C (series) unp (unpolarized [target]) V (vector) PP (++) 0 (n = 0).
         """
-        c0ppv = self.bkm_formalism.calculate_c_0_plus_plus_unpolarized_v()
+        c0ppv = self.bkm_plus_beam_unp_target.calculate_c_0_plus_plus_unpolarized_v()
 
         # (X): Verify that C_{++}^{unp, V}(n = 0) is a *finite* number:
         self.assert_is_finite(c0ppv)
@@ -239,7 +247,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 0)$.
         We call it "CunpAPP0" for C (series) unp (unpolarized [target]) A (axial vector) PP (++) 0 (n = 0).
         """
-        c0ppa = self.bkm_formalism.calculate_c_0_plus_plus_unpolarized_a()
+        c0ppa = self.bkm_plus_beam_unp_target.calculate_c_0_plus_plus_unpolarized_a()
 
         # (X): Verify that C_{++}^{unp, A}(n = 0) is a *finite* number:
         self.assert_is_finite(c0ppa)
@@ -260,7 +268,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         We call it "CunpPP1" for C (series) unp (unpolarized [target]) PP (++) 1 (n = 1).amples:
         None
         """
-        c1pp = self.bkm_formalism.calculate_c_1_plus_plus_unpolarized()
+        c1pp = self.bkm_plus_beam_unp_target.calculate_c_1_plus_plus_unpolarized()
 
         # (X): Verify that C_{++}^{unp}(n = 1) is a *finite* number:
         self.assert_is_finite(c1pp)
@@ -280,7 +288,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 1)$.
         We call it "CunpVPP1" for C (series) unp (unpolarized [target]) V (vector) PP (++) 1 (n = 1).
         """
-        c1ppv = self.bkm_formalism.calculate_c_1_plus_plus_unpolarized_v()
+        c1ppv = self.bkm_plus_beam_unp_target.calculate_c_1_plus_plus_unpolarized_v()
 
         # (X): Verify that C_{++}^{unp, V}(n = 1) is a *finite* number:
         self.assert_is_finite(c1ppv)
@@ -300,7 +308,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp, A}(n = 1)$.
         We call it "CunpAPP1" for C (series) unp (unpolarized [target]) A (axial vector) PP (++) 1 (n = 1).
         """
-        c1ppa = self.bkm_formalism.calculate_c_1_plus_plus_unpolarized_a()
+        c1ppa = self.bkm_plus_beam_unp_target.calculate_c_1_plus_plus_unpolarized_a()
 
         # (X): Verify that C_{++}^{unp, A}(n = 1) is a *finite* number:
         self.assert_is_finite(c1ppa)
@@ -320,7 +328,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 2)$.
         We call it "CunpPP2" for C (series) unp (unpolarized [target]) PP (++) 2 (n = 2).
         """
-        c2pp = self.bkm_formalism.calculate_c_2_plus_plus_unpolarized()
+        c2pp = self.bkm_plus_beam_unp_target.calculate_c_2_plus_plus_unpolarized()
 
         # (X): Verify that C_{++}^{unp}(n = 2) is a *finite* number:
         self.assert_is_finite(c2pp)
@@ -340,7 +348,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 2)$.
         We call it "CunpVPP2" for C (series) unp (unpolarized [target]) V (vector) PP (++) 2 (n = 2).
         """
-        c2ppv = self.bkm_formalism.calculate_c_2_plus_plus_unpolarized_v()
+        c2ppv = self.bkm_plus_beam_unp_target.calculate_c_2_plus_plus_unpolarized_v()
 
         # (X): Verify that C_{++}^{unp, V}(n = 2) is a *finite* number:
         self.assert_is_finite(c2ppv)
@@ -360,7 +368,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp, A}(n = 2)$.
         We call it "CunpAPP2" for C (series) unp (unpolarized [target]) A (axial vector) PP (++) 2 (n = 2).
         """
-        c2ppa = self.bkm_formalism.calculate_c_2_plus_plus_unpolarized_a()
+        c2ppa = self.bkm_plus_beam_unp_target.calculate_c_2_plus_plus_unpolarized_a()
 
         # (X): Verify that C_{++}^{unp, A}(n = 2) is a *finite* number:
         self.assert_is_finite(c2ppa)
@@ -380,7 +388,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp}(n = 3)$.
         We call it "CunpPP3" for C (series) unp (unpolarized [target]) PP (++) 3 (n = 3).
         """
-        c3pp = self.bkm_formalism.calculate_c_3_plus_plus_unpolarized()
+        c3pp = self.bkm_plus_beam_unp_target.calculate_c_3_plus_plus_unpolarized()
 
         # (X): Verify that C_{++}^{unp}(n = 3) is a *finite* number:
         self.assert_is_finite(c3pp)
@@ -400,7 +408,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp, V}(n = 3)$.
         We call it "CunpVPP3" for C (series) unp (unpolarized [target]) V (vector) PP (++) 3 (n = 3).
         """
-        c3ppv = self.bkm_formalism.calculate_c_3_plus_plus_unpolarized_v()
+        c3ppv = self.bkm_plus_beam_unp_target.calculate_c_3_plus_plus_unpolarized_v()
 
         # (X): Verify that C_{++}^{unp, V}(n = 3) is a *finite* number:
         self.assert_is_finite(c3ppv)
@@ -420,7 +428,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{++}^{unp, A}(n = 3)$.
         We call it "CunpAPP3" for C (series) unp (unpolarized [target]) A (axial vector) PP (++) 3 (n = 3).
         """
-        c3ppa = self.bkm_formalism.calculate_c_3_plus_plus_unpolarized_a()
+        c3ppa = self.bkm_plus_beam_unp_target.calculate_c_3_plus_plus_unpolarized_a()
 
         # (X): Verify that C_{++}^{unp, A}(n = 3) is a *finite* number:
         self.assert_is_finite(c3ppa)
@@ -440,7 +448,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp}(n = 0)$.
         We call it "Cunp0P0" for C (series) unp (unpolarized [target]) 0P (0+) 0 (n = 0).
         """
-        c00p = self.bkm_formalism.calculate_c_0_zero_plus_unpolarized()
+        c00p = self.bkm_plus_beam_unp_target.calculate_c_0_zero_plus_unpolarized()
 
         # (X): Verify that C_{0+}^{unp}(n = 0) is a *finite* number:
         self.assert_is_finite(c00p)
@@ -460,7 +468,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp, V}(n = 0)$.
         We call it "CunpV0P0" for C (series) unp (unpolarized [target]) V (vector) 0P (0+) 0 (n = 0).
         """
-        c00pv = self.bkm_formalism.calculate_c_0_zero_plus_unpolarized_v()
+        c00pv = self.bkm_plus_beam_unp_target.calculate_c_0_zero_plus_unpolarized_v()
 
         # (X): Verify that C_{0+}^{unp, V}(n = 0) is a *finite* number:
         self.assert_is_finite(c00pv)
@@ -480,7 +488,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp, A}(n = 0)$.
         We call it "CunpA0P0" for C (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 0 (n = 0).
         """
-        c00pa = self.bkm_formalism.calculate_c_0_zero_plus_unpolarized_a()
+        c00pa = self.bkm_plus_beam_unp_target.calculate_c_0_zero_plus_unpolarized_a()
 
         # (X): Verify that C_{0+}^{unp, A}(n = 0) is a *finite* number:
         self.assert_is_finite(c00pa)
@@ -500,7 +508,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp}(n = 1)$.
         We call it "Cunp0P1" for C (series) unp (unpolarized [target]) 0P (0+) 0 (n = 1).
         """
-        c10p = self.bkm_formalism.calculate_c_1_zero_plus_unpolarized()
+        c10p = self.bkm_plus_beam_unp_target.calculate_c_1_zero_plus_unpolarized()
 
         # (X): Verify that C_{0+}^{unp}(n = 1) is a *finite* number:
         self.assert_is_finite(c10p)
@@ -520,7 +528,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp, V}(n = 1)$.
         We call it "CunpV0P1" for C (series) unp (unpolarized [target]) V (vector) 0P (0+) 1 (n = 1).
         """
-        c10pv = self.bkm_formalism.calculate_c_1_zero_plus_unpolarized_v()
+        c10pv = self.bkm_plus_beam_unp_target.calculate_c_1_zero_plus_unpolarized_v()
 
         # (X): Verify that C_{0+}^{unp, V}(n = 1) is a *finite* number:
         self.assert_is_finite(c10pv)
@@ -540,7 +548,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp, A}(n = 1)$.
         We call it "CunpA0P1" for C (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 1 (n = 1).
         """
-        c10pa = self.bkm_formalism.calculate_c_1_zero_plus_unpolarized_a()
+        c10pa = self.bkm_plus_beam_unp_target.calculate_c_1_zero_plus_unpolarized_a()
 
         # (X): Verify that C_{0+}^{unp, A}(n = 1) is a *finite* number:
         self.assert_is_finite(c10pa)
@@ -560,7 +568,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp}(n = 2)$.
         We call it "Cunp0P2" for C (series) unp (unpolarized [target]) 0P (0+) 2 (n = 2).
         """
-        c20p = self.bkm_formalism.calculate_c_2_zero_plus_unpolarized()
+        c20p = self.bkm_plus_beam_unp_target.calculate_c_2_zero_plus_unpolarized()
 
         # (X): Verify that C_{0+}^{unp}(n = 2) is a *finite* number:
         self.assert_is_finite(c20p)
@@ -580,7 +588,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp, V}(n = 2)$.
         We call it "CunpV0P2" for C (series) unp (unpolarized [target]) V (vector) 0P (0+) 2 (n = 2).
         """
-        c20pv = self.bkm_formalism.calculate_c_2_zero_plus_unpolarized_v()
+        c20pv = self.bkm_plus_beam_unp_target.calculate_c_2_zero_plus_unpolarized_v()
 
         # (X): Verify that C_{0+}^{unp, V}(n = 2) is a *finite* number:
         self.assert_is_finite(c20pv)
@@ -600,7 +608,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $C_{0+}^{unp, A}(n = 2)$.
         We call it "CunpA0P1" for C (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 2 (n = 2).
         """
-        c20pa = self.bkm_formalism.calculate_c_2_zero_plus_unpolarized_a()
+        c20pa = self.bkm_plus_beam_unp_target.calculate_c_2_zero_plus_unpolarized_a()
 
         # (X): Verify that C_{0+}^{unp, A}(n = 2) is a *finite* number:
         self.assert_is_finite(c20pa)
@@ -620,7 +628,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function corresponding to the BKM10 coefficient called $S_{++}^{unp}(n = 1)$.
         We call it "SunpPP1" for S (series) unp (unpolarized [target]) PP (++) 1 (n = 1).
         """
-        s1pp = self.bkm_formalism.calculate_s_1_plus_plus_unpolarized()
+        s1pp = self.bkm_plus_beam_unp_target.calculate_s_1_plus_plus_unpolarized()
 
         # (X): Verify that S_{++}^{unp}(n = 1) is a *finite* number:
         self.assert_is_finite(s1pp)
@@ -640,7 +648,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, V}(n = 1)$.
         We call it "SunpVPP0" for S (series) unp (unpolarized [target]) V (vector) PP (++) 1 (n = 1).
         """
-        s1ppv = self.bkm_formalism.calculate_s_1_plus_plus_unpolarized_v()
+        s1ppv = self.bkm_plus_beam_unp_target.calculate_s_1_plus_plus_unpolarized_v()
 
         # (X): Verify that S_{++}^{unp, V}(n = 1) is a *finite* number:
         self.assert_is_finite(s1ppv)
@@ -660,7 +668,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, A}(n = 1)$.
         We call it "SunpAPP0" for S (series) unp (unpolarized [target]) A (axial vector) PP (++) 1 (n = 1).
         """
-        s1ppa = self.bkm_formalism.calculate_s_1_plus_plus_unpolarized_a()
+        s1ppa = self.bkm_plus_beam_unp_target.calculate_s_1_plus_plus_unpolarized_a()
 
         # (X): Verify that S_{++}^{unp, A}(n = 1) is a *finite* number:
         self.assert_is_finite(s1ppa)
@@ -680,7 +688,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp}(n = 2)$.
         We call it "SunpPP2" for S (series) unp (unpolarized [target]) PP (++) 2 (n = 2).
         """
-        s2pp = self.bkm_formalism.calculate_s_2_plus_plus_unpolarized()
+        s2pp = self.bkm_plus_beam_unp_target.calculate_s_2_plus_plus_unpolarized()
 
         # (X): Verify that S_{++}^{unp}(n = 2) is a *finite* number:
         self.assert_is_finite(s2pp)
@@ -700,7 +708,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, V}(n = 2)$.
         We call it "SunpVP2" for S (series) unp (unpolarized [target]) V (vector) PP (++) 2 (n = 2).
         """
-        s2ppv = self.bkm_formalism.calculate_s_2_plus_plus_unpolarized_v()
+        s2ppv = self.bkm_plus_beam_unp_target.calculate_s_2_plus_plus_unpolarized_v()
 
         # (X): Verify that S_{++}^{unp, V}(n = 2) is a *finite* number:
         self.assert_is_finite(s2ppv)
@@ -720,7 +728,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{++}^{unp, A}(n = 2)$.
         We call it "SunpAPP2" for S (series) unp (unpolarized [target]) A (axial vector) PP (++) 2 (n = 2).
         """
-        s2ppa = self.bkm_formalism.calculate_s_2_plus_plus_unpolarized_a()
+        s2ppa = self.bkm_plus_beam_unp_target.calculate_s_2_plus_plus_unpolarized_a()
 
         # (X): Verify that S_{++}^{unp, A}(n = 2) is a *finite* number:
         self.assert_is_finite(s2ppa)
@@ -740,7 +748,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp}(n = 1)$.
         We call it "Sunp0P1" for S (series) unp (unpolarized [target]) 0P (0+) 1 (n = 1).
         """
-        s10p = self.bkm_formalism.calculate_s_1_zero_plus_unpolarized()
+        s10p = self.bkm_plus_beam_unp_target.calculate_s_1_zero_plus_unpolarized()
 
         # (X): Verify that S_{0+}^{unp}(n = 1) is a *finite* number:
         self.assert_is_finite(s10p)
@@ -760,7 +768,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, V}(n = 1)$.
         We call it "Sunp0PV2" for S (series) unp (unpolarized [target]) V (vector) 0P (0+) 1 (n = 1).
         """
-        s10pv = self.bkm_formalism.calculate_s_1_zero_plus_unpolarized_v()
+        s10pv = self.bkm_plus_beam_unp_target.calculate_s_1_zero_plus_unpolarized_v()
 
         # (X): Verify that S_{0+}^{unp, V}(n = 1) is a *finite* number:
         self.assert_is_finite(s10pv)
@@ -780,7 +788,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, A}(n = 1)$.
         We call it "Sunp0PA2" for S (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 1 (n = 1).
         """
-        s10pa = self.bkm_formalism.calculate_s_1_zero_plus_unpolarized_a()
+        s10pa = self.bkm_plus_beam_unp_target.calculate_s_1_zero_plus_unpolarized_a()
 
         # (X): Verify that S_{0+}^{unp, A}(n = 1) is a *finite* number:
         self.assert_is_finite(s10pa)
@@ -800,7 +808,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp}(n = 2)$.
         We call it "Sunp0P2" for S (series) unp (unpolarized [target]) 0P (0+) 2 (n = 2).
         """
-        s20p = self.bkm_formalism.calculate_s_2_zero_plus_unpolarized()
+        s20p = self.bkm_plus_beam_unp_target.calculate_s_2_zero_plus_unpolarized()
 
         # (X): Verify that S_{0+}^{unp}(n = 2) is a *finite* number:
         self.assert_is_finite(s20p)
@@ -820,7 +828,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, V}(n = 2)$.
         We call it "Sunp0PV2" for S (series) unp (unpolarized [target]) V (vector) 0P (0+) 2 (n = 2).
         """
-        s20pv = self.bkm_formalism.calculate_s_2_zero_plus_unpolarized_v()
+        s20pv = self.bkm_plus_beam_unp_target.calculate_s_2_zero_plus_unpolarized_v()
 
         # (X): Verify that S_{0+}^{unp, V}(n = 2) is a *finite* number:
         self.assert_is_finite(s20pv)
@@ -840,7 +848,7 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         ## Description: Test the function that corresponds to the BKM10 coefficient called $S_{0+}^{unp, A}(n = 2)$.
         We call it "Sunp0PA2" for S (series) unp (unpolarized [target]) A (axial vector) 0P (0+) 2 (n = 2).
         """
-        s20pa = self.bkm_formalism.calculate_s_2_zero_plus_unpolarized_a()
+        s20pa = self.bkm_plus_beam_unp_target.calculate_s_2_zero_plus_unpolarized_a()
 
         # (X): Verify that S_{0+}^{unp, A}(n = 2) is a *finite* number:
         self.assert_is_finite(s20pa)
@@ -854,6 +862,216 @@ class TestUnpolarizedInterferenceCoefficients(unittest.TestCase):
         _MATHEMATICA_RESULT = 0.01388732444214517
 
         self.assert_approximately_equal(s20pa, expected = _MATHEMATICA_RESULT)
+
+    def test_calculate_c_0_unpolarized(self):
+        """
+        ## Description:
+        Test $c_{0}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute c_{0, unp}^{I} according to the library for lambda = +1:
+        c0_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_c0_coefficient()
+
+        # (X): Compute c_{0, unp}^{I} according to the library for lambda = -1:
+        c0_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_c0_coefficient()
+
+        # (X): Verify that c_{0, unp}^{I} is a *finite* number:
+        self.assert_is_finite(c0_unp_plus_beam)
+        self.assert_is_finite(c0_unp_minus_beam)
+        
+        # (X); Verify that c_{0, unp}^{I} is not a NaN:
+        self.assert_no_nans(c0_unp_plus_beam)
+        self.assert_no_nans(c0_unp_minus_beam)
+
+        # (X): Verify that c_{0, unp}^{I} is real:
+        self.assert_is_real(c0_unp_plus_beam)
+        self.assert_is_real(c0_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = -0.4548568231402324
+
+        self.assert_approximately_equal(
+            0.5*(c0_unp_plus_beam + c0_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_c_1_unpolarized(self):
+        """
+        ## Description:
+        Test $c_{1}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute c_{1, unp}^{I} according to the library for lambda = +1:
+        c1_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_c1_coefficient()
+
+        # (X): Compute c_{1, unp}^{I} according to the library for lambda = -1:
+        c1_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_c1_coefficient()
+
+        # (X): Verify that c_{1, unp}^{I} is a *finite* number:
+        self.assert_is_finite(c1_unp_plus_beam)
+        self.assert_is_finite(c1_unp_minus_beam)
+        
+        # (X); Verify that c_{1, unp}^{I} is not a NaN:
+        self.assert_no_nans(c1_unp_plus_beam)
+        self.assert_no_nans(c1_unp_minus_beam)
+
+        # (X): Verify that c_{1, unp}^{I} is real:
+        self.assert_is_real(c1_unp_plus_beam)
+        self.assert_is_real(c1_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = -0.3460689391000681
+
+        self.assert_approximately_equal(
+            0.5*(c1_unp_plus_beam + c1_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_c_2_unpolarized(self):
+        """
+        ## Description:
+        Test $c_{2}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute c_{2, unp}^{I} according to the library for lambda = +1:
+        c2_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_c2_coefficient()
+
+        # (X): Compute c_{2, unp}^{I} according to the library for lambda = -1:
+        c2_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_c2_coefficient()
+
+        # (X): Verify that c_{2, unp}^{I} is a *finite* number:
+        self.assert_is_finite(c2_unp_plus_beam)
+        self.assert_is_finite(c2_unp_minus_beam)
+        
+        # (X); Verify that c_{2, unp}^{I} is not a NaN:
+        self.assert_no_nans(c2_unp_plus_beam)
+        self.assert_no_nans(c2_unp_minus_beam)
+
+        # (X): Verify that c_{2, unp}^{I} is real:
+        self.assert_is_real(c2_unp_plus_beam)
+        self.assert_is_real(c2_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = -0.03259012849881058
+
+        self.assert_approximately_equal(
+            0.5*(c2_unp_plus_beam + c2_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_c_3_unpolarized(self):
+        """
+        ## Description:
+        Test $c_{3}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute c_{3, unp}^{I} according to the library for lambda = +1:
+        c3_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_c3_coefficient()
+
+        # (X): Compute c_{3, unp}^{I} according to the library for lambda = -1:
+        c3_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_c3_coefficient()
+
+        # (X): Verify that c_{3, unp}^{I} is a *finite* number:
+        self.assert_is_finite(c3_unp_plus_beam)
+        self.assert_is_finite(c3_unp_minus_beam)
+        
+        # (X); Verify that c_{3, unp}^{I} is not a NaN:
+        self.assert_no_nans(c3_unp_plus_beam)
+        self.assert_no_nans(c3_unp_minus_beam)
+
+        # (X): Verify that c_{3, unp}^{I} is real:
+        self.assert_is_real(c3_unp_plus_beam)
+        self.assert_is_real(c3_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = 0.0003562823963322977
+
+        self.assert_approximately_equal(
+            0.5*(c3_unp_plus_beam + c3_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_1_unpolarized(self):
+        """
+        ## Description:
+        Test $s_{1}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute s_{1, unp}^{I} according to the library for lambda = +1:
+        s1_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_s1_coefficient()
+
+        # (X): Compute s_{1, unp}^{I} according to the library for lambda = -1:
+        s1_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_s1_coefficient()
+
+        # (X): Verify that c_{1, unp}^{I} is a *finite* number:
+        self.assert_is_finite(s1_unp_plus_beam)
+        self.assert_is_finite(s1_unp_minus_beam)
+        
+        # (X); Verify that c_{1, unp}^{I} is not a NaN:
+        self.assert_no_nans(s1_unp_plus_beam)
+        self.assert_no_nans(s1_unp_minus_beam)
+
+        # (X): Verify that c_{1, unp}^{I} is real:
+        self.assert_is_real(s1_unp_plus_beam)
+        self.assert_is_real(s1_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = 0.0
+
+        self.assert_approximately_equal(
+            0.5*(s1_unp_plus_beam + s1_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_2_unpolarized(self):
+        """
+        ## Description:
+        Test $s_{2}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute s_{2, unp}^{I} according to the library for lambda = +1:
+        s2_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_s2_coefficient()
+
+        # (X): Compute s_{2, unp}^{I} according to the library for lambda = -1:
+        s2_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_s2_coefficient()
+
+        # (X): Verify that c_{2, unp}^{I} is a *finite* number:
+        self.assert_is_finite(s2_unp_plus_beam)
+        self.assert_is_finite(s2_unp_minus_beam)
+        
+        # (X); Verify that c_{2, unp}^{I} is not a NaN:
+        self.assert_no_nans(s2_unp_plus_beam)
+        self.assert_no_nans(s2_unp_minus_beam)
+
+        # (X): Verify that c_{2, unp}^{I} is real:
+        self.assert_is_real(s2_unp_plus_beam)
+        self.assert_is_real(s2_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = 0.0
+
+        self.assert_approximately_equal(
+            0.5*(s2_unp_plus_beam + s2_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
+        
+    def test_calculate_s_3_unpolarized(self):
+        """
+        ## Description:
+        Test $s_{3}^{I}$ for the unpolarized target case.
+        """
+
+        # (X): Compute s_{3, unp}^{I} according to the library for lambda = +1:
+        s3_unp_plus_beam = self.bkm_plus_beam_unp_target.compute_interference_s3_coefficient()
+
+        # (X): Compute s_{3, unp}^{I} according to the library for lambda = -1:
+        s3_unp_minus_beam = self.bkm_minus_beam_unp_target.compute_interference_s3_coefficient()
+
+        # (X): Verify that c_{3, unp}^{I} is a *finite* number:
+        self.assert_is_finite(s3_unp_plus_beam)
+        self.assert_is_finite(s3_unp_minus_beam)
+        
+        # (X); Verify that c_{3, unp}^{I} is not a NaN:
+        self.assert_no_nans(s3_unp_plus_beam)
+        self.assert_no_nans(s3_unp_minus_beam)
+
+        # (X): Verify that c_{3, unp}^{I} is real:
+        self.assert_is_real(s3_unp_plus_beam)
+        self.assert_is_real(s3_unp_minus_beam)
+
+        _MATHEMATICA_RESULT = 0.0
+
+        self.assert_approximately_equal(
+            0.5*(s3_unp_plus_beam + s3_unp_minus_beam),
+            expected = _MATHEMATICA_RESULT)
 
 if __name__ == "__main__":
     unittest.main()
