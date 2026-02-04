@@ -1562,17 +1562,26 @@ class BKMFormalism:
         #################################################
         # UNPOLARIZED TARGET COEFFICIENT
         #################################################
-        s1_bh_unp = 0.0
+        # [NOTE]: We multiply by K to ensure its shape is
+        # | the same as the other coefficients; i.e. this will return
+        # | a "zeros-like" array:
+        s1_bh_unp = 0.0 * self.kinematic_k
 
         #################################################
         # LONGITUDINALLY-POLARIZED TARGET COEFFICIENT
         #################################################
-        s1_bh_unp = 0.0
+        # [NOTE]: We multiply by K to ensure its shape is
+        # | the same as the other coefficients; i.e. this will return
+        # | a "zeros-like" array:
+        s1_bh_unp = 0.0 * self.kinematic_k
 
         #################################################
         # TRANSVERSELY-POLARIZED TARGET COEFFICIENT
         #################################################
-        c2_bh_tp = 0.0
+        # [NOTE]: We multiply by K to ensure its shape is
+        # | the same as the other coefficients; i.e. this will return
+        # | a "zeros-like" array:
+        c2_bh_tp = 0.0 * self.kinematic_k
     
         return s1_bh_unp + s1_bh_unp + c2_bh_tp
 
