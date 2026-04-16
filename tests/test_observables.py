@@ -101,32 +101,10 @@ class TestCrossSections(unittest.TestCase):
             compton_form_factor_e_tilde = cls.CFF_E_TILDE)
         
         # (X): Initialize unpolarized cross-section class:
-        cls.unpolarized_cross_section = DifferentialCrossSection(
+        cls.cross_section = DifferentialCrossSection(
             configuration = {
                 "kinematics": cls.test_kinematics,
                 "cff_inputs": cls.test_cff_inputs,
-                "target_polarization": 0.0, # unpolarized target
-                "lepton_beam_polarization": 0.0, # unpolarized beam
-                "using_ww": True # using WW
-            })
-        
-        # (X): Initalize [plus-beam unpolarized target] cross-section class:
-        cls.plus_beam_unp_target = DifferentialCrossSection(
-            configuration = {
-                "kinematics": cls.test_kinematics,
-                "cff_inputs": cls.test_cff_inputs,
-                "target_polarization": 0.0, # unpolarized target
-                "lepton_beam_polarization": +1.0, # unpolarized beam
-                "using_ww": True # using WW
-            })
-        
-        # (X): Initalize [minus-beam unpolarized target] cross-section class:
-        cls.minus_beam_unp_target = DifferentialCrossSection(
-            configuration = {
-                "kinematics": cls.test_kinematics,
-                "cff_inputs": cls.test_cff_inputs,
-                "target_polarization": 0.0, # unpolarized target
-                "lepton_beam_polarization": -1.0, # unpolarized beam
                 "using_ww": True # using WW
             })
 
@@ -144,7 +122,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the cross-section values:
-        cross_section_library_list = self.unpolarized_cross_section.compute_cross_section(
+        cross_section_library_list = self.cross_section.compute_cross_section(
             phi_values = self.phi_values,
             lepton_helicity = 0.0,
             target_polarization = 0.0).real
@@ -181,7 +159,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the cross-section values:
-        cross_section_library_list = self.plus_beam_unp_target.compute_cross_section(
+        cross_section_library_list = self.cross_section.compute_cross_section(
             phi_values = self.phi_values,
             lepton_helicity = +1.0,
             target_polarization = 0.0).real
@@ -218,7 +196,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the cross-section values:
-        cross_section_library_list = self.minus_beam_unp_target.compute_cross_section(
+        cross_section_library_list = self.cross_section.compute_cross_section(
             phi_values = self.phi_values,
             lepton_helicity = -1.0,
             target_polarization = 0.0).real
@@ -247,6 +225,82 @@ class TestCrossSections(unittest.TestCase):
                 mathematica_xsec_value,
                 places = 7,
                 msg = f"\nLists differ at index {index}: {library_xsec_value} != {mathematica_xsec_value}")
+    
+    def test_unpolarized_lp_cross_section(self):
+        """
+        ## Description:
+        Test the observable Sigma(lambda = 0, Lambda = +1/2).
+        """
+
+        # (X): Compute the cross-section values:
+        cross_section_library_list = self.cross_section.compute_cross_section(
+            phi_values = self.phi_values,
+            lepton_helicity = 0.0,
+            target_polarization = +0.5).real
+
+        # (X): We selected 15 phi points within 0 to 2pi (equally-spaced) and evaluated
+        # | our Mathematica code at each point to produce a cross-section value. That's where this
+        # | list comes from.
+        _MATHEMATICA_LIST_VALUES = [
+                0.12428797164798944, 0.12173381994029708, 0.10900850337721346, 0.09497412932652706,
+                0.08438633120708494, 0.07746913479554124, 0.07273057543770738, 0.06879467520574786,
+                0.0650820901839761, 0.062007700015015016, 0.06102157904484966, 0.06445636885587962,
+                0.07476181919102343, 0.09235368608343791, 0.11227716193458348, 0.12428797164798944     
+            ]
+            
+        # (X): Check to see if the list lengths are equal --- just an easy thing first:
+        self.assertEqual(
+            len(cross_section_library_list),
+            len(_MATHEMATICA_LIST_VALUES),
+            "[ASSERT]: List lengths are not equal.")
+        
+        # (X): Perform the test:
+        for index, (library_xsec_value, mathematica_xsec_value) in enumerate(zip(cross_section_library_list, _MATHEMATICA_LIST_VALUES)):
+
+            # (X.1): Pairwise assert almost equal.
+            self.assertAlmostEqual(
+                library_xsec_value,
+                mathematica_xsec_value,
+                places = 7,
+                msg = f"\nLists differ at index {index}: {library_xsec_value} != {mathematica_xsec_value}")
+
+    def test_plus_beam_lp_cross_section(self):
+        """
+        ## Description:
+        Test the Sigma(lambda = +1, Lambda = +1/2):
+        """
+
+        # (X): Compute the cross-section values:
+        cross_section_library_list = self.cross_section.compute_cross_section(
+            phi_values = self.phi_values,
+            lepton_helicity = +1.0,
+            target_polarization = +0.5).real
+
+        # (X): We selected 15 phi points within 0 to 2pi (equally-spaced) and evaluated
+        # | our Mathematica code at each point to produce a cross-section value. That's where this
+        # | list comes from.
+        _MATHEMATICA_LIST_VALUES = [
+            0.14539013314307178, 0.15182519967821137, 0.1440204451896405, 0.1307793034234686,
+            0.11813216275077858, 0.10746784465856354, 0.09800494463257745, 0.08877174987575039,
+            0.07948550863328135, 0.07090900616724712, 0.0650284090750311, 0.06502822070059075,
+            0.07458256796894365, 0.09544158247347762, 0.12309133857585695, 0.14539013314307178
+            ]
+            
+        # (X): Check to see if the list lengths are equal --- just an easy thing first:
+        self.assertEqual(
+            len(cross_section_library_list),
+            len(_MATHEMATICA_LIST_VALUES),
+            "[ASSERT]: List lengths are not equal.")
+        
+        # (X): Perform the test:
+        for index, (library_xsec_value, mathematica_xsec_value) in enumerate(zip(cross_section_library_list, _MATHEMATICA_LIST_VALUES)):
+
+            # (X.1): Pairwise assert almost equal.
+            self.assertAlmostEqual(
+                library_xsec_value,
+                mathematica_xsec_value,
+                places = 7,
+                msg = f"\nLists differ at index {index}: {library_xsec_value} != {mathematica_xsec_value}")
 
     def test_unpolarized_bsa(self):
         """
@@ -255,7 +309,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the BSA values:
-        bsa_library_list = self.unpolarized_cross_section.compute_bsa(
+        bsa_library_list = self.cross_section.compute_bsa(
             phi_values = self.phi_values,
             target_polarization = 0.0).real
 
@@ -292,7 +346,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the BSA values:
-        bsa_library_list = self.unpolarized_cross_section.compute_bsa(
+        bsa_library_list = self.cross_section.compute_bsa(
             phi_values = self.phi_values,
             target_polarization = 0.5).real
 
@@ -329,7 +383,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the BSA values:
-        bsa_library_list = self.unpolarized_cross_section.compute_bsa(
+        bsa_library_list = self.cross_section.compute_bsa(
             phi_values = self.phi_values,
             target_polarization = -0.5).real
 
@@ -366,7 +420,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the TSA values:
-        tsa_library_list = self.unpolarized_cross_section.compute_tsa(
+        tsa_library_list = self.cross_section.compute_tsa(
             phi_values = self.phi_values,
             lepton_polarization = 0.0).real
 
@@ -403,7 +457,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the TSA values:
-        tsa_library_list = self.unpolarized_cross_section.compute_tsa(
+        tsa_library_list = self.cross_section.compute_tsa(
             phi_values = self.phi_values,
             lepton_polarization = 1.0).real
 
@@ -440,7 +494,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the TSA values:
-        tsa_library_list = self.unpolarized_cross_section.compute_tsa(
+        tsa_library_list = self.cross_section.compute_tsa(
             phi_values = self.phi_values,
             lepton_polarization = -1.0).real
 
@@ -476,7 +530,7 @@ class TestCrossSections(unittest.TestCase):
         """
 
         # (X): Compute the BSA values:
-        dsa_library_list = self.unpolarized_cross_section.compute_dsa(phi_values = self.phi_values).real
+        dsa_library_list = self.cross_section.compute_dsa(phi_values = self.phi_values).real
 
         # (X): We selected 15 phi points within 0 to 2pi (equally-spaced) and evaluated
         # | our Mathematica code at each point to produce a DSA value. That's where this
@@ -484,7 +538,7 @@ class TestCrossSections(unittest.TestCase):
         _MATHEMATICA_LIST_VALUES = [
                 0.25718140674286344, 0.25804086284126077, 0.25979382142346746, 0.2601996723435032, 0.25653849400682416,
                 0.24758534818261718, 0.23583328935526174, 0.22728738409855817, 0.22728738409855817, 0.23583328935526174,
-                0.24758534818261718, 0.25653849400682416, 0.2601996723435032, 0.25979382142346746, 0.25804086284126077, 0.25718140674286344 
+                0.24758534818261718, 0.25653849400682416, 0.2601996723435032, 0.25979382142346746, 0.25804086284126077, 0.25718140674286344
             ]
             
         # (X): Check to see if the list lengths are equal --- just an easy thing first:
