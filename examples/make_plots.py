@@ -46,17 +46,16 @@ ENDING_PHI_VALUE_IN_RADIANS = 2. * np.pi
 # | at. [NOTE]: This determines the *length* of the array:
 NUMBER_OF_PHI_POINTS = 360
 
-# (X): Specify the CFF H values:
-CFF_H = complex(-2.449, 3.482)
+CFF_H = complex(-0.897, 2.421)
 
 # (X): Specify the CFF H-tilde values:
-CFF_H_TILDE = complex(1.409, 1.577)
+CFF_H_TILDE = complex(2.444, 1.131)
 
 # (X): Specify the CFF E values:
-CFF_E = complex(2.217, 0.)
+CFF_E = complex(-0.541, 0.903)
 
 # (X): Specify the CFF E-tilde values:
-CFF_E_TILDE = complex(144.410, 0.)
+CFF_E_TILDE = complex(2.207, 5.383)
 
 # (X): For all of these, we want phi to range from 0 to 360 degrees:
 phi_array = np.linspace(
@@ -127,8 +126,8 @@ dvcs_and_interference_cross_section = DifferentialCrossSection(
 # (X): Save the "total" cross-section plot:
 total_cross_section.plot_cross_section(
     phi_array,
-    lepton_helicity = 0.0,
-    target_polarization = 0.0,
+    lepton_helicity = -1.0,
+    target_polarization = 0.5,
     save_plot_name = "bkm_cross_section_v1.png")
 
 # (X): Save the "total" BSA plot:
@@ -151,8 +150,8 @@ total_cross_section.plot_dsa(
 # (X): Save the BH cross-section plot:
 bh_only_cross_section.plot_cross_section(
     phi_array,
-    lepton_helicity = 0.0,
-    target_polarization = 0.0,
+    lepton_helicity = -1.0,
+    target_polarization = 0.5,
     save_plot_name = "bh_cross_section_v1.png")
 
 # (X): Save the BH BSA plot:
@@ -175,8 +174,8 @@ bh_only_cross_section.plot_dsa(
 # (X): Save the DVCS cross-section plot:
 dvcs_only_cross_section.plot_cross_section(
     phi_array,
-    lepton_helicity = 0.0,
-    target_polarization = 0.0,
+    lepton_helicity = -1.0,
+    target_polarization = 0.5,
     save_plot_name = "dvcs_cross_section_v1.png")
 
 # (X): Save the DVCS BSA plot:
@@ -199,8 +198,8 @@ dvcs_only_cross_section.plot_dsa(
 # (X): Save the interference plot:
 interference_only_cross_section.plot_cross_section(
     phi_array,
-    lepton_helicity = 0.0,
-    target_polarization = 0.0,
+    lepton_helicity = -1.0,
+    target_polarization = 0.5,
     save_plot_name = "interference_cross_section_v1.png")
 
 # (X): Save the interference BSA plot:
@@ -243,3 +242,5 @@ dvcs_and_interference_cross_section.plot_tsa(
 interference_only_cross_section.plot_dsa(
     phi_array,
     save_plot_name = "dvcs_dsa_v1.png")
+
+print("[INFO]: End of file reached!")
