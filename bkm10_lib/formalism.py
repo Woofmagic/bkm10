@@ -1019,14 +1019,13 @@ class BKMFormalism:
                 self.calculate_lepton_propagator_p2(phi_values)
                 )
             )
-        
+
         # (5): Now, we sum together all the contributions:
         c1_coefficient = (
             bh_prefactor * bh_c1_contribution +
             dvcs_prefactor * dvcs_c1_contribution +
             interference_prefactor * interference_c1_contribution)
         
-
         # (6): And return the coefficient:
         return c1_coefficient
     
