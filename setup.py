@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 # (1): Use setup() to... set up the package:
 setup(
     name = "bkm10",
-    version = "3.0.1",
+    version = "3.0.2",
     description = "A Python library to help nuclear physicists use the BKM formalism in predicting cross-section, asymmetries, and comparing GPD models.",
     author = "Woofmagic",
     author_email = "none@none.none",
